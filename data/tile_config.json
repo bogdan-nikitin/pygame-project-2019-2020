@@ -1,0 +1,13 @@
+{
+  "78:79": {"isPlatform": true},
+  "41:46": {"isSolid": true},
+  "61:66": {"isSolid": true},
+  "81:86": {"isSolid": true},
+  "101:106": {"isSolid": true},
+  "121:126": {"isSolid": true},
+  "141:146": {"isSolid": true},
+  "171": {"isPlatform": true},
+  "181:183": {"isSolid": true},
+  "301": {"leverState": 0},
+  "302": {"leverState": 1}
+}
