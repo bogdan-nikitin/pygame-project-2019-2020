@@ -98,21 +98,21 @@ class Tile(GameSprite):
 
     @staticmethod
     def load_images():
-        global tile_width, tile_height
 
         Tile.tile_images = load_image('tiles.png', (0, 0, 0))
 
         w, h = Tile.tile_images.get_size()
         multiplier = Tile.image_size_multiplier
-        Tile.tile_images = pygame.transform.scale(Tile.tile_images,
-                                                  (w * multiplier,
-                                                   h * multiplier))
-        tile_width *= multiplier
-        tile_height *= multiplier
+        tile_images = pygame.transform.scale(Tile.tile_images,
+                                             (w * multiplier,
+                                              h * multiplier))
 
-        Tile.sheet = cut_sheet(Tile.tile_images, *Tile.sheet_size)
+        Tile.sheet = cut_sheet(tile_images, *Tile.sheet_size)
         Tile.images_loaded = True
 
     @staticmethod
     def set_image_size_multiplier(multiplier):
+        global tile_width, tile_height
         Tile.image_size_multiplier = multiplier
+        tile_width *= multiplier
+        tile_height *= multiplier

@@ -1,6 +1,11 @@
 import pygame
 
 
+def empty_all():
+    for group in groups:
+        group.empty()
+
+
 class TilesGroup(pygame.sprite.Group):
     def draw(self, surface):
         """Рисует все спрайты на поверхности, начиная со спрайтов с наименьним
@@ -14,3 +19,4 @@ class TilesGroup(pygame.sprite.Group):
 
 all_sprites = pygame.sprite.Group()
 tiles_group = TilesGroup()
+groups = [all_sprites, tiles_group]
