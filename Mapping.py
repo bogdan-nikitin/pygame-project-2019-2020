@@ -2,29 +2,14 @@ from General import *
 import pygame
 import json
 import csv
+import SpriteGroups
 
 
 TILE_CONFIG_FILE = 'tile_config.json'
-TILE_WIDTH = TILE_HEIGHT = 16
+tile_width = tile_height = 16
 
 
-# Файл tile_config.json содержит информацию о тайлах.
-# Данные записываются в формате
-# "*номер*": {"isSolid": true/false,
-#             "isPlatform": true/false,
-#             "leverState": -1/0/1,
-#             "damage": *число*}
-# ИЛИ
-# "*начало*:*конец*": {"isSolid": true/false,
-#                      "isPlatform": true/false,
-#                      "leverState": -1/0/1,
-#                      "damage": *число*}
-# Во втором случае всем тайлам, в промежутке от *начало* до *конец*,
-# присваиваются одинаковые характеристики.
-# Некоторые характеристики можно не указывать, тогда им будет выставлено
-# стандартное значение - false (или 0 для damage и -1 для leverState)
-# Тайлы, не объявленные в этом файле,
-# будут иметь стандартное значение для всех характеристик.
+# Информация о tile_config.json перенесена в файл README.md
 
 
 def load_tile_config():
@@ -52,44 +37,48 @@ def load_level(filename):
 
 def generate_level(level):
     x, y = None, None
+    tiles = {}
     for y in range(len(level)):
-        for x in range(max(map(len, level))):
+        for x in range(len(level[y])):
+            tiles[(y, x)] = []
             for i, current_tile in enumerate(level[y][x].split(',')):
-                if ':' in current_tile:
-                    tile_type, lever_id = map(int, current_tile.split(':'))
-                else:
-                    tile_type, lever_id = int(current_tile), None
-                Tile(tile_type, x, y, i)
-    return x, y
-
-
-pygame.init()
-screen = pygame.display.set_mode([500] * 2)
+                if current_tile:
+                    if ':' in current_tile:
+                        tile_type, lever_id = map(int, current_tile.split(':'))
+                    else:
+                        tile_type, lever_id = int(current_tile), None
+                    tiles[(y, x)] += [Tile(tile_type, x, y, i)]
+    return x + 1, max(map(len, level)), tiles
 
 
 tile_config = {}
 load_tile_config()
 
 
-# w, h = tile_images.get_size()
-# multiplier = 3
-# tile_images = pygame.transform.scale(tile_images, (w * multiplier,
-#                                                    h * multiplier))
-# TILE_WIDTH, TILE_HEIGHT = TILE_WIDTH * multiplier, TILE_HEIGHT * multiplier
+class Tile(GameSprite):
+    """Класс плитки - основной единицы карты уровня.
+    Перед использованием класса должны быть объявлены переменные
+    all_tiles: pygame.sprite.Group и tiles_group: TilesGroup."""
 
-
-class Tile(pygame.sprite.Sprite):
-
-    tile_images = load_image('tiles.png', (0, 0, 0))
-    sheet = cut_sheet(tile_images, 20, 16)
+    images_loaded = False
+    tile_images = None
+    sheet = None
+    sheet_size = 20, 16
+    image_size_multiplier = 1
 
     def __init__(self, tile_type, pos_x, pos_y, z_index=0, lever_id=None):
-        global all_sprites, tiles_group
-        super().__init__(all_sprites, tiles_group)
+
+        if not Tile.images_loaded:
+            self.load_images()
+
+        super().__init__(SpriteGroups.all_sprites, SpriteGroups.tiles_group)
         self.z_index = z_index
         self.image = Tile.sheet[tile_type - 1]
-        self.rect = self.image.get_rect().move(TILE_WIDTH * pos_x,
-                                               TILE_HEIGHT * pos_y)
+        self.rect = self.image.get_rect().move(tile_width * pos_x,
+                                               tile_height * pos_y)
+
+        self.tile_type = tile_type
+
         config = tile_config.get(tile_type, {})
 
         self.is_solid = config.get('isSolid', False)
@@ -104,38 +93,26 @@ class Tile(pygame.sprite.Sprite):
         self.damage = config.get('damage', 0)
         self.is_trap = self.damage != 0
 
+        if self.is_trap:
+            self.mask = pygame.mask.from_surface(self.image)
 
-class TilesGroup(pygame.sprite.Group):
-    def draw(self, surface):
-        """Рисует все спрайты на поверхности, начиная со спрайтов с наименьним
-        z-index."""
-        sprites = sorted(self.sprites(), key=lambda sprite: sprite.z_index)
-        surface_blit = surface.blit
-        for spr in sprites:
-            self.spritedict[spr] = surface_blit(spr.image, spr.rect)
-        self.lostsprites = []
+    @staticmethod
+    def load_images():
+        global tile_width, tile_height
 
+        Tile.tile_images = load_image('tiles.png', (0, 0, 0))
 
-# all_sprites = pygame.sprite.Group()
-# tiles_group = TilesGroup()
-#
-#
-# # for i in range(200):
-# #     for j in range(100):
-# #         pos = i, j
-# #         Tile(301, *pos, z_index=1)
-# #         Tile(41, *pos)
-#
-#
-# screen = pygame.display.set_mode(generate_level(load_level('test_level.txt')))
-#
-#
-# running = True
-# while running:
-#     for event in pygame.event.get():
-#         if event.type == pygame.QUIT:
-#             running = False
-#     clear(screen)
-#     tiles_group.draw(screen)
-#     pygame.display.flip()
-pygame.quit()
+        w, h = Tile.tile_images.get_size()
+        multiplier = Tile.image_size_multiplier
+        Tile.tile_images = pygame.transform.scale(Tile.tile_images,
+                                                  (w * multiplier,
+                                                   h * multiplier))
+        tile_width *= multiplier
+        tile_height *= multiplier
+
+        Tile.sheet = cut_sheet(Tile.tile_images, *Tile.sheet_size)
+        Tile.images_loaded = True
+
+    @staticmethod
+    def set_image_size_multiplier(multiplier):
+        Tile.image_size_multiplier = multiplier
