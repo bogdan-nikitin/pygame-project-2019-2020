@@ -58,6 +58,25 @@ def save_map(tile_dict, path):
         writer.writerows(tiles_matrix)
 
 
+def input_tile_data(tile):
+    print('Конфигурация плитки. Оставьте поля пустыми, чтобы оставить '
+          'имеющиеся значения.')
+    print('Текущая конфигурация:')
+    print(f'lever_id: {tile.lever_id}')
+
+    print('Введите id рычага (целое число или None)')
+    lever_id = input('> ')
+    while not lever_id.isdigit() and lever_id != '' and lever_id != 'None':
+        print('Введите целое число или None')
+        lever_id = input('> ')
+    if lever_id != '':
+        if lever_id == 'None':
+            tile.lever_id = None
+        else:
+            tile.lever_id = int(lever_id)
+    print('Конфигурация завершена')
+
+
 def split_without_quotes(string, splitter=r'\s', quotes=r'[^\\][\'"]'):
     last_index = 0
     strings = []
@@ -182,6 +201,12 @@ def run_editor(*paths, mode):
                     mouse_pos = None, None
                     last_mouse_pos = None, None
                     mouse_btn = None
+                elif event.button == pygame.BUTTON_MIDDLE:
+                    i = int((event.pos[0] - total_dx) // Mapping.tile_width)
+                    j = int((event.pos[1] - total_dy) // Mapping.tile_height)
+                    tiles_on_pos = tiles.get((j, i), [])
+                    if len(tiles_on_pos) != 0:
+                        input_tile_data(tiles_on_pos[-1])
 
             elif event.type == pygame.MOUSEMOTION:
                 if mouse_btn is not None:
