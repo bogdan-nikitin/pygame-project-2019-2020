@@ -3,19 +3,19 @@ import pygame
 import json
 import csv
 import SpriteGroups
+import os
 
 
 TILE_CONFIG_FILE = 'tile_config.json'
 tile_width = tile_height = 16
 
 
-# Информация о tile_config.json перенесена в файл README.md
-
-
 def load_tile_config():
+    """Загружает конфигурацию всех плиток из файла DATA_PATH/TILE_CONFIG_FILE.
+    """
     global tile_config
 
-    with open('data/' + TILE_CONFIG_FILE) as file:
+    with open(os.path.join('data', TILE_CONFIG_FILE)) as file:
         tile_config_data = json.load(file)
 
     for key, value in tile_config_data.items():
@@ -29,13 +29,16 @@ def load_tile_config():
 
 
 def load_level(filename):
-    filename = 'data/' + filename
+    """Загружает уровень по пути DATA_PATH/filename."""
+    filename = data_path(filename)
     with open(filename, 'r') as mapFile:
         reader = csv.reader(mapFile, delimiter=';', quotechar='"')
         return [row for row in reader]
 
 
 def generate_level(level):
+    """Генерирует уровень, возвращая его размер и словарь плиток, где ключами
+    являются их координаты."""
     x, y = None, None
     tiles = {}
     for y in range(len(level)):
@@ -43,11 +46,16 @@ def generate_level(level):
             tiles[(y, x)] = []
             for i, current_tile in enumerate(level[y][x].split(',')):
                 if current_tile:
+                    is_active = '*' not in current_tile
+                    is_exit = '#' in current_tile
+                    current_tile = current_tile.replace('#', '')
+                    current_tile = current_tile.replace('*', '')
                     if ':' in current_tile:
                         tile_type, lever_id = map(int, current_tile.split(':'))
                     else:
                         tile_type, lever_id = int(current_tile), None
-                    tiles[(y, x)] += [Tile(tile_type, x, y, i)]
+                    tiles[(y, x)] += [Tile(tile_type, x, y, i, lever_id,
+                                           is_exit, is_active)]
     return x + 1, max(map(len, level)), tiles
 
 
@@ -56,9 +64,7 @@ load_tile_config()
 
 
 class Tile(GameSprite):
-    """Класс плитки - основной единицы карты уровня.
-    Перед использованием класса должны быть объявлены переменные
-    all_tiles: pygame.sprite.Group и tiles_group: TilesGroup."""
+    """Класс плитки - основной единицы карты уровня."""
 
     images_loaded = False
     tile_images = None
@@ -66,7 +72,8 @@ class Tile(GameSprite):
     sheet_size = 20, 16
     image_size_multiplier = 1
 
-    def __init__(self, tile_type, pos_x, pos_y, z_index=0, lever_id=None):
+    def __init__(self, tile_type, pos_x, pos_y, z_index=0, lever_id=None,
+                 is_exit=False, is_active=True):
 
         if not Tile.images_loaded:
             self.load_images()
@@ -93,11 +100,23 @@ class Tile(GameSprite):
         self.damage = config.get('damage', 0)
         self.is_trap = self.damage != 0
 
+        animation = [self.tile_type] + config.get('animation', [0])
+        self.animation_frames = animation[::2]
+        self.animation_delays = animation[1::2]
+        self.time_passed = 0
+        self.current_frame = 0
+
+        self.is_exit = is_exit
+
+        self.is_active = is_active
+
         if self.is_trap:
             self.mask = pygame.mask.from_surface(self.image)
 
     @staticmethod
     def load_images():
+        """Загружает текстуры для плиток, увеличивая их в Tile.multiplier раз.
+        """
 
         Tile.tile_images = load_image('tiles.png', (0, 0, 0))
 
@@ -112,7 +131,22 @@ class Tile(GameSprite):
 
     @staticmethod
     def set_image_size_multiplier(multiplier):
+        """Устанавливает множитель размера для текстур."""
         global tile_width, tile_height
         Tile.image_size_multiplier = multiplier
         tile_width *= multiplier
         tile_height *= multiplier
+        Tile.images_loaded = False
+
+    def update(self, *args):
+        """Обновляет спрайты. В качестве аргумента необходимо передать
+        количество миллисекунд, прошедших с предыдущего обновления."""
+        animation_len = len(self.animation_frames)
+        if animation_len > 1 and len(args) > 0:
+            self.time_passed += args[0] / 1000
+            delay = self.animation_delays[self.current_frame]
+            while delay - self.time_passed <= 0:
+                self.current_frame = (self.current_frame + 1) % animation_len
+                self.time_passed -= delay
+                tile_type = self.animation_frames[self.current_frame]
+                self.image = Tile.sheet[tile_type - 1]

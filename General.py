@@ -1,9 +1,17 @@
 from Constants import *
 import os
 import pygame
+import re
+
+
+DATA_PATH = 'data'
 
 
 class GameSprite(pygame.sprite.Sprite):
+    """Класс спрайта, имеющего свойства x и y - координаты. При изменении
+    координаты также меняется значение topleft у свойства rect. При изменении
+    свойства rect меняются координаты x и y. Координаты сохраняют дробные
+    значения."""
     def __init__(self, *groups):
         super().__init__(*groups)
         self._rect = None
@@ -20,8 +28,7 @@ class GameSprite(pygame.sprite.Sprite):
     @rect.setter
     def rect(self, value):
         self._rect = value
-        if self.rect is not None:
-            self.x, self.y = self.rect.topleft
+        self.normalize_pos()
 
     @property
     def x(self):
@@ -43,9 +50,18 @@ class GameSprite(pygame.sprite.Sprite):
         if self.rect is not None:
             self.rect.y = self._y
 
-    def set_pos(self, x, y):
-        self.x = x
-        self.y = y
+    @property
+    def pos(self):
+        return self.x, self.y
+
+    @pos.setter
+    def pos(self, value):
+        self.x, self.y = value
+
+    def normalize_pos(self):
+        """Выставляет координатам x и y текущее положение спрайта."""
+        if self.rect is not None:
+            self.x, self.y = self.rect.topleft
 
 
 def load_image(name, color_key=None):
@@ -76,6 +92,7 @@ def is_pressed(key):
 
 
 def cut_sheet(sheet, columns, rows):
+    """Разрезает sheet на columns*rows частей."""
     frames = []
     rect = pygame.Rect(0, 0, sheet.get_width() // columns,
                        sheet.get_height() // rows)
@@ -85,3 +102,31 @@ def cut_sheet(sheet, columns, rows):
             frames.append(sheet.subsurface(pygame.Rect(
                 frame_location, rect.size)))
     return frames
+
+
+def data_path(path):
+    """Возвращает путь к ресурсу, добавляя DATA_PATH к path."""
+    return os.path.join(DATA_PATH, path)
+
+
+def split_without_quotes(string, splitter=r'\s', quotes=r'[^\\][\'"]'):
+    """Разделяет строку, подобно методу str.split, только при этом если
+    разделитель splitter находится внутри кавычек quotes, то разделение не
+    происходит. В качестве разделителя и кавычек могут выступать регулярные
+    выражения. По умолчанию разделяет строку по пробельным символам, учитывая
+    двойные и однинарные кавычки."""
+    last_index = 0
+    strings = []
+    in_quotes = False
+    for i in range(len(string)):
+        splitter_match = re.match(splitter, string[i:])
+        if splitter_match and not in_quotes:
+            strings += [string[last_index:i]]
+            last_index = i + splitter_match.end()
+            continue
+        quotes_match = re.match(quotes, string[i:])
+        if quotes_match:
+            in_quotes = not in_quotes
+    if last_index <= len(string):
+        strings += [string[last_index:]]
+    return strings

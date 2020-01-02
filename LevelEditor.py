@@ -3,7 +3,6 @@ from General import *
 import Mapping
 import pygame
 import SpriteGroups
-import re
 import os
 import csv
 
@@ -37,6 +36,7 @@ Tile.set_image_size_multiplier(3)
 
 
 def save_map(tile_dict, path):
+    """Сохраняет карту в файл по пути path."""
     xs = [k[0] for k in tile_dict.keys()]
     ys = [k[1] for k in tile_dict.keys()]
 
@@ -59,10 +59,15 @@ def save_map(tile_dict, path):
 
 
 def input_tile_data(tile):
+    """Запрашивает и устанавливает конфигурацию плитки tile. Ввод происходит с
+    клавиатуры."""
+
     print('Конфигурация плитки. Оставьте поля пустыми, чтобы оставить '
           'имеющиеся значения.')
     print('Текущая конфигурация:')
     print(f'lever_id: {tile.lever_id}')
+    print(f'is_active: {tile.is_active}')
+    print(f'is_exit: {tile.is_exit}')
 
     print('Введите id рычага (целое число или None)')
     lever_id = input('> ')
@@ -74,22 +79,24 @@ def input_tile_data(tile):
             tile.lever_id = None
         else:
             tile.lever_id = int(lever_id)
+
+    print('Введите, является ли блок активным (1 или 0)')
+    is_active = input('> ')
+    while is_active not in ('1', '0', ''):
+        print('Введите 1 или 0')
+        is_active = input('> ')
+    if is_active != '':
+        tile.is_active = {'1': True, '0': False}[is_active]
+
+    print('Введите, является ли блок выходом (1 или 0)')
+    is_exit = input('> ')
+    while is_exit not in ('1', '0', ''):
+        print('Введите 1 или 0')
+        is_exit = input('> ')
+    if is_exit != '':
+        tile.is_exit = {'1': True, '0': False}[is_exit]
+
     print('Конфигурация завершена')
-
-
-def split_without_quotes(string, splitter=r'\s', quotes=r'[^\\][\'"]'):
-    last_index = 0
-    strings = []
-    in_quotes = False
-    for i in range(len(string)):
-        if re.fullmatch(splitter, string[i]) and not in_quotes:
-            strings += [string[last_index:i]]
-            last_index = i + 1
-        elif re.fullmatch(quotes, string[i]):
-            in_quotes = not in_quotes
-    if last_index <= len(string):
-        strings += [string[last_index:]]
-    return strings
 
 
 def tiles_to_line(tiles):
@@ -100,9 +107,14 @@ def tiles_to_line(tiles):
     result = []
     for tile in tiles:
         if tile.lever_id is not None:
-            result += [str(tile.tile_type) + ':' + str(tile.lever_id)]
+            line = str(tile.tile_type) + ':' + str(tile.lever_id)
         else:
-            result += [str(tile.tile_type)]
+            line = str(tile.tile_type)
+        if tile.is_exit:
+            line = '#' + line
+        if not tile.is_active:
+            line = '*' + line
+        result += [line]
     return ','.join(result)
 
 
@@ -271,8 +283,7 @@ def run_editor(*paths, mode):
             for sprite in SpriteGroups.tiles_group:
                 sprite.x += dx
                 sprite.y += dy
-                # sprite.rect.topleft = sprite.x, sprite.y
-            SpriteGroups.tiles_group.draw(screen)
+            SpriteGroups.tiles_group.draw(screen, False)
         pygame.display.flip()
 
     SpriteGroups.empty_all()
