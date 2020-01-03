@@ -94,6 +94,16 @@ class Tile(GameSprite):
         self.lever_state = config.get('leverState', -1)
         self.is_lever = self.lever_state != -1
         self.lever_id = lever_id
+        if self.lever_state == 0:
+            active_lever_tile = config.get('activeLeverTile', None)
+            inactive_lever_tile = self.tile_type
+        elif self.lever_state == 1:
+            active_lever_tile = self.tile_type
+            inactive_lever_tile = config.get('inactiveLeverTile', None)
+        else:
+            active_lever_tile, inactive_lever_tile = [None] * 2
+
+        self.lever_tiles = [inactive_lever_tile, active_lever_tile]
 
         self.is_interactive = self.is_lever
 
@@ -150,3 +160,17 @@ class Tile(GameSprite):
                 self.time_passed -= delay
                 tile_type = self.animation_frames[self.current_frame]
                 self.image = Tile.sheet[tile_type - 1]
+
+    def interact(self):
+        """Взаимодействие со спрайтом. Если спрайт является рычагом, то его
+        состояние переключается, а активность всех спрайтов с тем же lever_id
+        инвертируется, т.е. при нажатии на рычаг все включенные спрайты
+        отключаются, а все выключенные - включаются."""
+        if self.is_lever:
+            self.lever_state = (self.lever_state + 1) % 2
+            tile_type = self.lever_tiles[self.lever_state]
+            if tile_type:
+                self.image = Tile.sheet[tile_type - 1]
+            for sprite in SpriteGroups.tiles_group:
+                if sprite.lever_id == self.lever_id and not sprite.is_lever:
+                    sprite.is_active = not sprite.is_active

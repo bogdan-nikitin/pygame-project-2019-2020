@@ -7,7 +7,10 @@ import os
 import csv
 
 
-HELP = '''Команды(в скобках сокращённый вариант):
+HELP = '''
+В консоли:
+
+Команды(в скобках сокращённый вариант):
 open(o) path - открыть карту по пути path
 new(n) path - создать новую карту по пути path
 openas(s) path1 path2 - загрузить карту по пути path1 
@@ -16,7 +19,19 @@ resolution(r) w h - изменить разрешение окна редакт�
 resolution(r) - вывести текущее разрешение
 quit(q) - закрыть программу
 Если в каком-то аргументе присутствуют пробелы, 
-то вписывайте его в двойных кавычках'''
+то вписывайте его в двойных кавычках
+
+В редакторе:
+
+W, A, S, D - перемещение камеры
+Shift (удерживание) - ускорить перемещение
+Ctrl + S - сохранить карту
+E - открыть/закрыть список тайлов
+ЛКМ - поставить выбранную плитку
+Средняя кнопка мыши (клик по колёсику) - конфигурация плитки, производится в
+консоли
+ПКМ - удалить плитку
+'''
 
 
 OPEN = 1
@@ -119,6 +134,7 @@ def tiles_to_line(tiles):
 
 
 def run_editor(*paths, mode):
+    """Запускает редактор карт."""
     global size
     print('Запуск редактора...')
     pygame.init()
@@ -135,6 +151,7 @@ def run_editor(*paths, mode):
 
     total_dx, total_dy = 0, 0
 
+    # Создание группы для спрайта со списком плиток
     all_tiles_group = pygame.sprite.Group()
     all_tiles = pygame.sprite.Sprite(SpriteGroups.all_sprites, all_tiles_group)
     w, h = Tile.tile_images.get_size()
@@ -229,7 +246,7 @@ def run_editor(*paths, mode):
             all_tiles_group.draw(screen)
         else:
             if mouse_pos != (None, None) and mouse_btn == pygame.BUTTON_LEFT:
-
+                # Обработка установки плитки
                 i = int((mouse_pos[0] - total_dx) // Mapping.tile_width)
                 j = int((mouse_pos[1] - total_dy) // Mapping.tile_height)
 
@@ -245,6 +262,7 @@ def run_editor(*paths, mode):
                         last_mouse_pos = i, j
 
             elif mouse_pos != (None, None) and mouse_btn == pygame.BUTTON_RIGHT:
+                # Обработка удаления плитки
                 i = int((mouse_pos[0] - total_dx) // Mapping.tile_width)
                 j = int((mouse_pos[1] - total_dy) // Mapping.tile_height)
                 if i != last_mouse_pos[0] or j != last_mouse_pos[1]:
@@ -257,6 +275,7 @@ def run_editor(*paths, mode):
 
             if (ctr_pressed and s_pressed and
                     last_presses != [ctr_pressed, s_pressed]):
+                # Сохранение карты
                 save_map(tiles, save_path)
                 print(f'Файл сохранен по пути {save_path}')
             last_presses = [ctr_pressed, s_pressed]
@@ -292,6 +311,7 @@ def run_editor(*paths, mode):
 
 
 def main():
+    """Основной цикл в программе."""
     global size
     running = True
     while running:

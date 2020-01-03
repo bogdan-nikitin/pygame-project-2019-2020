@@ -14,6 +14,6 @@
   "141:146": {"isSolid": true},
   "171": {"isPlatform": true},
   "181:183": {"isSolid": true},
-  "301": {"leverState": 0},
-  "302": {"leverState": 1}
+  "301": {"leverState": 0, "activeLeverTile": 302},
+  "302": {"leverState": 1, "inactiveLeverTile": 301}
 }
