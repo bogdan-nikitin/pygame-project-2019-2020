@@ -287,30 +287,29 @@ def run_editor(*paths, mode):
                 save_map(tiles, save_path)
                 print(f'Файл сохранен по пути {save_path}')
             last_presses = [ctr_pressed, s_pressed]
-
-            if is_pressed(pygame.K_LSHIFT):
-                speed = SPEED * SPEEDUP
-            else:
-                speed = SPEED
-            speed *= tick / 1000
-            dx, dy = 0, 0
-            if is_pressed(pygame.K_a):
-                dx += speed
-            if is_pressed(pygame.K_d):
-                dx -= speed
-            if is_pressed(pygame.K_w):
-                dy += speed
-            if is_pressed(pygame.K_s) and not is_pressed(pygame.K_LCTRL):
-                dy -= speed
-            total_dx += dx
-            total_dy += dy
             if is_pressed(pygame.K_SPACE):
                 dx, dy = -total_dx, -total_dy
                 total_dx, total_dy = 0, 0
             else:
-                for sprite in SpriteGroups.tiles_group:
-                    sprite.x += dx
-                    sprite.y += dy
+                if is_pressed(pygame.K_LSHIFT):
+                    speed = SPEED * SPEEDUP
+                else:
+                    speed = SPEED
+                speed *= tick / 1000
+                dx, dy = 0, 0
+                if is_pressed(pygame.K_a):
+                    dx += speed
+                if is_pressed(pygame.K_d):
+                    dx -= speed
+                if is_pressed(pygame.K_w):
+                    dy += speed
+                if is_pressed(pygame.K_s) and not is_pressed(pygame.K_LCTRL):
+                    dy -= speed
+                total_dx += dx
+                total_dy += dy
+            for sprite in SpriteGroups.tiles_group:
+                sprite.x += dx
+                sprite.y += dy
 
             SpriteGroups.tiles_group.draw(screen, False)
         draw_fps(screen, clock.get_fps())
