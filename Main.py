@@ -1,6 +1,4 @@
-import pygame
-from configuration import *
-from Player import Player
+from Player import *
 
 
 class Main:
@@ -8,41 +6,67 @@ class Main:
         self.screen = screen
         self.running = True
         self.hero_group = pygame.sprite.Group()
-        self.hero = Player(50, 50, screen)
+        self.hero = Player(self, RIGHT, 50, 50, screen)
         self.hero_group.add(self.hero)
         self.solid_blocks = []
+        self.hero_melee_attacks = pygame.sprite.Group()
         self.clock = pygame.time.Clock()
-        self.up = self.right = self.left = False
-        self.direction = RIGHT
         self.game_cycle()
 
-    def game_cycle(self):
-        while self.running:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    self.running = False
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_UP:
-                        self.up = True
-                    if event.key == pygame.K_RIGHT:
-                        self.right = True
-                        self.direction = RIGHT
-                    if event.key == pygame.K_LEFT:
-                        self.left = True
-                        self.direction = LEFT
+    def events(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                self.running = False
 
-                if event.type == pygame.KEYUP:
-                    if event.key == pygame.K_UP:
-                        self.up = False
-                    if event.key == pygame.K_RIGHT:
-                        self.right = False
-                    if event.key == pygame.K_LEFT:
-                        self.left = False
-            self.screen.fill((0, 0, 0))
-            self.hero.update(self.direction, self.left, self.right, self.up, self.solid_blocks)
-            self.hero_group.draw(self.screen)
-            pygame.display.flip()
-            self.clock.tick(60)
+            if event.type == pygame.USEREVENT:
+                if not self.hero.dead:
+                    self.hero.tick()
+            if event.type == pygame.USEREVENT + 1:
+                self.hero_melee_attacks.empty()
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP:
+                    self.hero.up = True
+                if event.key == pygame.K_RIGHT:
+                    self.hero.right = True
+                    self.hero.direction = RIGHT
+                if event.key == pygame.K_LEFT:
+                    self.hero.left = True
+                    self.hero.direction = LEFT
+
+            if event.type == pygame.KEYUP:
+                if event.key == pygame.K_UP:
+                    self.hero.up = False
+                if event.key == pygame.K_RIGHT:
+                    self.hero.right = False
+                if event.key == pygame.K_LEFT:
+                    self.hero.left = False
+
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == pygame.BUTTON_LEFT and not self.hero.is_default_attack and self.hero.stamina >= 20:
+                    self.hero.stamina -= 20
+                    self.hero.is_default_attack = True
+
+    def update(self):
+        if not self.hero.dead:
+            self.hero.update(self.solid_blocks)
+        for attack in self.hero_melee_attacks:
+            attack.update()
+
+    def render(self):
+        self.screen.fill((0, 0, 0))
+        self.hero_group.draw(self.screen)
+        self.hero_melee_attacks.draw(self.screen)
+        pygame.display.flip()
+        self.clock.tick(60)
+
+    def game_cycle(self):
+        pygame.time.set_timer(pygame.USEREVENT, 1000)  # изменение состояния персонажа(здоровье и прочее)
+        pygame.time.set_timer(pygame.USEREVENT + 1, 500)  # удаляет атаки в ближнем бою
+        while self.running:
+            self.events()
+            self.update()
+            self.render()
         pygame.quit()
 
 
