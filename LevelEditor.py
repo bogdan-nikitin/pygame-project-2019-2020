@@ -50,6 +50,14 @@ size = 800, 600
 Tile.set_image_size_multiplier(3)
 
 
+def draw_fps(screen, fps):
+    font = pygame.font.Font(None, 30)
+    text = font.render(str(int(fps)), 1, pygame.Color('yellow'))
+    text_x = 10
+    text_y = 10
+    screen.blit(text, (text_x, text_y))
+
+
 def save_map(tile_dict, path):
     """Сохраняет карту в файл по пути path."""
     xs = [k[0] for k in tile_dict.keys()]
@@ -299,10 +307,13 @@ def run_editor(*paths, mode):
             if is_pressed(pygame.K_SPACE):
                 dx, dy = -total_dx, -total_dy
                 total_dx, total_dy = 0, 0
-            for sprite in SpriteGroups.tiles_group:
-                sprite.x += dx
-                sprite.y += dy
+            else:
+                for sprite in SpriteGroups.tiles_group:
+                    sprite.x += dx
+                    sprite.y += dy
+
             SpriteGroups.tiles_group.draw(screen, False)
+        draw_fps(screen, clock.get_fps())
         pygame.display.flip()
 
     SpriteGroups.empty_all()
