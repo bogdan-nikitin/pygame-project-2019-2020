@@ -44,6 +44,10 @@ class UIGroup(pygame.sprite.Group):
             if spr.parent is None:
                 draw_ui(surface, spr)
 
+    def event(self, event: pygame.event.Event):
+        for sprite in self:
+            sprite.event(event)
+
 
 all_sprites = pygame.sprite.Group()
 tiles_group = TilesGroup()

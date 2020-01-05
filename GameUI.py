@@ -3,19 +3,21 @@ from Constants import *
 import SpriteGroups
 import pygame
 from GameUIHeaders import *
+from ColorPalette import *
 from multipledispatch import dispatch  # Модуль для "перегрузки" функций
 from numbers import Number
 
 
-PANEL_BG_COLOR = pygame.Color(102, 187, 187, a=100)
-PANEL_BOUND_COLOR = pygame.Color(51, 51, 51)
-LABEL_COLOR = pygame.Color(221, 221, 221)
+PANEL_BG_COLOR = TRADEWIND
+PANEL_BOUND_COLOR = MINE_SHAFT
+LABEL_COLOR = ALTO
+LABEL_COLOR_HOVER = CELERY
 FONT_FILENAME = data_path('font.ttf')
 FONT_SIZE = 20
 
 
 class UIElement(UIElement, pygame.sprite.Sprite):
-    def __init__(self, *groups, parent=None):
+    def __init__(self, parent=None, groups=()):
         super().__init__(SpriteGroups.all_sprites, SpriteGroups.ui_group,
                          *groups)
         self._parent = parent
@@ -82,37 +84,70 @@ class UIElement(UIElement, pygame.sprite.Sprite):
         self._rect.topleft = x, y
         self._update_children_pos()
 
-    def get_parent(self):
-        return self._parent
-
-    def get_x(self):
-        return self._x
-
-    def get_y(self):
-        return self._y
-
     def _update_children_pos(self):
         for child in self._children:
             child: UIElement
             child._update_pos()
+            child._update_children_pos()
 
     def _update_pos(self):
         x = self.x
         y = self.y
+        rect_x, rect_y = x, y
         if self.parent:
-            x += self.parent.x
-            y += self.parent.y
+            rect_x += self.parent.rect.x
+            rect_y += self.parent.rect.y
             if isinstance(self.parent, Panel):
-                self._x += self.parent.bound
-                self._y += self.parent.bound
-        self._rect.topleft = x, y
+                bound = self.parent.bound
+                rect_x += bound
+                rect_y += bound
+        self._rect.topleft = rect_x, rect_y
+        self._x, self._y = x, y
 
     def add_child(self, child):
         self._children += [child]
 
+    def event(self, event: pygame.event.Event):
+        if event.type == pygame.MOUSEBUTTONUP:
+            if self.rect.collidepoint(*event.pos):
+                self.on_mouse_up(*event.pos)
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            if self.rect.collidepoint(*event.pos):
+                self.on_mouse_down(*event.pos)
+        elif event.type == pygame.MOUSEMOTION:
+            if self.rect.collidepoint(*event.pos):
+                self.on_hover(*event.pos)
+            else:
+                self.no_hover(*event.pos)
+
+    def on_hover(self, x, y):
+        pass
+
+    def on_mouse_up(self, x, y):
+        pass
+
+    def on_mouse_down(self, x, y):
+        pass
+
+    def no_hover(self, x, y):
+        pass
+
+
+class Group(UIElement):
+    def __init__(self, parent=None, groups=()):
+        super().__init__(parent, groups)
+        self._update_pos()
+
+    def _update_pos(self):
+        parent = self.parent
+        if parent:
+            self._rect = parent.rect
+            self._x, self._y = parent.x, parent.y
+            self._w, self._h = parent.w, parent.y
+
 
 class Panel(UIElement, Panel):
-    def __init__(self, *groups, parent=None):
+    def __init__(self, parent=None, groups=()):
         super().__init__(*groups, parent=parent)
         self.bg_color = PANEL_BG_COLOR
         self._bound = 4
@@ -132,16 +167,17 @@ class Panel(UIElement, Panel):
 
 
 class Label(UIElement, Label):
-    def __init__(self, text='', *groups, parent=None):
+    def __init__(self, text='', parent=None, groups=()):
         super().__init__(*groups, parent=parent)
         self._font_filename = FONT_FILENAME
         self._font_size = FONT_SIZE
         self._font = pygame.font.Font(self._font_filename, self._font_size)
-        self.color = LABEL_COLOR
+        self._color = LABEL_COLOR
         self._antialias = 1
         self._text = text
         self._text_render = None
-        self._update_font()
+        self.text = text
+        self._update_pos()
 
     @property
     def text(self):
@@ -150,6 +186,26 @@ class Label(UIElement, Label):
     @text.setter
     def text(self, value):
         self._text = value
+        self._update_font()
+        self._w, self._h = self._text_render.get_size()
+        self._rect.size = self._w, self._h
+
+    @property
+    def antialias(self):
+        return self._antialias
+
+    @antialias.setter
+    def antialias(self, value):
+        self._antialias = value
+        self._update_font()
+
+    @property
+    def color(self):
+        return self._color
+
+    @color.setter
+    def color(self, value):
+        self._color = value
         self._update_font()
 
     @property
@@ -162,29 +218,101 @@ class Label(UIElement, Label):
 
     def _update_font(self):
         self._text_render = self._font.render(self._text, self._antialias,
-                                              self.color)
-        self._x, self._y = self._rect.topleft
-        self._w, self._h = self._text_render.get_size()
-        self._rect = pygame.rect.Rect(self._x, self._y, self._w, self._h)
-        self._update_pos()
+                                              self._color)
+
+    @dispatch(pygame.rect.Rect)
+    def set_geometry(self, rect):
+        new_rect = pygame.rect.Rect(rect.topleft, self.rect.size)
+        super().set_geometry(new_rect)
+
+    @dispatch(Number, Number, Number, Number)
+    def set_geometry(self, x, y, w, h):
+        super().set_geometry(x, y, self.w, self.h)
+
+    def resize(self, w, h):
+        pass
+
+
+class LabelButton(Label):
+    def __init__(self, text='', parent=None, groups=()):
+        super().__init__(text, parent, groups)
+        self.inactive_color = self.color
+        self.active_color = LABEL_COLOR_HOVER
+
+    def on_hover(self, x, y):
+        self.color = self.active_color
+
+    def no_hover(self, x, y):
+        self.color = self.inactive_color
+
+
+class Button(Panel):
+    def __init__(self, text='', parent=None, groups=()):
+        super().__init__(parent, groups)
+        self.inactive_bg_color = self.bg_color
+        self.active_bg_color = FIORD
+        self.label = Label(text, self, groups)
+        self._update_button_label()
+
+    def resize(self, w, h):
+        super().resize(w, h)
+        self._update_button_label()
+
+    @dispatch(pygame.rect.Rect)
+    def set_geometry(self, rect):
+        super().set_geometry(rect)
+        self._update_button_label()
+
+    @dispatch(Number, Number, Number, Number)
+    def set_geometry(self, x, y, w, h):
+        super().set_geometry(x, y, w, h)
+        self._update_button_label()
+
+    def _update_button_label(self):
+        text_x = (self.w - self.label.w + self.bound) // 2
+        text_y = (self.h - self.label.h + self.bound) // 2
+        self.label.set_pos(text_x, text_y)
+
+    def size_hint(self):
+        return self.label.w, self.label.h
+
+    def on_mouse_down(self, x, y):
+        self.bg_color = self.active_bg_color
+
+    def set_inactive(self):
+        self.bg_color = self.inactive_bg_color
+
+    def on_mouse_up(self, x, y):
+        self.set_inactive()
+
+    def no_hover(self, x, y):
+        self.set_inactive()
+
+
+class Checkbox(Panel):
+    def __init__(self, text='', parent=None, groups=()):
+        super().__init__(parent, groups)
 
 
 # if __name__ == '__main__':
 #     pygame.init()
 #     screen = pygame.display.set_mode([500, 500])
 #     p = Panel()
-#     l = Label('kek', parent=p)
-#     l.set_pos(10, 10)
-#     p.set_geometry(100, 100, 100, 100)
-#     l.set_pos(20, 20)
-#     p.set_geometry(20, 20, 150, 200)
-#     p.bound = 5
+#     p.set_geometry(10, 10, 250, 250)
+#     b = Button('f', p)
+#     w, h = b.size_hint()
+#     b.set_geometry(10, 10, w + 10, h + 10)
+#
+#     clock = pygame.time.Clock()
 #     running = True
 #     while running:
+#         tick = clock.tick()
 #         for event in pygame.event.get():
+#             SpriteGroups.ui_group.event(event)
 #             if event.type == pygame.QUIT:
 #                 running = False
 #         clear(screen)
 #         SpriteGroups.ui_group.draw(screen)
+#         draw_fps(screen, clock.get_fps())
 #         pygame.display.flip()
 #     pygame.quit()
