@@ -10,11 +10,6 @@ def empty_all():
         group.empty()
 
 
-def draw_ui(surface, sprite):
-    if type(sprite) == 'Panel':
-        pass
-
-
 class TilesGroup(pygame.sprite.Group):
     def draw(self, surface, active_only=True):
         """Рисует все спрайты на поверхности, начиная со спрайтов с наименьним
@@ -31,15 +26,6 @@ class TilesGroup(pygame.sprite.Group):
         self.lostsprites = []
 
 
-class UIGroup(pygame.sprite.Group):
-    def draw(self, surface):
-        for spr in self.sprites():
-            if spr.parent is None:
-                print(type(spr))
-                pass
-
-
 all_sprites = pygame.sprite.Group()
 tiles_group = TilesGroup()
-ui_group = UIGroup()
-groups = [all_sprites, tiles_group, ui_group]
+groups = [all_sprites, tiles_group]
