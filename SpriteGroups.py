@@ -1,4 +1,5 @@
 import pygame
+from GameUIHeaders import *
 
 
 # Все объявленные группы необходимо добавить в список groups
@@ -11,8 +12,14 @@ def empty_all():
 
 
 def draw_ui(surface, sprite):
-    if type(sprite) == 'Panel':
-        pass
+    if isinstance(sprite, Panel):
+        pygame.draw.rect(surface, sprite.bg_color, sprite.rect)
+        pygame.draw.rect(surface, sprite.bound_color, sprite.rect,
+                         sprite.bound)
+    elif isinstance(sprite, Label):
+        surface.blit(sprite.text_render, sprite.rect.topleft)
+    for child in sprite.children:
+        draw_ui(surface, child)
 
 
 class TilesGroup(pygame.sprite.Group):
@@ -35,8 +42,7 @@ class UIGroup(pygame.sprite.Group):
     def draw(self, surface):
         for spr in self.sprites():
             if spr.parent is None:
-                print(type(spr))
-                pass
+                draw_ui(surface, spr)
 
 
 all_sprites = pygame.sprite.Group()
