@@ -226,6 +226,8 @@ class Label(UIElement, Label):
         self._font = pygame.font.Font(self._font_filename, self._font_size)
         self._text_render = self._font.render(self._text, self._antialias,
                                               self._color)
+        self._w, self._h = self._text_render.get_size()
+        self._rect.size = self._w, self._h
 
     @dispatch(pygame.rect.Rect)
     def set_geometry(self, rect):
@@ -351,6 +353,9 @@ class Checkbox(UIElement):
         box_x = self._label.x + self._label.w + CHECKBOX_OFFSET
         box_y = self._label.y
         self._box.set_pos(box_x, box_y)
+        self._rect.size = (self._box.rect.x - self._label.rect.x,
+                           self._box.rect.y - self._label.rect.y)
+        self._w, self._h = self._rect.size
 
 
 # if __name__ == '__main__':
