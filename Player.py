@@ -1,13 +1,14 @@
 import pygame
 import pyganim
-from configuration import *
-from Attacks import HeroDefaultAttack
 
-MOVE_SPEED = 2
-JUMP_SPEED = 5
+from Attacks import HeroDefaultAttack, HeroRangeAttack
+from configuration import *
+
+MOVE_SPEED = 4
+JUMP_SPEED = 10
 PLAYER_WIDTH = 22
 PLAYER_HEIGHT = 24
-GRAVITATION = 0.1
+GRAVITATION = 0.2
 
 ANIMATION_DELAY = 100
 
@@ -29,6 +30,10 @@ ANIMATION_ATTACK_DMR = [pygame.image.load('data/player/player_attack/mr1.png'),
                         pygame.image.load('data/player/player_attack/mr2.png'), ]
 ANIMATION_ATTACK_DML = [pygame.image.load('data/player/player_attack/ml1.png'),
                         pygame.image.load('data/player/player_attack/ml2.png'), ]
+ANIMATION_ATTACK_DRR = [pygame.image.load('data/player/player_attack/rr1.png'),
+                        pygame.image.load('data/player/player_attack/rr2.png'), ]
+ANIMATION_ATTACK_DRL = [pygame.image.load('data/player/player_attack/rl1.png'),
+                        pygame.image.load('data/player/player_attack/rl2.png'), ]
 
 ANIMATION_JUMP_LEFT = [('data/player/player_jump/jumpl.png', ANIMATION_DELAY)]
 ANIMATION_JUMP_RIGHT = [('data/player/player_jump/jumpr.png', ANIMATION_DELAY)]
@@ -59,11 +64,15 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+        self.hero_melee_attacks = pygame.sprite.Group()
+        self.hero_range_attacks = pygame.sprite.Group()
         self.up = self.left = self.right = False
         self.dead = False
         self.on_ground = False
         self.is_default_attack = False
-        self.attack_count = 0
+        self.is_range_attack = False
+        self.da_count = 0
+        self.ra_count = 0
         self.hp = MAX_HP
         self.stamina = MAX_STAMINA
 
@@ -92,23 +101,23 @@ class Player(pygame.sprite.Sprite):
             self.stamina += STAMINA_REGEN
 
     def default_attack(self, color_key):
-        if self.attack_count < 60:
-            self.attack_count += 1
-            if self.attack_count == 38:
+        if self.da_count < 30:
+            self.da_count += 1
+            if self.da_count == 18:
                 if not (self.left or self.right):
-                    speed = 1
+                    speed = 2
                 else:
-                    speed = 3
-                self.main.hero_melee_attacks.add(
-                    HeroDefaultAttack(self.direction, self.rect.x + 10, self.rect.y + 5, speed))
-            if self.attack_count <= 40:
+                    speed = 7
+                self.hero_melee_attacks.add(
+                    HeroDefaultAttack(self.direction, self.rect.x + 4, self.rect.y, speed))
+            if self.da_count <= 20:
                 self.temp_image.fill(color_key)
                 if self.direction == RIGHT:
                     self.temp_image.blit(ANIMATION_ATTACK_DMR[0], (0, 0))
                 else:
                     self.temp_image.blit(ANIMATION_ATTACK_DML[0], (0, 0))
                 self.image = self.temp_image
-            elif self.attack_count > 40:
+            elif self.da_count > 20:
                 self.temp_image.fill(color_key)
                 if self.direction == RIGHT:
                     self.temp_image.blit(ANIMATION_ATTACK_DMR[1], (0, 0))
@@ -116,13 +125,41 @@ class Player(pygame.sprite.Sprite):
                     self.temp_image.blit(ANIMATION_ATTACK_DML[1], (0, 0))
                 self.image = self.temp_image
         else:
-            self.attack_count = 0
+            self.da_count = 0
             self.is_default_attack = False
+
+    def range_attack(self, color_key):
+        if self.ra_count < 45:
+            self.ra_count += 1
+            if self.ra_count == 22:
+                if not (self.left or self.right):
+                    speed = 10
+                else:
+                    speed = 17
+                self.hero_range_attacks.add(
+                    HeroRangeAttack(self.direction, self.rect.x + 4, self.rect.y + 6, speed))
+            if self.ra_count <= 25:
+                self.temp_image.fill(color_key)
+                if self.direction == RIGHT:
+                    self.temp_image.blit(ANIMATION_ATTACK_DRR[0], (0, 0))
+                else:
+                    self.temp_image.blit(ANIMATION_ATTACK_DRL[0], (0, 0))
+                self.image = self.temp_image
+            elif self.ra_count > 25:
+                self.temp_image.fill(color_key)
+                if self.direction == RIGHT:
+                    self.temp_image.blit(ANIMATION_ATTACK_DRR[1], (0, 0))
+                else:
+                    self.temp_image.blit(ANIMATION_ATTACK_DRL[1], (0, 0))
+                self.image = self.temp_image
+        else:
+            self.ra_count = 0
+            self.is_range_attack = False
 
     def move(self, color_key):
         if self.left:
             self.x_v = -MOVE_SPEED
-            if not self.is_default_attack:
+            if not (self.is_default_attack or self.is_range_attack):
                 self.temp_image.fill(color_key)
                 if not self.up:
                     self.anim_walk_left.blit(self.temp_image, (0, 0))
@@ -134,7 +171,7 @@ class Player(pygame.sprite.Sprite):
                 self.image = self.temp_image
         if self.right:
             self.x_v = MOVE_SPEED
-            if not self.is_default_attack:
+            if not (self.is_default_attack or self.is_range_attack):
                 self.temp_image.fill(color_key)
                 if not self.up:
                     self.anim_walk_right.blit(self.temp_image, (0, 0))
@@ -146,7 +183,7 @@ class Player(pygame.sprite.Sprite):
                 self.image = self.temp_image
         if not (self.left or self.right):
             self.x_v = 0
-            if not self.is_default_attack:
+            if not (self.is_default_attack or self.is_range_attack):
                 if self.on_ground:
                     self.temp_image.fill(color_key)
                     if self.direction == RIGHT:
@@ -157,7 +194,7 @@ class Player(pygame.sprite.Sprite):
         if self.up:
             if self.on_ground:
                 self.y_v = -JUMP_SPEED
-            if not self.is_default_attack:
+            if not (self.is_default_attack or self.is_range_attack):
                 self.temp_image.fill(color_key)
                 if self.direction == RIGHT:
                     self.anim_jump_right.blit(self.temp_image, (0, 0))
@@ -169,12 +206,14 @@ class Player(pygame.sprite.Sprite):
         color_key = self.image.get_at((0, 0))
         if self.is_default_attack:
             self.default_attack(color_key)
+        elif self.is_range_attack:
+            self.range_attack(color_key)
         self.move(color_key)
 
         if not self.on_ground:
             self.y_v += GRAVITATION
 
-        self.on_ground = False
+        self.on_ground = True
         self.rect.x += self.x_v
         self.collide(self.x_v, 0, solid_blocks)
         self.rect.y += self.y_v

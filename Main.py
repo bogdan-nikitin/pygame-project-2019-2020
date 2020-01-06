@@ -1,4 +1,6 @@
-from Player import *
+import pygame
+from Player import Player
+from configuration import *
 
 
 class Main:
@@ -6,10 +8,9 @@ class Main:
         self.screen = screen
         self.running = True
         self.hero_group = pygame.sprite.Group()
-        self.hero = Player(self, RIGHT, 50, 50, screen)
+        self.hero = Player(self, RIGHT, 50, 250, screen)
         self.hero_group.add(self.hero)
         self.solid_blocks = []
-        self.hero_melee_attacks = pygame.sprite.Group()
         self.clock = pygame.time.Clock()
         self.game_cycle()
 
@@ -21,8 +22,6 @@ class Main:
             if event.type == pygame.USEREVENT:
                 if not self.hero.dead:
                     self.hero.tick()
-            if event.type == pygame.USEREVENT + 1:
-                self.hero_melee_attacks.empty()
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_UP:
@@ -43,26 +42,33 @@ class Main:
                     self.hero.left = False
 
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == pygame.BUTTON_LEFT and not self.hero.is_default_attack and self.hero.stamina >= 20:
-                    self.hero.stamina -= 20
+                if event.button == pygame.BUTTON_LEFT and not self.hero.is_default_attack and \
+                        not self.hero.is_range_attack and self.hero.stamina >= HERO_DA_COST:
+                    self.hero.stamina -= HERO_DA_COST
                     self.hero.is_default_attack = True
+                elif event.button == pygame.BUTTON_RIGHT and not self.hero.is_range_attack and \
+                        not self.hero.is_default_attack and self.hero.stamina >= HERO_RA_COST:
+                    self.hero.stamina -= HERO_RA_COST
+                    self.hero.is_range_attack = True
 
     def update(self):
         if not self.hero.dead:
             self.hero.update(self.solid_blocks)
-        for attack in self.hero_melee_attacks:
+        for attack in self.hero.hero_melee_attacks:
+            attack.update()
+        for attack in self.hero.hero_range_attacks:
             attack.update()
 
     def render(self):
         self.screen.fill((0, 0, 0))
         self.hero_group.draw(self.screen)
-        self.hero_melee_attacks.draw(self.screen)
+        self.hero.hero_melee_attacks.draw(self.screen)
+        self.hero.hero_range_attacks.draw(self.screen)
         pygame.display.flip()
-        self.clock.tick(60)
+        self.clock.tick(30)
 
     def game_cycle(self):
         pygame.time.set_timer(pygame.USEREVENT, 1000)  # изменение состояния персонажа(здоровье и прочее)
-        pygame.time.set_timer(pygame.USEREVENT + 1, 500)  # удаляет атаки в ближнем бою
         while self.running:
             self.events()
             self.update()
