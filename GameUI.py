@@ -18,6 +18,17 @@ class UIElement(UIElement, pygame.sprite.Sprite):
         self._children = []
         self._rect = pygame.rect.Rect(0, 0, 0, 0)
         self._x, self._y, self._w, self._h = 0, 0, 0, 0
+        self._is_active = True
+
+    def show(self):
+        self._is_active = True
+
+    def hide(self):
+        self._is_active = False
+
+    @property
+    def is_active(self):
+        return self._is_active
 
     @dispatch(pygame.rect.Rect)
     def set_geometry(self, rect):
@@ -95,11 +106,14 @@ class UIElement(UIElement, pygame.sprite.Sprite):
                 rect_y += bound
         self._rect.topleft = rect_x, rect_y
         self._x, self._y = x, y
+        self._update_children_pos()
 
     def add_child(self, child):
         self._children += [child]
 
     def event(self, event: pygame.event.Event):
+        if not self._is_active:
+            return
         if event.type == pygame.MOUSEBUTTONUP:
             if self.rect.collidepoint(*event.pos):
                 self.on_mouse_up(*event.pos)
@@ -123,15 +137,6 @@ class UIElement(UIElement, pygame.sprite.Sprite):
 
     def no_hover(self, x, y):
         pass
-
-    @property
-    def center(self):
-        return self.rect.center
-
-    @center.setter
-    def center(self, value):
-        self.rect.center = value
-        self._update_pos()
 
 
 class Group(UIElement):
@@ -218,6 +223,7 @@ class Label(UIElement, Label):
         return self._font_filename
 
     def _update_font(self):
+        self._font = pygame.font.Font(self._font_filename, self._font_size)
         self._text_render = self._font.render(self._text, self._antialias,
                                               self._color)
 
@@ -233,18 +239,31 @@ class Label(UIElement, Label):
     def resize(self, w, h):
         pass
 
+    @property
+    def font_size(self):
+        return self._font_size
+
+    @font_size.setter
+    def font_size(self, value):
+        self._font_size = value
+        self._update_font()
+
 
 class LabelButton(Label):
     def __init__(self, text='', parent=None, groups=()):
         super().__init__(text, parent, groups)
         self.inactive_color = self.color
         self.active_color = LABEL_COLOR_HOVER
+        self.clicked = lambda x, y: None
 
     def on_hover(self, x, y):
         self.color = self.active_color
 
     def no_hover(self, x, y):
         self.color = self.inactive_color
+
+    def on_mouse_up(self, x, y):
+        self.clicked(x, y)
 
 
 class Button(Panel):
@@ -255,6 +274,7 @@ class Button(Panel):
         self.active_bg_color = BUTTON_ACTIVE_COLOR
         self.label = Label(text, self, groups)
         self._update_button_label()
+        self.clicked = lambda x, y: None
 
     def resize(self, w, h):
         super().resize(w, h)
@@ -285,6 +305,7 @@ class Button(Panel):
         self.bg_color = self.inactive_bg_color
 
     def on_mouse_up(self, x, y):
+        self.clicked(x, y)
         self.set_inactive()
 
     def no_hover(self, x, y):
