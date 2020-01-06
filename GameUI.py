@@ -8,14 +8,6 @@ from multipledispatch import dispatch  # Модуль для "перегрузк
 from numbers import Number
 
 
-PANEL_BG_COLOR = TRADEWIND
-PANEL_BOUND_COLOR = MINE_SHAFT
-LABEL_COLOR = ALTO
-LABEL_COLOR_HOVER = CELERY
-FONT_FILENAME = data_path('font.ttf')
-FONT_SIZE = 20
-
-
 class UIElement(UIElement, pygame.sprite.Sprite):
     def __init__(self, parent=None, groups=()):
         super().__init__(SpriteGroups.all_sprites, SpriteGroups.ui_group,
@@ -132,6 +124,15 @@ class UIElement(UIElement, pygame.sprite.Sprite):
     def no_hover(self, x, y):
         pass
 
+    @property
+    def center(self):
+        return self.rect.center
+
+    @center.setter
+    def center(self, value):
+        self.rect.center = value
+        self._update_pos()
+
 
 class Group(UIElement):
     def __init__(self, parent=None, groups=()):
@@ -150,7 +151,7 @@ class Panel(UIElement, Panel):
     def __init__(self, parent=None, groups=()):
         super().__init__(*groups, parent=parent)
         self.bg_color = PANEL_BG_COLOR
-        self._bound = 4
+        self._bound = PANEL_BOUND
         self.bound_color = PANEL_BOUND_COLOR
 
     def set_bg_color(self, color):
@@ -173,7 +174,7 @@ class Label(UIElement, Label):
         self._font_size = FONT_SIZE
         self._font = pygame.font.Font(self._font_filename, self._font_size)
         self._color = LABEL_COLOR
-        self._antialias = 1
+        self._antialias = LABEL_ANTIALIAS
         self._text = text
         self._text_render = None
         self.text = text
@@ -249,8 +250,9 @@ class LabelButton(Label):
 class Button(Panel):
     def __init__(self, text='', parent=None, groups=()):
         super().__init__(parent, groups)
+        self.bg_color = BUTTON_INACTIVE_COLOR
         self.inactive_bg_color = self.bg_color
-        self.active_bg_color = FIORD
+        self.active_bg_color = BUTTON_ACTIVE_COLOR
         self.label = Label(text, self, groups)
         self._update_button_label()
 
@@ -289,9 +291,45 @@ class Button(Panel):
         self.set_inactive()
 
 
-class Checkbox(Panel):
+class _CheckboxPanel(CheckboxPanel, Panel):
+    def __init__(self, x, y, size, parent: Checkbox, groups=()):
+        super().__init__(parent, groups)
+        self.bg_color = CHECKBOX_BG_COLOR
+        self.bound = CHECKBOX_BOUND
+        self.set_geometry(x, y, size, size)
+
+    @property
+    def checked(self):
+        return self.parent.checked
+
+    def on_mouse_down(self, x, y):
+        self.parent.checked = not self.checked
+
+
+class Checkbox(UIElement):
     def __init__(self, text='', parent=None, groups=()):
         super().__init__(parent, groups)
+        self._text = ''
+        self._groups = groups
+        self._label = Label(text, parent=self, groups=groups)
+        self._box = _CheckboxPanel(0, 0, self._label.h, self,
+                                   self._groups)
+        self._update_box()
+        self.checked = False
+
+    @property
+    def text(self):
+        return self._text
+
+    @text.setter
+    def text(self, value):
+        self._label.text = value
+        self._update_box()
+
+    def _update_box(self):
+        box_x = self._label.x + self._label.w + CHECKBOX_OFFSET
+        box_y = self._label.y
+        self._box.set_pos(box_x, box_y)
 
 
 # if __name__ == '__main__':
@@ -299,9 +337,10 @@ class Checkbox(Panel):
 #     screen = pygame.display.set_mode([500, 500])
 #     p = Panel()
 #     p.set_geometry(10, 10, 250, 250)
-#     b = Button('f', p)
-#     w, h = b.size_hint()
-#     b.set_geometry(10, 10, w + 10, h + 10)
+#     b = Checkbox('ffgdfggdgfdg', p)
+#     b.set_geometry(100, 100, 100, 50)
+#     b.checked = True
+#     b.text = 'fgdgd'
 #
 #     clock = pygame.time.Clock()
 #     running = True
