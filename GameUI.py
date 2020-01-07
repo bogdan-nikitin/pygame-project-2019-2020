@@ -8,7 +8,8 @@ from multipledispatch import dispatch  # Модуль для "перегрузк
 from numbers import Number
 
 
-class UIElement(UIElement, pygame.sprite.Sprite):
+class UIElement(pygame.sprite.Sprite, UIElement):
+    """Класс элемента интерфейса."""
     def __init__(self, parent=None, groups=()):
         super().__init__(SpriteGroups.all_sprites, SpriteGroups.ui_group,
                          *groups)
@@ -140,6 +141,8 @@ class UIElement(UIElement, pygame.sprite.Sprite):
 
 
 class Group(UIElement):
+    """Класс группы UI элементов, принимает размер родителя, графически не
+    отображается"""
     def __init__(self, parent=None, groups=()):
         super().__init__(parent, groups)
         self._update_pos()
@@ -153,6 +156,7 @@ class Group(UIElement):
 
 
 class Panel(UIElement, Panel):
+    """Класс панели, графически отображается как прямоугольник с рамкой."""
     def __init__(self, parent=None, groups=()):
         super().__init__(*groups, parent=parent)
         self.bg_color = PANEL_BG_COLOR
@@ -173,6 +177,7 @@ class Panel(UIElement, Panel):
 
 
 class Label(UIElement, Label):
+    """Класс текста."""
     def __init__(self, text='', parent=None, groups=()):
         super().__init__(*groups, parent=parent)
         self._font_filename = FONT_FILENAME
@@ -251,7 +256,9 @@ class Label(UIElement, Label):
         self._update_font()
 
 
-class LabelButton(Label):
+class LabelButton(Label, LabelButton):
+    """Класс текста-кнопки. При наведении курсора подсвечивается, при нажатии
+    вызывает функцию clicked."""
     def __init__(self, text='', parent=None, groups=()):
         super().__init__(text, parent, groups)
         self.inactive_color = self.color
@@ -268,7 +275,8 @@ class LabelButton(Label):
         self.clicked(x, y)
 
 
-class Button(Panel):
+class Button(Panel, Button):
+    """Класс кнопки. При нажатии вызывает функцию clicked и меняет цвет."""
     def __init__(self, text='', parent=None, groups=()):
         super().__init__(parent, groups)
         self.bg_color = BUTTON_INACTIVE_COLOR
@@ -314,7 +322,9 @@ class Button(Panel):
         self.set_inactive()
 
 
-class _CheckboxPanel(CheckboxPanel, Panel):
+class _CheckboxPanel(Panel, CheckboxPanel):
+    """Класс окошка флажка, при нажатии изменяет атрибут родителя checked на
+    противоположный."""
     def __init__(self, x, y, size, parent: Checkbox, groups=()):
         super().__init__(parent, groups)
         self.bg_color = CHECKBOX_BG_COLOR
@@ -329,7 +339,8 @@ class _CheckboxPanel(CheckboxPanel, Panel):
         self.parent.checked = not self.checked
 
 
-class Checkbox(UIElement):
+class Checkbox(UIElement, Checkbox):
+    """Класс флажка с текстом."""
     def __init__(self, text='', parent=None, groups=()):
         super().__init__(parent, groups)
         self._text = ''
@@ -356,28 +367,3 @@ class Checkbox(UIElement):
         self._rect.size = (self._box.rect.x - self._label.rect.x,
                            self._box.rect.y - self._label.rect.y)
         self._w, self._h = self._rect.size
-
-
-# if __name__ == '__main__':
-#     pygame.init()
-#     screen = pygame.display.set_mode([500, 500])
-#     p = Panel()
-#     p.set_geometry(10, 10, 250, 250)
-#     b = Checkbox('ffgdfggdgfdg', p)
-#     b.set_geometry(100, 100, 100, 50)
-#     b.checked = True
-#     b.text = 'fgdgd'
-#
-#     clock = pygame.time.Clock()
-#     running = True
-#     while running:
-#         tick = clock.tick()
-#         for event in pygame.event.get():
-#             SpriteGroups.ui_group.event(event)
-#             if event.type == pygame.QUIT:
-#                 running = False
-#         clear(screen)
-#         SpriteGroups.ui_group.draw(screen)
-#         draw_fps(screen, clock.get_fps())
-#         pygame.display.flip()
-#     pygame.quit()
