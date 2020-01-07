@@ -60,7 +60,7 @@ class UIGroup(pygame.sprite.Group):
         for sprite in self:
             sprite.event(event)
 
-
+            
 all_sprites = pygame.sprite.Group()
 tiles_group = TilesGroup()
 ui_group = UIGroup()
