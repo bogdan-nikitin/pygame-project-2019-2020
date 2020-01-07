@@ -7,6 +7,14 @@ import re
 DATA_PATH = 'data'
 
 
+def draw_fps(screen, fps):
+    font = pygame.font.Font(None, 30)
+    text = font.render(str(int(fps)), 1, pygame.Color('yellow'))
+    text_x = 10
+    text_y = 10
+    screen.blit(text, (text_x, text_y))
+
+
 class GameSprite(pygame.sprite.Sprite):
     """Класс спрайта, имеющего свойства x и y - координаты. При изменении
     координаты также меняется значение topleft у свойства rect. При изменении

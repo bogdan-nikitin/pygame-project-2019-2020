@@ -1,4 +1,4 @@
-import pygame
+from ColorPalette import *
 
 
-BG_COLOR = pygame.Color('black')
+BG_COLOR = BLACK
