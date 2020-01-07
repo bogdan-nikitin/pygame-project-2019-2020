@@ -2,7 +2,6 @@ from General import *
 from GameUI import *
 import SpriteGroups
 import pygame
-import Main
 
 
 MENU_W = 300
@@ -17,6 +16,7 @@ FULLSCREEN_EVENT_ATTR = 'fullscreen'
 
 
 class Menu(Panel):
+    """Класс игрвого меню."""
     def __init__(self, main, groups=()):
         super().__init__()
         w, h = main.screen.get_rect().size
@@ -84,6 +84,7 @@ class Menu(Panel):
 
 
 class Settings(Panel):
+    """Класс настроек."""
     def __init__(self, menu, groups=()):
         super().__init__()
         w, h = menu.main.screen.get_rect().size
@@ -117,24 +118,24 @@ class Settings(Panel):
         self.hide()
         self.menu.show()
 
+import Main
+if __name__ == '__main__':
+    pygame.init()
+    screen = pygame.display.set_mode([800, 800], pygame.RESIZABLE)
+    m = Menu(Main.Main(screen))
 
-# if __name__ == '__main__':
-#     pygame.init()
-#     screen = pygame.display.set_mode([800, 800], pygame.RESIZABLE)
-#     m = Menu(Main.Main(screen))
-#
-#     clock = pygame.time.Clock()
-#     running = True
-#     while running:
-#         tick = clock.tick()
-#         for event in pygame.event.get():
-#             SpriteGroups.ui_group.event(event)
-#             if event.type == pygame.QUIT:
-#                 running = False
-#             elif event.type == pygame.VIDEORESIZE:
-#                 screen = pygame.display.set_mode(event.size, pygame.RESIZABLE)
-#         clear(screen)
-#         SpriteGroups.ui_group.draw(screen)
-#         draw_fps(screen, clock.get_fps())
-#         pygame.display.flip()
-#     pygame.quit()
+    clock = pygame.time.Clock()
+    running = True
+    while running:
+        tick = clock.tick()
+        for event in pygame.event.get():
+            SpriteGroups.ui_group.event(event)
+            if event.type == pygame.QUIT:
+                running = False
+            elif event.type == pygame.VIDEORESIZE:
+                screen = pygame.display.set_mode(event.size, pygame.RESIZABLE)
+        clear(screen)
+        SpriteGroups.ui_group.draw(screen)
+        draw_fps(screen, clock.get_fps())
+        pygame.display.flip()
+    pygame.quit()
