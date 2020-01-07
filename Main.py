@@ -1,4 +1,5 @@
 import pygame
+from Enemies import Insect, Knight, Rat, Snake
 from Player import Player
 from configuration import *
 
@@ -8,9 +9,8 @@ class Main:
         self.screen = screen
         self.running = True
         self.hero_group = pygame.sprite.Group()
-        self.hero = Player(self, RIGHT, 50, 250, screen)
+        self.hero = Player(self, RIGHT, 50, 250)
         self.hero_group.add(self.hero)
-        self.solid_blocks = []
         self.clock = pygame.time.Clock()
         self.game_cycle()
 
@@ -42,22 +42,21 @@ class Main:
                     self.hero.left = False
 
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == pygame.BUTTON_LEFT and not self.hero.is_default_attack and \
-                        not self.hero.is_range_attack and self.hero.stamina >= HERO_DA_COST:
-                    self.hero.stamina -= HERO_DA_COST
-                    self.hero.is_default_attack = True
-                elif event.button == pygame.BUTTON_RIGHT and not self.hero.is_range_attack and \
-                        not self.hero.is_default_attack and self.hero.stamina >= HERO_RA_COST:
-                    self.hero.stamina -= HERO_RA_COST
-                    self.hero.is_range_attack = True
+                if not self.hero.stunned:
+                    if event.button == pygame.BUTTON_LEFT and not self.hero.is_default_attack and \
+                            not self.hero.is_range_attack and self.hero.stamina >= HERO_DA_COST:
+                        self.hero.stamina -= HERO_DA_COST
+                        self.hero.is_default_attack = True
+                    elif event.button == pygame.BUTTON_RIGHT and not self.hero.is_range_attack and \
+                            not self.hero.is_default_attack and self.hero.stamina >= HERO_RA_COST:
+                        self.hero.stamina -= HERO_RA_COST
+                        self.hero.is_range_attack = True
 
     def update(self):
         if not self.hero.dead:
-            self.hero.update(self.solid_blocks)
-        for attack in self.hero.hero_melee_attacks:
-            attack.update()
-        for attack in self.hero.hero_range_attacks:
-            attack.update()
+            self.hero.update()
+        self.hero.hero_melee_attacks.update()
+        self.hero.hero_range_attacks.update()
 
     def render(self):
         self.screen.fill((0, 0, 0))

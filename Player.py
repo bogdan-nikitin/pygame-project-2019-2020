@@ -1,16 +1,12 @@
 import pygame
-import pyganim
 
-from Attacks import HeroDefaultAttack, HeroRangeAttack
+from Attacks import HeroRangeAttack, HeroDefaultAttack
 from configuration import *
 
 MOVE_SPEED = 4
 JUMP_SPEED = 10
 PLAYER_WIDTH = 22
 PLAYER_HEIGHT = 24
-GRAVITATION = 0.2
-
-ANIMATION_DELAY = 100
 
 MAX_HP = 100
 MAX_STAMINA = 100
@@ -41,22 +37,13 @@ ANIMATION_STAY_RIGHT = [('data/player/player_stay/stayr.png', ANIMATION_DELAY)]
 ANIMATION_STAY_LEFT = [('data/player/player_stay/stayl.png', ANIMATION_DELAY)]
 
 
-def make_animation(animation_list, delay):
-    animation = []
-    for elem in animation_list:
-        animation.append((elem, delay))
-    result = pyganim.PygAnimation(animation)
-    return result
-
-
 class Player(pygame.sprite.Sprite):
-    def __init__(self, main, direction, x, y, screen):
+    def __init__(self, main, direction, x, y):
         pygame.sprite.Sprite.__init__(self)
         self.main = main
-        self.screen = screen
         self.direction = direction
         self.image = pygame.image.load('data/player/player_stay/stayr.png')
-        self.temp_image = pygame.image.load('data/player/initialization.png')
+        self.temp_image = pygame.image.load('data/initialization.png')
         self.start_x = x
         self.start_y = y
         self.x_v = 0
@@ -71,6 +58,8 @@ class Player(pygame.sprite.Sprite):
         self.on_ground = False
         self.is_default_attack = False
         self.is_range_attack = False
+        self.stunned = False
+        self.stun_count = 0
         self.da_count = 0
         self.ra_count = 0
         self.hp = MAX_HP
@@ -109,7 +98,7 @@ class Player(pygame.sprite.Sprite):
                 else:
                     speed = 7
                 self.hero_melee_attacks.add(
-                    HeroDefaultAttack(self.direction, self.rect.x + 4, self.rect.y, speed))
+                    HeroDefaultAttack(self.main, self.direction, self.rect.x + 4, self.rect.y, speed))
             if self.da_count <= 20:
                 self.temp_image.fill(color_key)
                 if self.direction == RIGHT:
@@ -137,7 +126,7 @@ class Player(pygame.sprite.Sprite):
                 else:
                     speed = 17
                 self.hero_range_attacks.add(
-                    HeroRangeAttack(self.direction, self.rect.x + 4, self.rect.y + 6, speed))
+                    HeroRangeAttack(self.main, self.direction, self.rect.x + 4, self.rect.y + 6, speed))
             if self.ra_count <= 25:
                 self.temp_image.fill(color_key)
                 if self.direction == RIGHT:
@@ -202,34 +191,41 @@ class Player(pygame.sprite.Sprite):
                     self.anim_jump_left.blit(self.temp_image, (0, 0))
                 self.image = self.temp_image
 
-    def update(self, solid_blocks):
+    def update(self):
+        if self.hp <= 0:
+            self.dead = True
         color_key = self.image.get_at((0, 0))
-        if self.is_default_attack:
-            self.default_attack(color_key)
-        elif self.is_range_attack:
-            self.range_attack(color_key)
-        self.move(color_key)
+        if not self.stunned:
+            if self.is_default_attack:
+                self.default_attack(color_key)
+            elif self.is_range_attack:
+                self.range_attack(color_key)
+            self.move(color_key)
+        else:
+            self.stun_count -= 1
+            if self.stun_count == 0:
+                self.stunned = False
 
         if not self.on_ground:
             self.y_v += GRAVITATION
 
-        self.on_ground = True
+        self.on_ground = False
         self.rect.x += self.x_v
-        self.collide(self.x_v, 0, solid_blocks)
+        # self.collide(self.x_v, 0)
         self.rect.y += self.y_v
-        self.collide(0, self.y_v, solid_blocks)
+        # self.collide(0, self.y_v)
 
-    def collide(self, x_v, y_v, solid_blocks):
-        for block in solid_blocks:  # для твердых блоков
-            if pygame.sprite.collide_rect(self, block):
-                if x_v > 0:
-                    self.rect.right = block.rect.left
-                if x_v < 0:
-                    self.rect.left = block.rect.right
-                if y_v > 0:
-                    self.rect.bottom = block.rect.top
-                    self.on_ground = True
-                    self.y_v = 0
-                if y_v < 0:
-                    self.rect.top = block.rect.bottom
-                    self.y_v = 0
+    # def collide(self, x_v, y_v):
+    #     for sprite in pygame.sprite.spritecollideany(self, all_sprites):
+    #         if isinstance(sprite, ):  # если является твердым
+    #             if x_v > 0:
+    #                 self.rect.right = sprite.rect.left
+    #             if x_v < 0:
+    #                 self.rect.left = sprite.rect.right
+    #             if y_v > 0:
+    #                 self.rect.bottom = sprite.rect.top
+    #                 self.on_ground = True
+    #                 self.y_v = 0
+    #             if y_v < 0:
+    #                 self.rect.top = sprite.rect.bottom
+    #                 self.y_v = 0
