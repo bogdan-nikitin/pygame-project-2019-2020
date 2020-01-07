@@ -117,25 +117,3 @@ class Settings(Panel):
         pygame.event.post(full_screen_event)
         self.hide()
         self.menu.show()
-
-import Main
-if __name__ == '__main__':
-    pygame.init()
-    screen = pygame.display.set_mode([800, 800], pygame.RESIZABLE)
-    m = Menu(Main.Main(screen))
-
-    clock = pygame.time.Clock()
-    running = True
-    while running:
-        tick = clock.tick()
-        for event in pygame.event.get():
-            SpriteGroups.ui_group.event(event)
-            if event.type == pygame.QUIT:
-                running = False
-            elif event.type == pygame.VIDEORESIZE:
-                screen = pygame.display.set_mode(event.size, pygame.RESIZABLE)
-        clear(screen)
-        SpriteGroups.ui_group.draw(screen)
-        draw_fps(screen, clock.get_fps())
-        pygame.display.flip()
-    pygame.quit()
