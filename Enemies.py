@@ -33,6 +33,10 @@ FIREMAGE_HP = 120
 FIREMAGE_MP = 100
 FIREMAGE_MP_REG = 10
 
+WRAITH_HP = 500
+WRAITH_MP = 100
+WRAITH_MP_REG = 10
+
 INSECT_RIGHT = ['data/enemies/insect/walkr1.png',
                 'data/enemies/insect/walkr2.png',
                 'data/enemies/insect/walkr3.png',
@@ -90,12 +94,21 @@ BAT_STAY_LEFT = [('data/enemies/bat/stayl.png', ANIMATION_DELAY)]
 BAT_DEAD_RIGHT = [('data/enemies/bat/deadr.png', ANIMATION_DELAY)]
 BAT_DEAD_LEFT = [('data/enemies/bat/deadl.png', ANIMATION_DELAY)]
 
-MAGE_STAY_RIGHT = [('data/enemies/firemage/stayr.png', ANIMATION_DELAY)]
-MAGE_STAY_LEFT = [('data/enemies/firemage/stayl.png', ANIMATION_DELAY)]
+MAGE_STAY_RIGHT = pygame.image.load('data/enemies/firemage/stayr.png')
+MAGE_STAY_LEFT = pygame.image.load('data/enemies/firemage/stayl.png')
 MAGE_DEAD_RIGHT = [('data/enemies/firemage/deadr.png', ANIMATION_DELAY)]
 MAGE_DEAD_LEFT = [('data/enemies/firemage/deadl.png', ANIMATION_DELAY)]
-MAGE_CAST_RIGHT = [('data/enemies/firemage/castr.png', ANIMATION_CAST_DELAY)]
-MAGE_CAST_LEFT = [('data/enemies/firemage/castl.png', ANIMATION_CAST_DELAY)]
+MAGE_CAST_RIGHT = pygame.image.load('data/enemies/firemage/castr.png')
+MAGE_CAST_LEFT = pygame.image.load('data/enemies/firemage/castl.png')
+
+WRAITH_STAY_RIGHT = pygame.image.load('data/enemies/wraith/stayr.png')
+WRAITH_STAY_LEFT = pygame.image.load('data/enemies/wraith/stayl.png')
+WRAITH_DEAD_RIGHT = [('data/enemies/wraith/deadr.png', ANIMATION_DELAY)]
+WRAITH_DEAD_LEFT = [('data/enemies/wraith/deadl.png', ANIMATION_DELAY)]
+WRAITH_CAST_RIGHT = [pygame.image.load('data/enemies/wraith/castr1.png'),
+                     pygame.image.load('data/enemies/wraith/castr2.png')]
+WRAITH_CAST_LEFT = [pygame.image.load('data/enemies/wraith/castl1.png'),
+                    pygame.image.load('data/enemies/wraith/castL2.png')]
 
 
 class MeleeEnemy(pygame.sprite.Sprite):
@@ -462,23 +475,11 @@ class FireMage(pygame.sprite.Sprite):
         self.attack_cd = 0
         self.dead_count = 60
 
-        self.anim_stay_right = pyganim.PygAnimation(MAGE_STAY_RIGHT)
-        self.anim_stay_right.play()
-
-        self.anim_stay_left = pyganim.PygAnimation(MAGE_STAY_LEFT)
-        self.anim_stay_left.play()
-
         self.anim_dead_right = pyganim.PygAnimation(MAGE_DEAD_RIGHT)
         self.anim_dead_right.play()
 
         self.anim_dead_left = pyganim.PygAnimation(MAGE_DEAD_LEFT)
         self.anim_dead_left.play()
-
-        self.anim_cast_right = pyganim.PygAnimation(MAGE_CAST_RIGHT)
-        self.anim_cast_right.play()
-
-        self.anim_cast_left = pyganim.PygAnimation(MAGE_CAST_LEFT)
-        self.anim_cast_left.play()
 
     def update(self):
         color_key = self.image.get_at((0, 0))
@@ -487,7 +488,7 @@ class FireMage(pygame.sprite.Sprite):
                 self.mp += FIREMAGE_MP_REG
             if self.mp >= FIREMAGE_MP:
                 self.mp = FIREMAGE_MP
-            self.temp_image.fill(color_key)
+
             if self.main.hero.rect.x > self.rect.x:
                 self.direction = RIGHT
             else:
@@ -496,15 +497,19 @@ class FireMage(pygame.sprite.Sprite):
                 self.dead = True
             if abs(self.main.hero.rect.x - self.rect.x) <= 600:
                 self.attack = True
+
+            self.temp_image.fill(color_key)
+            if 0 <= self.attack_cd <= 30:
                 if self.direction == RIGHT:
-                    self.anim_cast_right.blit(self.temp_image, (0, 0))
+                    self.temp_image.blit(MAGE_CAST_RIGHT, (0, 0))
                 else:
-                    self.anim_cast_left.blit(self.temp_image, (0, 0))
+                    self.temp_image.blit(MAGE_CAST_LEFT, (0, 0))
+
             else:
                 if self.direction == RIGHT:
-                    self.anim_stay_right.blit(self.temp_image, (0, 0))
+                    self.temp_image.blit(MAGE_STAY_RIGHT, (0, 0))
                 else:
-                    self.anim_stay_left.blit(self.temp_image, (0, 0))
+                    self.temp_image.blit(MAGE_STAY_LEFT, (0, 0))
             self.image = self.temp_image
 
             if self.attack:
@@ -515,19 +520,115 @@ class FireMage(pygame.sprite.Sprite):
                     self.mp -= FIREBALL_COST
                     fireball = Fireball(self.direction, self.rect.x + 9, self.rect.y + 9, self.main.hero.rect.x + 5,
                                         self.main.hero.rect.y + 5)
+                    # добавить fireball в соотвутсвующие группы спрайтов
                     self.main.proj.add(fireball)
             else:
-                self.attack_cd = 60
+                self.attack_cd = 0
 
             if not self.on_ground:
                 self.y_v += GRAVITATION
 
-            self.on_ground = True
+            self.on_ground = False
             self.attack = False
             self.rect.y += self.y_v
-            # self.collide(self.x_v, 0, )
-            # self.collide(0, self.y_v, )
         else:
+            self.attack = False
+            if self.dead_count > 0:
+                self.dead_count -= 1
+                self.temp_image.fill(color_key)
+                self.x_v = 0
+                if self.direction == RIGHT:
+                    self.anim_dead_right.blit(self.temp_image, (0, 0))
+                else:
+                    self.anim_dead_left.blit(self.temp_image, (0, 0))
+                self.image = self.temp_image
+            else:
+                self.kill()
+
+
+class Wraith(pygame.sprite.Sprite):
+    def __init__(self, main, direction, x, y):
+        pygame.sprite.Sprite.__init__(self)
+        self.main = main
+        self.direction = direction
+        self.y_v = 0
+        self.start_x = x
+        self.start_y = y
+        self.temp_image = pygame.image.load('data/enemies/wraith/stayr.png')
+        self.image = pygame.image.load('data/enemies/wraith/stayr.png')
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.hp = WRAITH_HP
+        self.mp = WRAITH_MP
+        self.dead = False
+        self.on_ground = False
+        self.attack = False
+        self.attack_cd = 0
+        self.dead_count = 60
+
+        self.anim_dead_right = pyganim.PygAnimation(WRAITH_DEAD_RIGHT)
+        self.anim_dead_right.play()
+
+        self.anim_dead_left = pyganim.PygAnimation(WRAITH_DEAD_LEFT)
+        self.anim_dead_left.play()
+
+    def update(self):
+        color_key = self.image.get_at((0, 0))
+        if not self.dead:
+            if self.mp < WRAITH_MP:
+                self.mp += WRAITH_MP_REG
+            if self.mp >= WRAITH_MP:
+                self.mp = WRAITH_MP
+
+            if self.main.hero.rect.x > self.rect.x:
+                self.direction = RIGHT
+            else:
+                self.direction = LEFT
+            if self.hp <= 0:
+                self.dead = True
+            if abs(self.main.hero.rect.x - self.rect.x) <= 1000:
+                self.attack = True
+
+            self.temp_image.fill(color_key)
+            if 0 <= self.attack_cd <= 30:
+                if 0 <= self.attack_cd <= 15:
+                    if self.direction == RIGHT:
+                        self.temp_image.blit(WRAITH_CAST_RIGHT[0], (0, 0))
+                    else:
+                        self.temp_image.blit(WRAITH_CAST_LEFT[0], (0, 0))
+                else:
+                    if self.direction == RIGHT:
+                        self.temp_image.blit(WRAITH_CAST_RIGHT[1], (0, 0))
+                    else:
+                        self.temp_image.blit(WRAITH_CAST_LEFT[1], (0, 0))
+
+            else:
+                if self.direction == RIGHT:
+                    self.temp_image.blit(WRAITH_STAY_RIGHT, (0, 0))
+                else:
+                    self.temp_image.blit(WRAITH_STAY_LEFT, (0, 0))
+            self.image = self.temp_image
+
+            if self.attack:
+                self.attack_cd -= 1
+                if self.attack_cd < 0:
+                    self.attack_cd = 60
+                if self.mp >= AIMEDFB_COST and self.attack_cd == 0:
+                    self.mp -= AIMEDFB_COST
+                    aimed_fireball = AimedFireball(self.main.hero, self.rect.x + 9, self.rect.y + 9)
+                    # добавить aimed_fireball в соотвутсвующие группы спрайтов
+            else:
+                self.attack_cd = 0
+
+            if not self.on_ground:
+                self.y_v += GRAVITATION
+
+            self.on_ground = False
+            self.attack = False
+            self.rect.y += self.y_v
+        else:
+            self.attack = False
             if self.dead_count > 0:
                 self.dead_count -= 1
                 self.temp_image.fill(color_key)

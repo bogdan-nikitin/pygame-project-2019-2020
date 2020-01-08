@@ -18,7 +18,8 @@ HERO_RA_COST = 25
 
 FIREBALL_DMG = 40
 FIREBALL_COST = 50
-
+AIMEDFB_DMG = 30
+AIMEDFB_COST = 100
 
 
 def make_animation(animation_list, delay):  # в General
