@@ -5,8 +5,8 @@ import Mapping
 import SpriteGroups
 import pygame
 
-MOVE_SPEED = 4
-JUMP_SPEED = 3
+MOVE_SPEED = 100
+JUMP_SPEED = 100
 PLAYER_WIDTH = 22
 PLAYER_HEIGHT = 24
 
@@ -52,8 +52,8 @@ class Player(GameSprite):
         self.x_v = 0
         self.y_v = 0
         self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
+        self.x = x
+        self.y = y
         self.hero_melee_attacks = pygame.sprite.Group()
         self.hero_range_attacks = pygame.sprite.Group()
         self.up = self.left = self.right = False
@@ -102,7 +102,7 @@ class Player(GameSprite):
                     speed = 7
                 self.hero_melee_attacks.add(
                     HeroDefaultAttack(self.main, self.direction,
-                                      self.rect.x + 4, self.rect.y, speed))
+                                      self.x + 4, self.y, speed))
             if self.da_count <= 20:
                 self.temp_image.fill(color_key)
                 if self.direction == RIGHT:
@@ -130,7 +130,8 @@ class Player(GameSprite):
                 else:
                     speed = 17
                 self.hero_range_attacks.add(
-                    HeroRangeAttack(self.main, self.direction, self.rect.x + 4, self.rect.y + 6, speed))
+                    HeroRangeAttack(self.main, self.direction, self.x + 4,
+                                    self.y + 6, speed))
             if self.ra_count <= 25:
                 self.temp_image.fill(color_key)
                 if self.direction == RIGHT:
@@ -195,7 +196,8 @@ class Player(GameSprite):
                     self.anim_jump_left.blit(self.temp_image, (0, 0))
                 self.image = self.temp_image
 
-    def update(self):
+    def update(self, *args):
+        tick = args[0] if args else 0
         if self.hp <= 0:
             self.dead = True
         color_key = self.image.get_at((0, 0))
@@ -214,24 +216,31 @@ class Player(GameSprite):
             self.y_v += GRAVITATION
 
         self.on_ground = False
-        self.rect.x += self.x_v
-        self.collide(self.x_v, 0)
-        self.rect.y += self.y_v
-        self.collide(0, self.y_v)
+        self.x += self.x_v * tick / 1000
+        self.collide(self.x_v * tick / 1000, 0)
+        self.y += self.y_v * tick / 1000
+        self.collide(0, self.y_v * tick / 1000)
 
     def collide(self, x_v, y_v):
         for sprite in pygame.sprite.spritecollide(self,
                                                   SpriteGroups.tiles_group,
                                                   False):
             if sprite.is_solid:  # если является твердым
+                clip = self.rect.clip(sprite.rect)
                 if x_v > 0:
-                    self.rect.right = sprite.rect.left
+                    # self.rect.right = sprite.rect.left
+                    # self.normalize_pos()
+                    self.x -= clip.w
                 if x_v < 0:
-                    self.rect.left = sprite.rect.right
+                    # self.rect.left = sprite.rect.right
+                    # self.normalize_pos()
+                    self.x += clip.w
                 if y_v > 0:
-                    self.rect.bottom = sprite.rect.top
+                    # self.rect.bottom = sprite.rect.top
+                    # self.normalize_pos()
+                    self.y -= clip.h
                     self.on_ground = True
-                    self.y_v = 0
                 if y_v < 0:
-                    self.rect.top = sprite.rect.bottom
-                    self.y_v = 0
+                    # self.rect.top = sprite.rect.bottom
+                    # self.normalize_pos()
+                    self.y += clip.h

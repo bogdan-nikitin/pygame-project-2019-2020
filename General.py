@@ -69,7 +69,7 @@ class GameSprite(pygame.sprite.Sprite):
     def normalize_pos(self):
         """Выставляет координатам x и y текущее положение спрайта."""
         if self.rect is not None:
-            self.x, self.y = self.rect.topleft
+            self._x, self._y = self.rect.topleft
 
 
 def load_image(name, color_key=None):

@@ -56,6 +56,7 @@ class Main:
         self.music = None
 
         self.load_next_level()
+        self.tick = 0
         self.running = True
 
     def events(self):
@@ -102,7 +103,7 @@ class Main:
 
     def update(self):
         if not self.hero.dead:
-            self.hero.update()
+            self.hero.update(self.tick)
         self.hero.hero_melee_attacks.update()
         self.hero.hero_range_attacks.update()
 
@@ -114,7 +115,6 @@ class Main:
         self.hero.hero_range_attacks.draw(self.screen)
         SpriteGroups.ui_group.draw(self.screen)
         pygame.display.flip()
-        self.clock.tick(60)
 
     def game_cycle(self):
         # изменение состояния персонажа(здоровье и прочее)
@@ -123,6 +123,7 @@ class Main:
             self.events()
             self.update()
             self.render()
+            self.tick = self.clock.tick()
         pygame.quit()
 
     def load_levels_config(self):

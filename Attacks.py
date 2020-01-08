@@ -2,9 +2,10 @@ import math
 import pygame
 from Enemies import *
 from configuration import *
+from General import *
 
 
-class Attack(pygame.sprite.Sprite):
+class Attack(GameSprite):
     def __init__(self, main, direction, speed):
         pygame.sprite.Sprite.__init__(self)
         self.main = main
@@ -16,9 +17,11 @@ class HeroDefaultAttack(Attack):
     def __init__(self, main, direction, x, y, speed):
         super().__init__(main, direction, speed)
         if direction == RIGHT:
-            self.image = pygame.image.load('data/player/player_attack/trailr.png')
+            self.image = pygame.image.load('data/player/player_attack/'
+                                           'trailr.png')
         else:
-            self.image = pygame.image.load('data/player/player_attack/traill.png')
+            self.image = pygame.image.load('data/player/player_attack/'
+                                           'traill.png')
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
