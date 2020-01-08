@@ -1,0 +1,9 @@
+{
+  "firstLevel": "1",
+  "1":
+  {
+    "mapFile": "level1.txt",
+    "nextStage": "2",
+    "music": "music1.wav"
+  }
+}

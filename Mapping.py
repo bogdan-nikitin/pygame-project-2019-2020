@@ -15,7 +15,7 @@ def load_tile_config():
     """
     global tile_config
 
-    with open(os.path.join('data', TILE_CONFIG_FILE)) as file:
+    with open(data_path(TILE_CONFIG_FILE)) as file:
         tile_config_data = json.load(file)
 
     for key, value in tile_config_data.items():
