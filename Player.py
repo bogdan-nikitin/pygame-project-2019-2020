@@ -1,6 +1,6 @@
 import pygame
 
-from Attacks import HeroRangeAttack, HeroDefaultAttack
+from Attacks import *
 from configuration import *
 
 MOVE_SPEED = 4
@@ -209,7 +209,7 @@ class Player(pygame.sprite.Sprite):
         if not self.on_ground:
             self.y_v += GRAVITATION
 
-        self.on_ground = False
+        self.on_ground = True
         self.rect.x += self.x_v
         # self.collide(self.x_v, 0)
         self.rect.y += self.y_v

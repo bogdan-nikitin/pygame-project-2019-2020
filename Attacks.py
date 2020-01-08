@@ -1,4 +1,6 @@
+import math
 import pygame
+from Enemies import *
 from configuration import *
 
 
@@ -46,7 +48,7 @@ class HeroDefaultAttack(Attack):
 
     # def collide(self):
     #     for sprite in pygame.sprite.spritecollideany(self, all_sprites):
-    #         if isinstance(sprite, MeleeEnemy):
+    #         if isinstance(sprite, (MeleeEnemy, FireMage):
     #             if sprite not in self.damaged:
     #                 sprite.hp -= HERO_DA_DMG
     #                 self.damaged.append(sprite)
@@ -76,9 +78,48 @@ class HeroRangeAttack(Attack):
         # self.collide()
 
     # def collide(self):
-    #     for sprite in pygame.sprite.spritecollideany(self, self.main.enemy_group):
+    #     for sprite in pygame.sprite.spritecollideany(self, all_sprites):
     #         if isinstance(sprite, MeleeEnemy):
     #             sprite.hp -= HERO_RA_DMG
+    #             self.kill()
+    #          elif isinstance(sprite, ):  # если является твердым
+    #              self.kill()
+
+
+class Fireball(pygame.sprite.Sprite):
+    def __init__(self, direction, start_x, start_y, target_x, target_y):
+        super().__init__()
+        if direction == RIGHT:
+            self.image = pygame.image.load('data/projectives/fballr.png')
+        else:
+            self.image = pygame.image.load('data/projectives/fballl.png')
+        self.rect = self.image.get_rect()
+        self.rect.x = start_x
+        self.rect.y = start_y
+        self.floating_point_x = start_x
+        self.floating_point_y = start_y
+
+        x_diff = target_x - start_x
+        y_diff = target_y - start_y
+        angle = math.atan2(y_diff, x_diff)
+
+        speed = 5
+        self.change_x = math.cos(angle) * speed
+        self.change_y = math.sin(angle) * speed
+
+    def update(self):
+        self.floating_point_y += self.change_y
+        self.floating_point_x += self.change_x
+        self.rect.y = int(self.floating_point_y)
+        self.rect.x = int(self.floating_point_x)
+
+        if self.rect.x < 0 or self.rect.x > WINDOW_WIDTH or self.rect.y < 0 or self.rect.y > WINDOW_HEIGHT:
+            self.kill()
+
+    # def collide(self):
+    #     for sprite in pygame.sprite.spritecollideany(self, all_sprites):
+    #         if isinstance(sprite, PLayer):
+    #             sprite.hp -= FIREBALL_DMG
     #             self.kill()
     #          elif isinstance(sprite, ):  # если является твердым
     #              self.kill()

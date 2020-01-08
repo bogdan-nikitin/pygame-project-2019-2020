@@ -1,6 +1,6 @@
 import pygame
-from Enemies import Insect, Knight, Rat, Snake
-from Player import Player
+from Enemies import *
+from Player import *
 from configuration import *
 
 
@@ -9,7 +9,11 @@ class Main:
         self.screen = screen
         self.running = True
         self.hero_group = pygame.sprite.Group()
+        self.proj = pygame.sprite.Group()
         self.hero = Player(self, RIGHT, 50, 250)
+        self.bat = FireMage(self, RIGHT, 250, 250)
+        self.enemies = pygame.sprite.Group()
+        self.enemies.add(self.bat)
         self.hero_group.add(self.hero)
         self.clock = pygame.time.Clock()
         self.game_cycle()
@@ -53,13 +57,17 @@ class Main:
                         self.hero.is_range_attack = True
 
     def update(self):
+        self.proj.update()
         if not self.hero.dead:
             self.hero.update()
         self.hero.hero_melee_attacks.update()
         self.hero.hero_range_attacks.update()
+        self.enemies.update()
 
     def render(self):
         self.screen.fill((0, 0, 0))
+        self.enemies.draw(self.screen)
+        self.proj.draw(self.screen)
         self.hero_group.draw(self.screen)
         self.hero.hero_melee_attacks.draw(self.screen)
         self.hero.hero_range_attacks.draw(self.screen)

@@ -9,11 +9,16 @@ LEFT = -1
 GRAVITATION = 0.2
 
 ANIMATION_DELAY = 100
+ANIMATION_CAST_DELAY = 500
 
 HERO_DA_DMG = 35
 HERO_DA_COST = 20
 HERO_RA_DMG = 25
 HERO_RA_COST = 25
+
+FIREBALL_DMG = 40
+FIREBALL_COST = 50
+
 
 
 def make_animation(animation_list, delay):  # в General
