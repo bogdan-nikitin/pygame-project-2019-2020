@@ -69,3 +69,4 @@ class UIGroup(pygame.sprite.Group):
 all_sprites = pygame.sprite.Group()
 tiles_group = TilesGroup()
 ui_group = UIGroup()
+characters_group = pygame.sprite.Group()

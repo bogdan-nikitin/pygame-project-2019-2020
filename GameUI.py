@@ -23,9 +23,13 @@ class UIElement(pygame.sprite.Sprite, UIElement):
 
     def show(self):
         self._is_active = True
+        for child in self.children:
+            child.show()
 
     def hide(self):
         self._is_active = False
+        for child in self.children:
+            child.hide()
 
     @property
     def is_active(self):
@@ -113,7 +117,7 @@ class UIElement(pygame.sprite.Sprite, UIElement):
         self._children += [child]
 
     def event(self, event: pygame.event.Event):
-        if not self._is_active:
+        if not self.is_active:
             return
         if event.type == pygame.MOUSEBUTTONUP:
             if self.rect.collidepoint(*event.pos):

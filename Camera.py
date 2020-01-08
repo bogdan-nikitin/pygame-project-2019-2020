@@ -1,3 +1,6 @@
+from General import *
+
+
 class Camera:
     # зададим начальный сдвиг камеры
     def __init__(self, screen):
@@ -7,8 +10,12 @@ class Camera:
 
     # сдвинуть объект obj на смещение камеры
     def apply(self, obj):
-        obj.rect.x += self.dx
-        obj.rect.y += self.dy
+        if isinstance(obj, GameSprite):
+            obj.x += self.dx
+            obj.y += self.dy
+        else:
+            obj.rect.x += self.dx
+            obj.rect.y += self.dy
 
     # позиционировать камеру на объекте target
     def update(self, target):

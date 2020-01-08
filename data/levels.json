@@ -4,6 +4,7 @@
   {
     "mapFile": "level1.txt",
     "nextStage": "2",
-    "music": "music1.wav"
+    "music": "music1.wav",
+    "heroPos": [4, 51]
   }
 }

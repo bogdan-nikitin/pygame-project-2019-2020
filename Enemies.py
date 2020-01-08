@@ -2,6 +2,8 @@ import pygame
 from Player import *
 from Attacks import *
 from configuration import *
+from EnemiesHeaders import *
+import Mapping
 
 INSECT_DMG = 20
 INSECT_IMPULSE = 5
@@ -111,13 +113,14 @@ WRAITH_CAST_LEFT = [pygame.image.load('data/enemies/wraith/castl1.png'),
                     pygame.image.load('data/enemies/wraith/castL2.png')]
 
 
-class MeleeEnemy(pygame.sprite.Sprite):
-    def __init__(self, main, direction, x, y):
-        pygame.sprite.Sprite.__init__(self)
+class MeleeEnemy(pygame.sprite.Sprite, MeleeEnemy):
+    def __init__(self, main, direction, pos_x, pos_y):
+        pygame.sprite.Sprite.__init__(self, SpriteGroups.characters_group,
+                                      SpriteGroups.all_sprites)
         self.main = main
         self.direction = direction
-        self.start_x = x
-        self.start_y = y
+        self.start_x = pos_x * Mapping.tile_width
+        self.start_y = pos_y * Mapping.tile_height
         self.x_v = 0
         self.y_v = 0
         if self.direction == RIGHT:
@@ -161,8 +164,8 @@ class MeleeEnemy(pygame.sprite.Sprite):
                 self.rect.x += self.x_v
             else:
                 self.rect.x -= self.x_v
-            # self.collide(self.x_v, 0, )
-            # self.collide(0, self.y_v, )
+            self.collide(self.x_v, 0, )
+            self.collide(0, self.y_v, )
 
             if abs(self.start_x - self.rect.x) > self.max_x:
                 self.direction = -self.direction
@@ -179,50 +182,59 @@ class MeleeEnemy(pygame.sprite.Sprite):
             else:
                 self.kill()
 
-    # def collide(self, x_v, y_v):
-    #    for sprite in pygame.sprite.spritecollideany(self, all_sprites):
-    #        if isinstance(sprite, ):  # если является твердым
-    #            if x_v > 0:
-    #                self.rect.right = sprite.rect.left
-    #                self.direction =- self.direction
-    #            if x_v < 0:
-    #                self.rect.left = sprite.rect.right
-    #                self.direction =- self.direction
-    #            if y_v > 0:
-    #                self.rect.bottom = sprite.rect.top
-    #                self.on_ground = True
-    #                self.y_v = 0
-    #            if y_v < 0:
-    #                self.rect.top = sprite.rect.bottom
-    #                self.y_v = 0
-    #        if isinstance(sprite, Player):
-    #            if not sprite.stunned:
-    #                sprite.hp -= self.damage
-    #                sprite.stunned = True
-    #                sprite.stun_count = 30
-    #                if sprite.x_v == 0:
-    #                    if self.direction == RIGHT:
-    #                        sprite.x_v = INSECT_IMPULSE
-    #                    else:
-    #                        sprite.x_v = -INSECT_IMPULSE
-    #                else:
-    #                   if sprite.x_v > 0:
-    #                        sprite.x_v = 0
-    #                        sprite.x_v = -INSECT_IMPULSE
-    #                   elif sprite.x_v < 0:
-    #                        sprite.x_v = 0
-    #                        sprite.x_v = INSECT_IMPULSE
+    def collide(self, x_v, y_v):
+        for sprite in pygame.sprite.spritecollide(self,
+                                                  SpriteGroups.all_sprites,
+                                                  False):
+            if isinstance(sprite, Tile) and sprite.is_solid:
+                clip = self.rect.clip(sprite.rect)
+                if x_v > 0:
+                    # self.rect.right = sprite.rect.left
+                    # self.normalize_pos()
+                    self.rect.x += clip.w
+                if x_v < 0:
+                    # self.rect.left = sprite.rect.right
+                    # self.normalize_pos()
+                    self.rect.x -= clip.w
+                if y_v > 0:
+                    # self.rect.bottom = sprite.rect.top
+                    # self.normalize_pos()
+                    self.rect.y -= clip.h
+                    self.on_ground = True
+                if y_v < 0:
+                    # self.rect.top = sprite.rect.bottom
+                    # self.normalize_pos()
+                    self.rect.y -= clip.h
+            if isinstance(sprite, Player):
+                if not sprite.stunned:
+                    sprite.hp -= self.damage
+                    sprite.stunned = True
+                    sprite.stun_count = 30
+                    if sprite.x_v == 0:
+                        if self.direction == RIGHT:
+                            sprite.x_v = INSECT_IMPULSE
+                        else:
+                            sprite.x_v = -INSECT_IMPULSE
+                    else:
+                        if sprite.x_v > 0:
+                            sprite.x_v = 0
+                            sprite.x_v = -INSECT_IMPULSE
+                        elif sprite.x_v < 0:
+                            sprite.x_v = 0
+                            sprite.x_v = INSECT_IMPULSE
 
 
 class Insect(MeleeEnemy):
-    def __init__(self, main, direction, x, y, max_x):
-        super().__init__(main, direction, x, y)
-        self.max_x = max_x  # максимальное расстояние, на котрое можно отойти от начального положения
+    def __init__(self, main, direction, pos_x, pos_y, max_x):
+        super().__init__(main, direction, pos_x, pos_y)
+        # максимальное расстояние, на котрое можно отойти от начального
+        # положения
+        self.max_x = max_x
         self.temp_image = pygame.image.load('data/enemies/insect/stayr.png')
         self.image = pygame.image.load('data/enemies/insect/stayr.png')
         self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
+        self.rect.x = Mapping.tile_width * pos_x
+        self.rect.y = Mapping.tile_height * pos_y
         self.hp = INSECT_MAX_HP
         self.damage = INSECT_DMG
         self.impulse = INSECT_IMPULSE
@@ -250,7 +262,9 @@ class Insect(MeleeEnemy):
 class Knight(MeleeEnemy):
     def __init__(self, main, direction, x, y, max_x):
         super().__init__(main, direction, x, y)
-        self.max_x = max_x  # максимальное расстояние, на котрое можно отойти от начального положения
+        # максимальное расстояние, на котрое можно отойти от начального
+        # положения
+        self.max_x = max_x
         self.temp_image = pygame.image.load('data/enemies/knight/stayr.png')
         self.image = pygame.image.load('data/enemies/knight/stayr.png')
         self.rect = self.image.get_rect()
@@ -281,14 +295,16 @@ class Knight(MeleeEnemy):
 
 
 class Rat(MeleeEnemy):
-    def __init__(self, main, direction, x, y, max_x):
-        super().__init__(main, direction, x, y)
-        self.max_x = max_x  # максимальное расстояние, на котрое можно отойти от начального положения
+    def __init__(self, main, direction, pos_x, pos_y, max_x):
+        super().__init__(main, direction, pos_x, pos_y)
+        # максимальное расстояние, на котрое можно отойти от начального
+        # положения
+        self.max_x = max_x
         self.temp_image = pygame.image.load('data/enemies/rat/stayr.png')
         self.image = pygame.image.load('data/enemies/rat/stayr.png')
         self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
+        self.rect.x = Mapping.tile_width * pos_x
+        self.rect.y = Mapping.tile_height * pos_y
         self.hp = RAT_MAX_HP
         self.damage = RAT_DMG
         self.impulse = RAT_IMPULSE
@@ -349,7 +365,9 @@ class Snake(MeleeEnemy):
 class Bat(MeleeEnemy):
     def __init__(self, main, direction, x, y, max_x, max_y):
         super().__init__(main, direction, x, y)
-        self.max_x = max_x  # максимальное расстояние, на котрое можно отойти от начального положения
+        # максимальное расстояние, на котрое можно отойти от начального
+        # положения
+        self.max_x = max_x
         self.max_y = max_y
         self.temp_image = pygame.image.load('data/enemies/bat/stayr.png')
         self.image = pygame.image.load('data/enemies/bat/stayr.png')
@@ -454,19 +472,20 @@ class Bat(MeleeEnemy):
     #                        sprite.x_v = INSECT_IMPULSE
 
 
-class FireMage(pygame.sprite.Sprite):
-    def __init__(self, main, direction, x, y):
-        pygame.sprite.Sprite.__init__(self)
+class FireMage(pygame.sprite.Sprite, FireMage):
+    def __init__(self, main, direction, pos_x, pos_y):
+        pygame.sprite.Sprite.__init__(self, SpriteGroups.characters_group,
+                                      SpriteGroups.all_sprites)
         self.main = main
         self.direction = direction
         self.y_v = 0
-        self.start_x = x
-        self.start_y = y
+        self.start_x = Mapping.tile_width * pos_x
+        self.start_y = Mapping.tile_height * pos_y
         self.temp_image = pygame.image.load('data/enemies/firemage/stayr.png')
         self.image = pygame.image.load('data/enemies/firemage/stayr.png')
         self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
+        self.rect.x = self.start_x
+        self.rect.y = self.start_y
         self.hp = FIREMAGE_HP
         self.mp = FIREMAGE_MP
         self.dead = False

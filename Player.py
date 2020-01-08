@@ -5,8 +5,8 @@ import Mapping
 import SpriteGroups
 import pygame
 
-MOVE_SPEED = 100
-JUMP_SPEED = 100
+MOVE_SPEED = 3
+JUMP_SPEED = 4.5
 PLAYER_WIDTH = 22
 PLAYER_HEIGHT = 24
 
@@ -42,7 +42,8 @@ ANIMATION_STAY_LEFT = [('data/player/player_stay/stayl.png', ANIMATION_DELAY)]
 class Player(GameSprite):
     def __init__(self, main, direction, pos_x, pos_y):
         x, y = Mapping.tile_width * pos_x, Mapping.tile_height * pos_y
-        pygame.sprite.Sprite.__init__(self)
+        pygame.sprite.Sprite.__init__(self, SpriteGroups.characters_group,
+                                      SpriteGroups.all_sprites)
         self.main = main
         self.direction = direction
         self.image = pygame.image.load('data/player/player_stay/stayr.png')
@@ -100,9 +101,10 @@ class Player(GameSprite):
                     speed = 2
                 else:
                     speed = 7
+                direction = 1 if self.right else -1
                 self.hero_melee_attacks.add(
                     HeroDefaultAttack(self.main, self.direction,
-                                      self.x + 4, self.y, speed))
+                                      self.x, self.y, speed))
             if self.da_count <= 20:
                 self.temp_image.fill(color_key)
                 if self.direction == RIGHT:
@@ -216,10 +218,10 @@ class Player(GameSprite):
             self.y_v += GRAVITATION
 
         self.on_ground = False
-        self.x += self.x_v * tick / 1000
-        self.collide(self.x_v * tick / 1000, 0)
-        self.y += self.y_v * tick / 1000
-        self.collide(0, self.y_v * tick / 1000)
+        self.x += self.x_v  # * tick / 1000
+        self.collide(self.x_v, 0)  # * tick / 1000, 0)
+        self.y += self.y_v  # * tick / 1000
+        self.collide(0, self.y_v)  # * tick / 1000)
 
     def collide(self, x_v, y_v):
         for sprite in pygame.sprite.spritecollide(self,
