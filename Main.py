@@ -28,7 +28,7 @@ class Main:
     def __init__(self):
         pygame.init()
         self.hero_group = pygame.sprite.Group()
-        self.hero = Player(self, RIGHT, 50, 250)
+        self.hero = Player(self, RIGHT, 2, 2)
         self.hero_group.add(self.hero)
         self.clock = pygame.time.Clock()
         self.screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
@@ -57,7 +57,6 @@ class Main:
 
         self.load_next_level()
         self.running = True
-        self.game_cycle()
 
     def events(self):
         for event in pygame.event.get():
@@ -88,12 +87,16 @@ class Main:
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if not self.hero.stunned:
-                    if event.button == pygame.BUTTON_LEFT and not self.hero.is_default_attack and \
-                            not self.hero.is_range_attack and self.hero.stamina >= HERO_DA_COST:
+                    if (event.button == pygame.BUTTON_LEFT and
+                            not self.hero.is_default_attack and
+                            not self.hero.is_range_attack and
+                            self.hero.stamina >= HERO_DA_COST):
                         self.hero.stamina -= HERO_DA_COST
                         self.hero.is_default_attack = True
-                    elif event.button == pygame.BUTTON_RIGHT and not self.hero.is_range_attack and \
-                            not self.hero.is_default_attack and self.hero.stamina >= HERO_RA_COST:
+                    elif (event.button == pygame.BUTTON_RIGHT and
+                          not self.hero.is_range_attack and
+                          not self.hero.is_default_attack and
+                          self.hero.stamina >= HERO_RA_COST):
                         self.hero.stamina -= HERO_RA_COST
                         self.hero.is_range_attack = True
 
@@ -104,16 +107,18 @@ class Main:
         self.hero.hero_range_attacks.update()
 
     def render(self):
-        self.screen.fill((0, 0, 0))
+        clear(self.screen)
+        SpriteGroups.tiles_group.draw(self.screen)
         self.hero_group.draw(self.screen)
         self.hero.hero_melee_attacks.draw(self.screen)
         self.hero.hero_range_attacks.draw(self.screen)
+        SpriteGroups.ui_group.draw(self.screen)
         pygame.display.flip()
-        self.clock.tick(30)
+        self.clock.tick(60)
 
     def game_cycle(self):
-        pygame.time.set_timer(pygame.USEREVENT,
-                              1000)  # изменение состояния персонажа(здоровье и прочее)
+        # изменение состояния персонажа(здоровье и прочее)
+        pygame.time.set_timer(pygame.USEREVENT, 1000)
         while self.running:
             self.events()
             self.update()
@@ -125,6 +130,7 @@ class Main:
             self.levels = json.load(file)
 
     def load_next_level(self):
+
         if self.cur_level_name is None:
             self.cur_level_name = self.levels['firstLevel']
         else:
@@ -152,7 +158,7 @@ class Main:
         self.tiles = None
         if self.music:
             self.music.stop()
-        clear(screen)
+        clear(self.screen)
         screen_w, screen_h = self.screen.get_rect().size
         total_h = sum(map(lambda l: l.h + LINE_SPACING, self.the_end_labels))
         total_h -= LINE_SPACING
@@ -198,4 +204,5 @@ class Main:
 #
 if __name__ == '__main__':
     game = Main()
+    game.game_cycle()
 

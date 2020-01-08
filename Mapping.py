@@ -3,7 +3,6 @@ import pygame
 import json
 import csv
 import SpriteGroups
-import os
 
 
 TILE_CONFIG_FILE = 'tile_config.json'

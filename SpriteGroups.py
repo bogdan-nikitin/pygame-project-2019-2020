@@ -2,13 +2,18 @@ import pygame
 from GameUIHeaders import *
 
 
-# Все объявленные группы необходимо добавить в список groups
-
-
 def empty_all():
     """Удаляет все спрайты."""
-    for group in groups:
-        group.empty()
+    for sprite in all_sprites:
+        sprite.kill()
+
+
+def empty_group(group):
+    """Удаляет из всех групп спрайты из группы group."""
+    # pygame.sprite.Group.empty() удаляет спрайты только из одной группы, так
+    # что если спрайт содержится в других группах, то он продолжает существовать
+    for sprite in group:
+        sprite.kill()
 
 
 def draw_ui(surface, sprite):
@@ -64,4 +69,3 @@ class UIGroup(pygame.sprite.Group):
 all_sprites = pygame.sprite.Group()
 tiles_group = TilesGroup()
 ui_group = UIGroup()
-groups = [all_sprites, tiles_group, ui_group]

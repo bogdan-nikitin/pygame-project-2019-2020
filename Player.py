@@ -1,10 +1,12 @@
-import pygame
-
 from Attacks import *
 from configuration import *
+from General import *
+import Mapping
+import SpriteGroups
+import pygame
 
 MOVE_SPEED = 4
-JUMP_SPEED = 10
+JUMP_SPEED = 3
 PLAYER_WIDTH = 22
 PLAYER_HEIGHT = 24
 
@@ -37,8 +39,9 @@ ANIMATION_STAY_RIGHT = [('data/player/player_stay/stayr.png', ANIMATION_DELAY)]
 ANIMATION_STAY_LEFT = [('data/player/player_stay/stayl.png', ANIMATION_DELAY)]
 
 
-class Player(pygame.sprite.Sprite):
-    def __init__(self, main, direction, x, y):
+class Player(GameSprite):
+    def __init__(self, main, direction, pos_x, pos_y):
+        x, y = Mapping.tile_width * pos_x, Mapping.tile_height * pos_y
         pygame.sprite.Sprite.__init__(self)
         self.main = main
         self.direction = direction
@@ -98,7 +101,8 @@ class Player(pygame.sprite.Sprite):
                 else:
                     speed = 7
                 self.hero_melee_attacks.add(
-                    HeroDefaultAttack(self.main, self.direction, self.rect.x + 4, self.rect.y, speed))
+                    HeroDefaultAttack(self.main, self.direction,
+                                      self.rect.x + 4, self.rect.y, speed))
             if self.da_count <= 20:
                 self.temp_image.fill(color_key)
                 if self.direction == RIGHT:
@@ -211,21 +215,23 @@ class Player(pygame.sprite.Sprite):
 
         self.on_ground = False
         self.rect.x += self.x_v
-        # self.collide(self.x_v, 0)
+        self.collide(self.x_v, 0)
         self.rect.y += self.y_v
-        # self.collide(0, self.y_v)
+        self.collide(0, self.y_v)
 
-    # def collide(self, x_v, y_v):
-    #     for sprite in pygame.sprite.spritecollideany(self, all_sprites):
-    #         if isinstance(sprite, ):  # если является твердым
-    #             if x_v > 0:
-    #                 self.rect.right = sprite.rect.left
-    #             if x_v < 0:
-    #                 self.rect.left = sprite.rect.right
-    #             if y_v > 0:
-    #                 self.rect.bottom = sprite.rect.top
-    #                 self.on_ground = True
-    #                 self.y_v = 0
-    #             if y_v < 0:
-    #                 self.rect.top = sprite.rect.bottom
-    #                 self.y_v = 0
+    def collide(self, x_v, y_v):
+        for sprite in pygame.sprite.spritecollide(self,
+                                                  SpriteGroups.tiles_group,
+                                                  False):
+            if sprite.is_solid:  # если является твердым
+                if x_v > 0:
+                    self.rect.right = sprite.rect.left
+                if x_v < 0:
+                    self.rect.left = sprite.rect.right
+                if y_v > 0:
+                    self.rect.bottom = sprite.rect.top
+                    self.on_ground = True
+                    self.y_v = 0
+                if y_v < 0:
+                    self.rect.top = sprite.rect.bottom
+                    self.y_v = 0
