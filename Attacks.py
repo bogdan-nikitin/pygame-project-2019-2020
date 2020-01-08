@@ -1,0 +1,177 @@
+import math
+import pygame
+from Enemies import *
+from configuration import *
+
+
+class Attack(pygame.sprite.Sprite):
+    def __init__(self, main, direction, speed):
+        pygame.sprite.Sprite.__init__(self)
+        self.main = main
+        self.direction = direction
+        self.speed = speed
+
+
+class HeroDefaultAttack(Attack):
+    def __init__(self, main, direction, x, y, speed):
+        super().__init__(main, direction, speed)
+        if direction == RIGHT:
+            self.image = pygame.image.load('data/player/player_attack/trailr.png')
+        else:
+            self.image = pygame.image.load('data/player/player_attack/traill.png')
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.x = 18
+        self.y = 18
+        self.damage = HERO_DA_DMG
+        self.live = 7
+        self.damaged = []
+
+    def update(self):
+        if self.direction == RIGHT:
+            self.rect.y -= 3
+            self.rect.x += self.speed
+            self.x += 6
+            self.y += 6
+            self.image = pygame.transform.scale(self.image, (self.x, self.y))
+        else:
+            self.rect.y -= 3
+            self.rect.x -= 6 + self.speed
+            self.x += 6
+            self.y += 6
+            self.image = pygame.transform.scale(self.image, (self.x, self.y))
+        self.live -= 1
+        if self.live <= 0:
+            self.kill()
+        # self.collide()
+
+    # def collide(self):
+    #     for sprite in pygame.sprite.spritecollideany(self, all_sprites):
+    #         if isinstance(sprite, (MeleeEnemy, FireMage):
+    #             if sprite not in self.damaged:
+    #                 sprite.hp -= HERO_DA_DMG
+    #                 self.damaged.append(sprite)
+    #     self.damaged.clear()
+
+
+class HeroRangeAttack(Attack):
+    def __init__(self, main, direction, x, y, speed):
+        super().__init__(main, direction, speed)
+        if direction == RIGHT:
+            self.image = pygame.image.load('data/player/player_attack/daggerr.png')
+        else:
+            self.image = pygame.image.load('data/player/player_attack/daggerl.png')
+        self.image = pygame.transform.scale(self.image, (24, 7))
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.damage = HERO_RA_DMG
+
+    def update(self):
+        if self.direction == RIGHT:
+            self.rect.x += self.speed
+        else:
+            self.rect.x -= self.speed
+        if self.rect.x > WINDOW_WIDTH or self.rect.x < 0 - 24:  # 24 - длина изображения
+            self.kill()
+        # self.collide()
+
+    # def collide(self):
+    #     for sprite in pygame.sprite.spritecollideany(self, all_sprites):
+    #         if isinstance(sprite, MeleeEnemy):
+    #             sprite.hp -= HERO_RA_DMG
+    #             self.kill()
+    #          elif isinstance(sprite, ):  # если является твердым
+    #              self.kill()
+
+
+class Fireball(pygame.sprite.Sprite):
+    def __init__(self, direction, start_x, start_y, target_x, target_y):
+        super().__init__()
+        if direction == RIGHT:
+            self.image = pygame.image.load('data/projectives/fballr.png')
+        else:
+            self.image = pygame.image.load('data/projectives/fballl.png')
+        self.rect = self.image.get_rect()
+        self.rect.x = start_x
+        self.rect.y = start_y
+        self.floating_point_x = start_x
+        self.floating_point_y = start_y
+
+        x_diff = target_x - start_x
+        y_diff = target_y - start_y
+        angle = math.atan2(y_diff, x_diff)
+
+        speed = 5
+        self.change_x = math.cos(angle) * speed
+        self.change_y = math.sin(angle) * speed
+
+    def update(self):
+        self.floating_point_y += self.change_y
+        self.floating_point_x += self.change_x
+        self.rect.y = int(self.floating_point_y)
+        self.rect.x = int(self.floating_point_x)
+
+        if self.rect.x < 0 or self.rect.x > WINDOW_WIDTH or self.rect.y < 0 or self.rect.y > WINDOW_HEIGHT:
+            self.kill()
+
+    # def collide(self):
+    #     for sprite in pygame.sprite.spritecollideany(self, all_sprites):
+    #         if isinstance(sprite, PLayer):
+    #             sprite.hp -= FIREBALL_DMG
+    #             self.kill()
+    #          elif isinstance(sprite, ):  # если является твердым
+    #              self.kill()
+
+
+class AimedFireball(pygame.sprite.Sprite):
+    def __init__(self, target, start_x, start_y):
+        super().__init__()
+        self.image = pygame.image.load('data/projectives/aimedfb.png')
+        self.rect = self.image.get_rect()
+        self.rect.x = start_x
+        self.rect.y = start_y
+        self.floating_point_x = start_x
+        self.floating_point_y = start_y
+        self.speed = 5
+        self.target = target
+        self.aiming = True
+
+        x_diff = self.target.rect.x - start_x
+        y_diff = self.target.rect.y - start_y
+        angle = math.atan2(y_diff, x_diff)
+        self.prev_angle = angle
+
+        self.change_x = math.cos(angle) * self.speed
+        self.change_y = math.sin(angle) * self.speed
+
+    def update(self):
+        self.floating_point_y += self.change_y
+        self.floating_point_x += self.change_x
+        self.rect.y = int(self.floating_point_y)
+        self.rect.x = int(self.floating_point_x)
+
+        if self.aiming:
+            x_diff = self.target.rect.x - self.rect.x
+            y_diff = self.target.rect.y - self.rect.y
+            angle = math.atan2(y_diff, x_diff)
+            self.prev_angle = angle
+            if abs(self.rect.x - self.target.rect.x) <= 10:
+                self.aiming = False
+            self.change_x = math.cos(angle) * self.speed
+            self.change_y = math.sin(angle) * self.speed
+        else:
+            self.change_x = math.cos(self.prev_angle) * self.speed
+            self.change_y = math.sin(self.prev_angle) * self.speed
+
+        if self.rect.x < 0 or self.rect.x > WINDOW_WIDTH or self.rect.y < 0 or self.rect.y > WINDOW_HEIGHT:
+            self.kill()
+
+    # def collide(self):
+    #     for sprite in pygame.sprite.spritecollideany(self, all_sprites):
+    #         if isinstance(sprite, PLayer):
+    #             sprite.hp -= AIMEDFB_DMG
+    #             self.kill()
+    #          elif isinstance(sprite, ):  # если является твердым
+    #              self.kill()
