@@ -132,11 +132,12 @@ class MeleeEnemy(pygame.sprite.Sprite, MeleeEnemy):
         self.dead = False
         self.on_ground = False
         self.dead_count = 60
+        self.change_direction = 300
 
     def move(self, color_key):
         self.temp_image.fill(color_key)
         if self.left:
-            self.x_v = self.ms
+            self.x_v = -self.ms
             self.anim_walk_left.blit(self.temp_image, (0, 0))
         if self.right:
             self.x_v = self.ms
@@ -156,19 +157,18 @@ class MeleeEnemy(pygame.sprite.Sprite, MeleeEnemy):
                 self.dead = True
             self.move(color_key)
             if not self.on_ground:
-                self.y_v += GRAVITATION
+                self.rect.y += GRAVITATION
 
             self.on_ground = False
-            self.rect.y += self.y_v
-            if self.direction == RIGHT:
-                self.rect.x += self.x_v
-            else:
-                self.rect.x -= self.x_v
+            self.rect.x += self.x_v
             self.collide(self.x_v, 0, )
             self.collide(0, self.y_v, )
 
-            if abs(self.start_x - self.rect.x) > self.max_x:
+            if self.change_direction >= 0:
+                self.change_direction -= 1
+            else:
                 self.direction = -self.direction
+                self.change_direction = 300
         else:
             if self.dead_count > 0:
                 self.dead_count -= 1
@@ -187,24 +187,26 @@ class MeleeEnemy(pygame.sprite.Sprite, MeleeEnemy):
                                                   SpriteGroups.all_sprites,
                                                   False):
             if isinstance(sprite, Tile) and sprite.is_solid:
-                clip = self.rect.clip(sprite.rect)
+                # clip = self.rect.clip(sprite.rect)
                 if x_v > 0:
-                    # self.rect.right = sprite.rect.left
+                    self.direction = -self.direction
+                    self.rect.right = sprite.rect.left
                     # self.normalize_pos()
-                    self.rect.x += clip.w
-                if x_v < 0:
-                    # self.rect.left = sprite.rect.right
+                    # self.rect.x += clip.w
+                elif x_v < 0:
+                    self.direction = -self.direction
+                    self.rect.left = sprite.rect.right
                     # self.normalize_pos()
-                    self.rect.x -= clip.w
-                if y_v > 0:
-                    # self.rect.bottom = sprite.rect.top
+                    # self.rect.x -= clip.w
+                elif y_v > 0:
+                    self.rect.bottom = sprite.rect.top
                     # self.normalize_pos()
-                    self.rect.y -= clip.h
+                    # self.rect.y -= clip.h
                     self.on_ground = True
-                if y_v < 0:
-                    # self.rect.top = sprite.rect.bottom
+                elif y_v < 0:
+                    self.rect.top = sprite.rect.bottom
                     # self.normalize_pos()
-                    self.rect.y -= clip.h
+                    # self.rect.y -= clip.h
             if isinstance(sprite, Player):
                 if not sprite.stunned:
                     sprite.hp -= self.damage
@@ -264,7 +266,7 @@ class Knight(MeleeEnemy):
         super().__init__(main, direction, x, y)
         # максимальное расстояние, на котрое можно отойти от начального
         # положения
-        self.max_x = max_x
+        self.max_x = 300
         self.temp_image = pygame.image.load('data/enemies/knight/stayr.png')
         self.image = pygame.image.load('data/enemies/knight/stayr.png')
         self.rect = self.image.get_rect()

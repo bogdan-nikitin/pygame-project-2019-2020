@@ -205,9 +205,9 @@ class Main:
         self.hero_group.add(self.hero)
         self.end_loading()
 
-        if 'music' in level_data:
-            self.music = pygame.mixer.Sound(data_path(level_data['music']))
-            self.music.play(-1)
+        # if 'music' in level_data:
+        #     self.music = pygame.mixer.Sound(data_path(level_data['music']))
+        #     self.music.play(-1)
 
     def end_game(self):
         self.tiles = None
