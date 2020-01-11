@@ -1,5 +1,5 @@
 import pygame
-from GameUIHeaders import *
+from Modules.GameUIHeaders import *
 
 
 def empty_all():

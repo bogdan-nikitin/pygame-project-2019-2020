@@ -1,7 +1,8 @@
-from General import *
+from Modules.Sprites import *
 
 
 class Camera:
+    """Класс камеры."""
     # зададим начальный сдвиг камеры
     def __init__(self, screen):
         self.screen = screen

@@ -1,5 +1,5 @@
-from ColorPalette import *
-from General import *
+from Modules.ColorPalette import *
+from Modules.General import *
 
 
 """Заголовочный файл по типу таковых в C++. Необходим для распознавания класса 

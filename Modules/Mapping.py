@@ -1,8 +1,9 @@
-from General import *
-import pygame
 import json
 import csv
-import SpriteGroups
+from Modules.Sprites import *
+from Modules import SpriteGroups
+from Modules.General import *
+import pygame
 
 
 TILE_CONFIG_FILE = 'tile_config.json'
@@ -62,14 +63,13 @@ tile_config = {}
 load_tile_config()
 
 
-class Tile(GameSprite):
+class Tile(GameSprite, ScalableSprite):
     """Класс плитки - основной единицы карты уровня."""
 
     images_loaded = False
     tile_images = None
     sheet = None
     sheet_size = 20, 16
-    image_size_multiplier = 1
 
     def __init__(self, tile_type, pos_x, pos_y, z_index=0, lever_id=None,
                  is_exit=False, is_active=True):
@@ -77,7 +77,7 @@ class Tile(GameSprite):
         if not Tile.images_loaded:
             self.load_images()
 
-        super().__init__(SpriteGroups.all_sprites, SpriteGroups.tiles_group)
+        super().__init__(SpriteGroups.tiles_group)
         self.z_index = z_index
         self.image = Tile.sheet[tile_type - 1]
         self.rect = self.image.get_rect().move(tile_width * pos_x,
@@ -124,28 +124,29 @@ class Tile(GameSprite):
 
     @staticmethod
     def load_images():
-        """Загружает текстуры для плиток, увеличивая их в Tile.multiplier раз.
-        """
+        """Загружает текстуры для плиток, увеличивая их в
+        Tile.scale_multiplier раз."""
 
         Tile.tile_images = load_image('tiles.png', (0, 0, 0))
 
         w, h = Tile.tile_images.get_size()
-        multiplier = Tile.image_size_multiplier
+        multiplier = Tile.scale_multiplier
         tile_images = pygame.transform.scale(Tile.tile_images,
-                                             (w * multiplier,
-                                              h * multiplier))
+                                             (int(w * multiplier),
+                                              int(h * multiplier)))
 
         Tile.sheet = cut_sheet(tile_images, *Tile.sheet_size)
         Tile.images_loaded = True
 
-    @staticmethod
-    def set_image_size_multiplier(multiplier):
+    @classmethod
+    def set_image_size_multiplier(cls, multiplier):
         """Устанавливает множитель размера для текстур."""
         global tile_width, tile_height
-        Tile.image_size_multiplier = multiplier
+
+        super().set_image_size_multiplier(multiplier)
+
         tile_width *= multiplier
         tile_height *= multiplier
-        Tile.images_loaded = False
 
     def update(self, *args):
         """Обновляет спрайты. В качестве аргумента необходимо передать

@@ -1,13 +1,13 @@
-from Enemies import *
-from Player import *
-from configuration import *
-from Mapping import *
-from MenuUI import *
-from General import *
-from GameUI import *
-from Camera import *
-from Enemies import *
-import SpriteGroups
+from Modules.Enemies import *
+from Modules.Player import *
+from Modules.Configuration import *
+from Modules.Mapping import *
+from Modules.MenuUI import *
+from Modules.General import *
+from Modules.GameUI import *
+from Modules.Camera import *
+from Modules.Enemies import *
+from Modules import SpriteGroups
 import pygame
 import json
 import sys
@@ -18,7 +18,8 @@ LOADING = 'Loading'
 LOADING_FONT_SIZE = 30
 THE_END = '''The end
 Game was made by 
-Bogdan Nikitin and EvolutionSup 
+Bogdan Nikitin and 
+Vasiliev Alexander 
 for the educational platform 
 Yandex Lyceum'''.split('\n')
 THE_END_FIRST_LINE_FONT_SIZE = 50
@@ -27,7 +28,15 @@ THE_END_FONT_SIZE = 20
 LINE_SPACING = 10
 
 
+ENEMY_TABLE = {'Insect': Insect,
+               'Knight': Knight,
+               'Snake': Snake,
+               'Rat': Rat,
+               'Bat': Bat}
+
+
 class Main:
+    """Основной класс игры, включающий в себя игровой цикл."""
     def __init__(self):
         pygame.init()
         self.hero = None
@@ -70,6 +79,7 @@ class Main:
         self.running = True
 
     def events(self):
+        """Обработка событий."""
         for event in pygame.event.get():
             SpriteGroups.ui_group.event(event)
             if event.type == pygame.QUIT:
@@ -101,18 +111,18 @@ class Main:
                     if self.is_paused:
                         self.menu.show()
                         if self.music:
-                            self.music.stop()
+                            pygame.mixer.pause()
                     else:
                         self.menu.hide()
                         self.menu.settings_panel.hide()
                         if self.music:
-                            self.music.play(-1)
+                            pygame.mixer.unpause()
 
             elif event.type == FULLSCREEN_EVENT_TYPE:
                 full_screen = event.fullscreen
                 self.full_screen = full_screen
+                self.size = self.screen.get_rect().size
                 if full_screen:
-                    self.size = self.screen.get_rect().size
                     self.screen = pygame.display.set_mode([0, 0],
                                                           pygame.FULLSCREEN)
                 else:
@@ -122,8 +132,7 @@ class Main:
                 self.is_paused = False
                 self.menu.hide()
                 self.menu.settings_panel.hide()
-                if self.music:
-                    self.music.play(-1)
+                pygame.mixer.unpause()
 
             elif event.type == EXIT_EVENT.type:
                 pygame.quit()
@@ -150,16 +159,19 @@ class Main:
                                                           pygame.RESIZABLE)
 
     def update(self, *args):
-        self.camera.update(self.hero)
-        for sprite in SpriteGroups.all_sprites:
-            if not isinstance(sprite, UIElement):
-                self.camera.apply(sprite)
         SpriteGroups.ui_group.update(*args)
-        SpriteGroups.all_sprites.update()
-        self.hero.hero_melee_attacks.update()
-        self.hero.hero_range_attacks.update()
+        if not self.is_paused:
+            self.camera.update(self.hero)
+            for sprite in SpriteGroups.all_sprites:
+                if not isinstance(sprite, UIElement):
+                    self.camera.apply(sprite)
+            SpriteGroups.characters_group.update(*args)
+            SpriteGroups.tiles_group.update(*args)
+            self.hero.hero_melee_attacks.update()
+            self.hero.hero_range_attacks.update()
 
     def render(self):
+        """Отрисовка всех спрайтов."""
         clear(self.screen)
         SpriteGroups.tiles_group.draw(self.screen)
         SpriteGroups.characters_group.draw(self.screen)
@@ -175,7 +187,7 @@ class Main:
             self.events()
             self.update(self.tick)
             self.render()
-            self.tick = self.clock.tick(30)
+            self.tick = self.clock.tick()
         pygame.quit()
 
     def load_levels_config(self):
@@ -203,6 +215,7 @@ class Main:
         _, _, self.tiles = generate_level(load_level(file_name))
         self.hero = Player(self, RIGHT, *level_data['heroPos'])
         self.hero_group.add(self.hero)
+        self.spawn_enemies(level_data.get('enemies', []))
         self.end_loading()
 
         if 'music' in level_data:
@@ -236,6 +249,11 @@ class Main:
         pygame.display.flip()
         self.is_loading = True
 
+    def spawn_enemies(self, enemies):
+        for enemy, x, y in enemies:
+            enemy_class = ENEMY_TABLE[enemy]
+            enemy_class(self, RIGHT, x, y, 400)
+
     def end_loading(self):
         self.loading_label.hide()
         clear(self.screen)
@@ -243,7 +261,8 @@ class Main:
 
 
 if __name__ == '__main__':
+    Player.set_image_size_multiplier(2)
+    Mapping.Tile.set_image_size_multiplier(2)
     game = Main()
-    enemy = Insect(game, RIGHT, 4, 51, 1)
     game.game_cycle()
 

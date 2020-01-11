@@ -1,12 +1,13 @@
-from Attacks import *
-from configuration import *
-from General import *
-import Mapping
-import SpriteGroups
+from Modules.Attacks import *
+from Modules.Configuration import *
+from Modules import SpriteGroups, Mapping
+from Modules.Sprites import *
+from Modules.General import *
 import pygame
+import typing
 
-MOVE_SPEED = 3
-JUMP_SPEED = 4.5
+MOVE_SPEED = 120
+JUMP_SPEED = 45
 PLAYER_WIDTH = 22
 PLAYER_HEIGHT = 24
 
@@ -25,13 +26,17 @@ ANIMATION_LEFT = ['data/player/player_walk/walkl1.png',
                   'data/player/player_walk/walkl4.png', ]
 
 ANIMATION_ATTACK_DMR = [pygame.image.load('data/player/player_attack/mr1.png'),
-                        pygame.image.load('data/player/player_attack/mr2.png'), ]
+                        pygame.image.load('data/player/player_attack/mr2.png'),
+                        ]
 ANIMATION_ATTACK_DML = [pygame.image.load('data/player/player_attack/ml1.png'),
-                        pygame.image.load('data/player/player_attack/ml2.png'), ]
+                        pygame.image.load('data/player/player_attack/ml2.png'),
+                        ]
 ANIMATION_ATTACK_DRR = [pygame.image.load('data/player/player_attack/rr1.png'),
-                        pygame.image.load('data/player/player_attack/rr2.png'), ]
+                        pygame.image.load('data/player/player_attack/rr2.png'),
+                        ]
 ANIMATION_ATTACK_DRL = [pygame.image.load('data/player/player_attack/rl1.png'),
-                        pygame.image.load('data/player/player_attack/rl2.png'), ]
+                        pygame.image.load('data/player/player_attack/rl2.png'),
+                        ]
 
 ANIMATION_JUMP_LEFT = [('data/player/player_jump/jumpl.png', ANIMATION_DELAY)]
 ANIMATION_JUMP_RIGHT = [('data/player/player_jump/jumpr.png', ANIMATION_DELAY)]
@@ -39,20 +44,39 @@ ANIMATION_STAY_RIGHT = [('data/player/player_stay/stayr.png', ANIMATION_DELAY)]
 ANIMATION_STAY_LEFT = [('data/player/player_stay/stayl.png', ANIMATION_DELAY)]
 
 
-class Player(GameSprite):
+class Player(GameSprite, ScalableSprite):
+
     def __init__(self, main, direction, pos_x, pos_y):
         x, y = Mapping.tile_width * pos_x, Mapping.tile_height * pos_y
         pygame.sprite.Sprite.__init__(self, SpriteGroups.characters_group,
                                       SpriteGroups.all_sprites)
         self.main = main
         self.direction = direction
-        self.image = pygame.image.load('data/player/player_stay/stayr.png')
-        self.temp_image = pygame.image.load('data/initialization.png')
+
+        self.image: typing.Optional[pygame.Surface] = None
+        self.temp_image: typing.Optional[pygame.Surface] = None
+
+        self.anim_stay_right: typing.Optional[pyganim.PygAnimation] = None
+
+        self.anim_stay_left: typing.Optional[pyganim.PygAnimation] = None
+
+        self.anim_jump_right: typing.Optional[pyganim.PygAnimation] = None
+
+        self.anim_jump_left: typing.Optional[pyganim.PygAnimation] = None
+
+        self.anim_walk_right: typing.Optional[pyganim.PygAnimation] = None
+
+        self.anim_walk_left: typing.Optional[pyganim.PygAnimation] = None
+
+        self.rect: typing.Optional[pygame.rect.Rect, None]
+
+        if not self.images_loaded:
+            self.load_images()
+
         self.start_x = x
         self.start_y = y
         self.x_v = 0
         self.y_v = 0
-        self.rect = self.image.get_rect()
         self.x = x
         self.y = y
         self.hero_melee_attacks = pygame.sprite.Group()
@@ -69,23 +93,45 @@ class Player(GameSprite):
         self.hp = MAX_HP
         self.stamina = MAX_STAMINA
 
+    def load_images(self):
+        self.image = pygame.image.load('data/player/player_stay/stayr.png')
+        w, h = self.image.get_size()
+        self.image = pygame.transform.scale(self.image,
+                                            (int(w * Player.scale_multiplier),
+                                             int(h * Player.scale_multiplier)))
+        self.temp_image = pygame.image.load('data/initialization.png')
+        w, h = self.temp_image.get_size()
+        self.temp_image = pygame.transform.scale(self.temp_image,
+                                                 (int(w *
+                                                      Player.scale_multiplier),
+                                                  int(h *
+                                                      Player.scale_multiplier)))
+
         self.anim_stay_right = pyganim.PygAnimation(ANIMATION_STAY_RIGHT)
-        self.anim_stay_right.play()
 
         self.anim_stay_left = pyganim.PygAnimation(ANIMATION_STAY_LEFT)
-        self.anim_stay_left.play()
 
         self.anim_jump_right = pyganim.PygAnimation(ANIMATION_JUMP_RIGHT)
-        self.anim_jump_right.play()
 
         self.anim_jump_left = pyganim.PygAnimation(ANIMATION_JUMP_LEFT)
-        self.anim_jump_left.play()
 
         self.anim_walk_right = make_animation(ANIMATION_RIGHT, ANIMATION_DELAY)
-        self.anim_walk_right.play()
 
         self.anim_walk_left = make_animation(ANIMATION_LEFT, ANIMATION_DELAY)
-        self.anim_walk_left.play()
+
+        animations = [self.anim_stay_right, self.anim_stay_left,
+                      self.anim_jump_right, self.anim_jump_left,
+                      self.anim_walk_right, self.anim_walk_left]
+
+        for animation in animations:
+            animation.play()
+            w, h = animation.getMaxSize()
+            animation.scale((int(w * Player.scale_multiplier),
+                             int(h * Player.scale_multiplier)))
+
+        self.rect = self.image.get_rect()
+
+        Player.images_loaded = True
 
     def tick(self):
         if self.hp < MAX_HP:
@@ -153,7 +199,7 @@ class Player(GameSprite):
             self.is_range_attack = False
 
     def move(self, color_key):
-        if self.left:
+        if self.left and self.on_ground:
             self.x_v = -MOVE_SPEED
             if not (self.is_default_attack or self.is_range_attack):
                 self.temp_image.fill(color_key)
@@ -165,7 +211,7 @@ class Player(GameSprite):
                     else:
                         self.anim_jump_left.blit(self.temp_image, (0, 0))
                 self.image = self.temp_image
-        if self.right:
+        if self.right and self.on_ground:
             self.x_v = MOVE_SPEED
             if not (self.is_default_attack or self.is_range_attack):
                 self.temp_image.fill(color_key)
@@ -177,7 +223,7 @@ class Player(GameSprite):
                     else:
                         self.anim_jump_left.blit(self.temp_image, (0, 0))
                 self.image = self.temp_image
-        if not (self.left or self.right):
+        if not (self.left or self.right) and self.on_ground:
             self.x_v = 0
             if not (self.is_default_attack or self.is_range_attack):
                 if self.on_ground:
@@ -187,7 +233,7 @@ class Player(GameSprite):
                     else:
                         self.anim_stay_left.blit(self.temp_image, (0, 0))
                     self.image = self.temp_image
-        if self.up:
+        if self.up or not self.on_ground:
             if self.on_ground:
                 self.y_v = -JUMP_SPEED
             if not (self.is_default_attack or self.is_range_attack):
@@ -214,14 +260,13 @@ class Player(GameSprite):
             if self.stun_count == 0:
                 self.stunned = False
 
-        if not self.on_ground:
-            self.y_v += GRAVITATION
+        self.y_v += GRAVITATION * tick / 1000
 
         self.on_ground = False
-        self.x += self.x_v  # * tick / 1000
-        self.collide(self.x_v, 0)  # * tick / 1000, 0)
-        self.y += self.y_v  # * tick / 1000
-        self.collide(0, self.y_v)  # * tick / 1000)
+        groups, key = SpriteGroups.tiles_group, lambda sprite: sprite.is_solid
+        self.collide_shift(self.x_v * tick / 1000, 0, groups, key)
+        if not self.collide_shift(0, self.y_v * tick / 1000, groups, key):
+            self.on_ground = True
 
     def collide(self, x_v, y_v):
         for sprite in pygame.sprite.spritecollide(self,
@@ -242,6 +287,7 @@ class Player(GameSprite):
                     # self.normalize_pos()
                     self.y -= clip.h
                     self.on_ground = True
+                    self.y_v = 0
                 if y_v < 0:
                     # self.rect.top = sprite.rect.bottom
                     # self.normalize_pos()

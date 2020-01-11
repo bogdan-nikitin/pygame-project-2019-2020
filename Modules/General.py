@@ -1,4 +1,4 @@
-from Constants import *
+from Modules.Constants import *
 import os
 import pygame
 import re
@@ -15,68 +15,11 @@ def draw_fps(screen, fps):
     screen.blit(text, (text_x, text_y))
 
 
-class GameSprite(pygame.sprite.Sprite):
-    """Класс спрайта, имеющего свойства x и y - координаты. При изменении
-    координаты также меняется значение topleft у свойства rect. При изменении
-    свойства rect меняются координаты x и y. Координаты сохраняют дробные
-    значения."""
-    def __init__(self, *groups):
-        super().__init__(*groups)
-        self._rect = None
-        self.rect = self._rect
-        self._x = 0
-        self._y = 0
-        self.x = self._x
-        self.y = self._y
-
-    @property
-    def rect(self):
-        return self._rect
-
-    @rect.setter
-    def rect(self, value):
-        self._rect = value
-        self.normalize_pos()
-
-    @property
-    def x(self):
-        return self._x
-
-    @x.setter
-    def x(self, value):
-        self._x = value
-        if self.rect is not None:
-            self.rect.x = self._x
-
-    @property
-    def y(self):
-        return self._y
-
-    @y.setter
-    def y(self, value):
-        self._y = value
-        if self.rect is not None:
-            self.rect.y = self._y
-
-    @property
-    def pos(self):
-        return self.x, self.y
-
-    @pos.setter
-    def pos(self, value):
-        self.x, self.y = value
-
-    def normalize_pos(self):
-        """Выставляет координатам x и y текущее положение спрайта."""
-        if self.rect is not None:
-            self._x, self._y = self.rect.topleft
-
-
 def load_image(name, color_key=None):
     """Загружает изображение data/name и устанавливает изображению цветовой ключ
      color_key. Если color_key=-1, то в качестве color_key используется верхний
      левый угол зображения."""
-    fullname = os.path.join('data', name)
+    fullname = data_path(name)
     image = pygame.image.load(fullname)
     if color_key is not None:
         image = image.convert()

@@ -1,9 +1,8 @@
-from General import *
-from Constants import *
-import SpriteGroups
+from Modules.General import *
+from Modules import SpriteGroups
 import pygame
-from GameUIHeaders import *
-from ColorPalette import *
+from Modules.GameUIHeaders import *
+from Modules.ColorPalette import *
 from multipledispatch import dispatch  # Модуль для "перегрузки" функций
 from numbers import Number
 

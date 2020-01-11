@@ -1,10 +1,9 @@
 import math
-import pygame
-import SpriteGroups
-from Mapping import *
-from EnemiesHeaders import *
-from configuration import *
-from General import *
+from Modules import SpriteGroups
+from Modules.Mapping import *
+from Modules.EnemiesHeaders import *
+from Modules.Configuration import *
+from Modules.General import *
 
 
 class Attack(GameSprite):

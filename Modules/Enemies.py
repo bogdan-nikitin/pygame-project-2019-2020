@@ -1,9 +1,9 @@
 import pygame
-from Player import *
-from Attacks import *
-from configuration import *
-from EnemiesHeaders import *
-import Mapping
+from Modules.Player import *
+from Modules.Attacks import *
+from Modules.Configuration import *
+from Modules.EnemiesHeaders import *
+from Modules import Mapping
 
 INSECT_DMG = 20
 INSECT_IMPULSE = 5
@@ -143,7 +143,7 @@ class MeleeEnemy(pygame.sprite.Sprite, MeleeEnemy):
             self.anim_walk_right.blit(self.temp_image, (0, 0))
         self.image = self.temp_image
 
-    def update(self):
+    def update(self, *args):
         color_key = self.image.get_at((0, 0))
         if not self.dead:
             if self.direction == RIGHT:
@@ -398,7 +398,7 @@ class Bat(MeleeEnemy):
         self.anim_walk_left = make_animation(BAT_LEFT, ANIMATION_DELAY)
         self.anim_walk_left.play()
 
-    def update(self):
+    def update(self, *args):
         color_key = self.image.get_at((0, 0))
         if not self.dead:
             if self.direction == RIGHT:
@@ -500,7 +500,7 @@ class FireMage(pygame.sprite.Sprite, FireMage):
         self.anim_dead_left = pyganim.PygAnimation(MAGE_DEAD_LEFT)
         self.anim_dead_left.play()
 
-    def update(self):
+    def update(self, *args):
         color_key = self.image.get_at((0, 0))
         if not self.dead:
             if self.mp < FIREMAGE_MP:
@@ -592,7 +592,7 @@ class Wraith(pygame.sprite.Sprite):
         self.anim_dead_left = pyganim.PygAnimation(WRAITH_DEAD_LEFT)
         self.anim_dead_left.play()
 
-    def update(self):
+    def update(self, *args):
         color_key = self.image.get_at((0, 0))
         if not self.dead:
             if self.mp < WRAITH_MP:

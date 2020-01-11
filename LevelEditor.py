@@ -1,10 +1,9 @@
-from Mapping import *
-from General import *
-import Mapping
-import pygame
-import SpriteGroups
+from Modules.Mapping import *
+from Modules.General import *
+from Modules import Mapping, SpriteGroups
 import os
 import csv
+import pygame
 
 
 HELP = '''
@@ -155,7 +154,7 @@ def run_editor(*paths, mode):
     all_tiles_group = pygame.sprite.Group()
     all_tiles = pygame.sprite.Sprite(SpriteGroups.all_sprites, all_tiles_group)
     w, h = Tile.tile_images.get_size()
-    multiplier = Tile.image_size_multiplier
+    multiplier = Tile.scale_multiplier
     tile_images = pygame.transform.scale(Tile.tile_images,
                                          (w * multiplier,
                                           h * multiplier))
@@ -171,6 +170,8 @@ def run_editor(*paths, mode):
     last_mouse_pos = None, None
     mouse_pos = None, None
     mouse_btn = None
+
+    x, y = 0, 0
 
     ctr_pressed = False
     s_pressed = False
@@ -197,6 +198,10 @@ def run_editor(*paths, mode):
                     ctr_pressed = False
                 elif event.key == pygame.K_s:
                     s_pressed = False
+                elif event.key == pygame.K_v:
+                    i = int((x - total_dx) // Mapping.tile_width)
+                    j = int((y - total_dy) // Mapping.tile_height)
+                    print(f'Координаты плитки: ({i}, {j})')
 
             elif event.type == pygame.VIDEORESIZE:
                 old_surface_saved = screen
@@ -238,6 +243,7 @@ def run_editor(*paths, mode):
                         input_tile_data(tiles_on_pos[-1])
 
             elif event.type == pygame.MOUSEMOTION:
+                x, y = event.pos
                 if mouse_btn is not None:
                     mouse_pos = event.pos
 

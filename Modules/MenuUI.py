@@ -1,6 +1,6 @@
-from General import *
-from GameUI import *
-import SpriteGroups
+from Modules.General import *
+from Modules.GameUI import *
+from Modules import SpriteGroups
 import pygame
 
 
