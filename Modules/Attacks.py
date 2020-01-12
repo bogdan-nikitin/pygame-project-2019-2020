@@ -5,6 +5,9 @@ from Modules.EnemiesHeaders import *
 from Modules.Configuration import *
 from Modules.General import *
 
+FIREBALL_SPEED = 5
+TRAIL_DURATION = 7
+
 
 class Attack(GameSprite):
     def __init__(self, main, direction, speed):
@@ -47,7 +50,7 @@ class HeroDefaultAttack(HeroAttack):
         self.x = x + 4 * (1 if direction == RIGHT else -1)
         self.y = y
         self.damage = HERO_DA_DMG
-        self.live = 7
+        self.live = TRAIL_DURATION
 
     def update(self, *args):
         tick = args[0] if args else 0
@@ -103,7 +106,7 @@ class Fireball(pygame.sprite.Sprite):
         y_diff = target_y - start_y
         angle = math.atan2(y_diff, x_diff)
 
-        speed = 5
+        speed = FIREBALL_SPEED
         self.change_x = math.cos(angle) * speed
         self.change_y = math.sin(angle) * speed
 
@@ -113,7 +116,8 @@ class Fireball(pygame.sprite.Sprite):
         self.rect.y = int(self.floating_point_y)
         self.rect.x = int(self.floating_point_x)
 
-        if self.rect.x < 0 or self.rect.x > WINDOW_WIDTH or self.rect.y < 0 or self.rect.y > WINDOW_HEIGHT:
+        if self.rect.x < 0 or self.rect.x > WINDOW_WIDTH or\
+                self.rect.y < 0 or self.rect.y > WINDOW_HEIGHT:
             self.kill()
 
     # def collide(self):
@@ -134,7 +138,7 @@ class AimedFireball(pygame.sprite.Sprite):
         self.rect.y = start_y
         self.floating_point_x = start_x
         self.floating_point_y = start_y
-        self.speed = 5
+        self.speed = FIREBALL_SPEED
         self.target = target
         self.aiming = True
 
@@ -165,7 +169,8 @@ class AimedFireball(pygame.sprite.Sprite):
             self.change_x = math.cos(self.prev_angle) * self.speed
             self.change_y = math.sin(self.prev_angle) * self.speed
 
-        if self.rect.x < 0 or self.rect.x > WINDOW_WIDTH or self.rect.y < 0 or self.rect.y > WINDOW_HEIGHT:
+        if self.rect.x < 0 or self.rect.x > WINDOW_WIDTH or\
+                self.rect.y < 0 or self.rect.y > WINDOW_HEIGHT:
             self.kill()
 
     # def collide(self):

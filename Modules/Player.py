@@ -11,6 +11,17 @@ JUMP_SPEED = 4.5
 PLAYER_WIDTH = 22
 PLAYER_HEIGHT = 24
 
+DA_COUNT = 30
+DA_ANIMATION_CHANGE = 20
+DA_ATTACK_SPAWN = 18
+DA_SPEED = 2
+DA_INCREASED_SPEED = 5
+RA_COUNT = 45
+RA_ANIMATION_CHANGE = 25
+RA_ATTACK_SPAWN = 22
+RA_SPEED = 7
+RA_INCREASED_SPEED = 10
+
 MAX_HP = 100
 MAX_STAMINA = 100
 HP_REGEN = 1
@@ -158,24 +169,24 @@ class Player(GameSprite, ScalableSprite):
             self.stamina += STAMINA_REGEN
 
     def default_attack(self, color_key):
-        if self.da_count < 30:
+        if self.da_count < DA_COUNT:
             self.da_count += 1
-            if self.da_count == 18:
+            if self.da_count == DA_ATTACK_SPAWN:
                 if not (self.left or self.right):
-                    speed = 2
+                    speed = DA_SPEED
                 else:
-                    speed = 7
+                    speed = DA_INCREASED_SPEED
                 self.hero_melee_attacks.add(
                     HeroDefaultAttack(self.main, self.direction,
                                       self.x, self.y, speed))
-            if self.da_count <= 20:
+            if self.da_count <= DA_ANIMATION_CHANGE:
                 self.temp_image.fill(color_key)
                 if self.direction == RIGHT:
                     self.temp_image.blit(ANIMATION_ATTACK_DMR[0], (0, 0))
                 else:
                     self.temp_image.blit(ANIMATION_ATTACK_DML[0], (0, 0))
                 self.image = self.temp_image
-            elif self.da_count > 20:
+            elif self.da_count > DA_ANIMATION_CHANGE:
                 self.temp_image.fill(color_key)
                 if self.direction == RIGHT:
                     self.temp_image.blit(ANIMATION_ATTACK_DMR[1], (0, 0))
@@ -187,24 +198,25 @@ class Player(GameSprite, ScalableSprite):
             self.is_default_attack = False
 
     def range_attack(self, color_key):
-        if self.ra_count < 45:
+        if self.ra_count < RA_COUNT:
             self.ra_count += 1
-            if self.ra_count == 22:
+            if self.ra_count == RA_ATTACK_SPAWN:
+                print(1)
                 if not (self.left or self.right):
-                    speed = 10
+                    speed = RA_SPEED
                 else:
-                    speed = 17
+                    speed = RA_INCREASED_SPEED
                 self.hero_range_attacks.add(
                     HeroRangeAttack(self.main, self.direction, self.x + 4,
                                     self.y + 6, speed))
-            if self.ra_count <= 25:
+            if self.ra_count <= RA_ANIMATION_CHANGE:
                 self.temp_image.fill(color_key)
                 if self.direction == RIGHT:
                     self.temp_image.blit(ANIMATION_ATTACK_DRR[0], (0, 0))
                 else:
                     self.temp_image.blit(ANIMATION_ATTACK_DRL[0], (0, 0))
                 self.image = self.temp_image
-            elif self.ra_count > 25:
+            elif self.ra_count > RA_ANIMATION_CHANGE:
                 self.temp_image.fill(color_key)
                 if self.direction == RIGHT:
                     self.temp_image.blit(ANIMATION_ATTACK_DRR[1], (0, 0))

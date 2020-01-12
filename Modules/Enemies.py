@@ -5,31 +5,38 @@ from Modules.Configuration import *
 from Modules.EnemiesHeaders import *
 from Modules import Mapping
 
+DEAD_COUNT = 60
+
 INSECT_DMG = 20
-INSECT_IMPULSE = 5
+INSECT_IMPULSE = 4
 INSECT_MAX_HP = 35
 INSECT_MS = 3
+INSECT_STUN_POWER = 20
 
 KNIGHT_DMG = 40
-KNIGHT_IMPULSE = 7
+KNIGHT_IMPULSE = 5
 KNIGHT_MAX_HP = 80
 KNIGHT_MS = 3
+KNIGHT_STUN_POWER = 30
 
 RAT_DMG = 35
 RAT_IMPULSE = 4
 RAT_MAX_HP = 40
 RAT_MS = 3
+RAT_STUN_POWER = 25
 
 SNAKE_DMG = 20
-SNAKE_IMPULSE = 6
+SNAKE_IMPULSE = 4
 SNAKE_MAX_HP = 65
 SNAKE_MS = 3
+SNAKE_STUN_POWER = 15
 
 BAT_DMG = 15
 BAT_IMPULSE = 3
 BAT_MAX_HP = 20
 BAT_MS = 3
 BAT_YV = 1
+BAT_STAN_POWER = 10
 
 FIREMAGE_HP = 120
 FIREMAGE_MP = 100
@@ -128,6 +135,7 @@ class MeleeEnemy(GameSprite, MeleeEnemy):
         self.anim_dead_right = None
         self.damage = None
         self.impulse = None
+        self.stun_power = None
 
         pygame.sprite.Sprite.__init__(self, SpriteGroups.characters_group,
                                       SpriteGroups.all_sprites)
@@ -151,7 +159,7 @@ class MeleeEnemy(GameSprite, MeleeEnemy):
         self.on_ground = False
 
         # Счётчик, показывающий через сколько кадров исчезнет труп врага
-        self.dead_count = 60
+        self.dead_count = DEAD_COUNT
 
         self.setup_properties()
 
@@ -208,7 +216,6 @@ class MeleeEnemy(GameSprite, MeleeEnemy):
                                                   SpriteGroups.all_sprites,
                                                   False):
             if isinstance(sprite, Tile) and sprite.is_solid:
-                # clip = self.rect.clip(sprite.rect)
                 clip = self.rect.clip(sprite.rect)
                 if y_v > 0:
                     self.y -= clip.h
@@ -227,7 +234,7 @@ class MeleeEnemy(GameSprite, MeleeEnemy):
                 if not sprite.stunned:
                     sprite.hp -= self.damage
                     sprite.stunned = True
-                    sprite.stun_count = 30
+                    sprite.stun_count = self.stun_power
                     if sprite.x_v == 0:
                         if self.direction == RIGHT:
                             sprite.x_v = self.impulse
@@ -269,6 +276,7 @@ class Insect(MeleeEnemyWithMaxX):
         self.damage = INSECT_DMG
         self.impulse = INSECT_IMPULSE
         self.ms = INSECT_MS
+        self.stun_power = INSECT_STUN_POWER
 
         self.anim_stay_right = pyganim.PygAnimation(INSECT_STAY_RIGHT)
         self.anim_stay_right.play()
@@ -298,6 +306,7 @@ class Knight(MeleeEnemyWithMaxX):
         self.damage = KNIGHT_DMG
         self.impulse = KNIGHT_IMPULSE
         self.ms = KNIGHT_MS
+        self.stun_power = KNIGHT_STUN_POWER
 
         self.anim_stay_right = pyganim.PygAnimation(KNIGHT_STAY_RIGHT)
         self.anim_stay_right.play()
@@ -327,6 +336,7 @@ class Rat(MeleeEnemyWithMaxX):
         self.damage = RAT_DMG
         self.impulse = RAT_IMPULSE
         self.ms = RAT_MS
+        self.stun_power = RAT_STUN_POWER
 
         self.anim_stay_right = pyganim.PygAnimation(RAT_STAY_RIGHT)
         self.anim_stay_right.play()
@@ -356,6 +366,7 @@ class Snake(MeleeEnemyWithMaxX):
         self.damage = SNAKE_DMG
         self.impulse = SNAKE_IMPULSE
         self.ms = SNAKE_MS
+        self.stun_power = SNAKE_STUN_POWER
 
         self.anim_stay_right = pyganim.PygAnimation(SNAKE_STAY_RIGHT)
         self.anim_stay_right.play()
