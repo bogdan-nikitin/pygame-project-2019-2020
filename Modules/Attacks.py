@@ -75,7 +75,7 @@ class HeroRangeAttack(HeroAttack):
         self.y = y
         self.damage = HERO_RA_DMG
 
-    def update(self):
+    def update(self, *args):
         if self.direction == RIGHT:
             self.x += self.speed
         else:
@@ -107,7 +107,7 @@ class Fireball(pygame.sprite.Sprite):
         self.change_x = math.cos(angle) * speed
         self.change_y = math.sin(angle) * speed
 
-    def update(self):
+    def update(self, *args):
         self.floating_point_y += self.change_y
         self.floating_point_x += self.change_x
         self.rect.y = int(self.floating_point_y)
@@ -146,7 +146,7 @@ class AimedFireball(pygame.sprite.Sprite):
         self.change_x = math.cos(angle) * self.speed
         self.change_y = math.sin(angle) * self.speed
 
-    def update(self):
+    def update(self, *args):
         self.floating_point_y += self.change_y
         self.floating_point_x += self.change_x
         self.rect.y = int(self.floating_point_y)

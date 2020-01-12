@@ -162,8 +162,8 @@ class Main:
                     self.camera.apply(sprite)
             SpriteGroups.characters_group.update(*args)
             SpriteGroups.tiles_group.update(*args)
-            self.hero.hero_melee_attacks.update()
-            self.hero.hero_range_attacks.update()
+            self.hero.hero_melee_attacks.update(*args)
+            self.hero.hero_range_attacks.update(*args)
 
     def render(self):
         """Отрисовка всех спрайтов."""
