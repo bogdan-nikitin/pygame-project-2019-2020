@@ -47,70 +47,70 @@ INSECT_LEFT = ['data/enemies/insect/walkl1.png',
                'data/enemies/insect/walkl2.png',
                'data/enemies/insect/walkl3.png',
                'data/enemies/insect/walkl4.png', ]
-INSECT_STAY_RIGHT = [('data/enemies/insect/stayr.png', ANIMATION_DELAY)]
-INSECT_STAY_LEFT = [('data/enemies/insect/stayl.png', ANIMATION_DELAY)]
-INSECT_DEAD_RIGHT = [('data/enemies/insect/deadr.png', ANIMATION_DELAY)]
-INSECT_DEAD_LEFT = [('data/enemies/insect/deadl.png', ANIMATION_DELAY)]
+INSECT_STAY_RIGHT = [(data_path('enemies/insect/stayr.png'), ANIMATION_DELAY)]
+INSECT_STAY_LEFT = [(data_path('enemies/insect/stayl.png'), ANIMATION_DELAY)]
+INSECT_DEAD_RIGHT = [(data_path('enemies/insect/deadr.png'), ANIMATION_DELAY)]
+INSECT_DEAD_LEFT = [(data_path('enemies/insect/deadl.png'), ANIMATION_DELAY)]
 
-KNIGHT_RIGHT = ['data/enemies/knight/walkr1.png',
-                'data/enemies/knight/walkr2.png', ]
-KNIGHT_LEFT = ['data/enemies/knight/walkl1.png',
-               'data/enemies/knight/walkl2.png', ]
-KNIGHT_STAY_RIGHT = [('data/enemies/knight/stayr.png', ANIMATION_DELAY)]
-KNIGHT_STAY_LEFT = [('data/enemies/knight/stayl.png', ANIMATION_DELAY)]
-KNIGHT_DEAD_RIGHT = [('data/enemies/knight/deadr.png', ANIMATION_DELAY)]
-KNIGHT_DEAD_LEFT = [('data/enemies/knight/deadl.png', ANIMATION_DELAY)]
+KNIGHT_RIGHT = [data_path('enemies/knight/walkr1.png'),
+                data_path('enemies/knight/walkr2.png'), ]
+KNIGHT_LEFT = [data_path('enemies/knight/walkl1.png'),
+               data_path('enemies/knight/walkl2.png'), ]
+KNIGHT_STAY_RIGHT = [(data_path('enemies/knight/stayr.png'), ANIMATION_DELAY)]
+KNIGHT_STAY_LEFT = [(data_path('enemies/knight/stayl.png'), ANIMATION_DELAY)]
+KNIGHT_DEAD_RIGHT = [(data_path('enemies/knight/deadr.png'), ANIMATION_DELAY)]
+KNIGHT_DEAD_LEFT = [(data_path('enemies/knight/deadl.png'), ANIMATION_DELAY)]
 
-RAT_RIGHT = ['data/enemies/rat/walkr1.png',
-             'data/enemies/rat/walkr2.png',
-             'data/enemies/rat/walkr3.png', ]
-RAT_LEFT = ['data/enemies/rat/walkl1.png',
-            'data/enemies/rat/walkl2.png',
-            'data/enemies/rat/walkl3.png', ]
-RAT_STAY_RIGHT = [('data/enemies/rat/stayr.png', ANIMATION_DELAY)]
-RAT_STAY_LEFT = [('data/enemies/rat/stayl.png', ANIMATION_DELAY)]
-RAT_DEAD_RIGHT = [('data/enemies/rat/deadr.png', ANIMATION_DELAY)]
-RAT_DEAD_LEFT = [('data/enemies/rat/deadl.png', ANIMATION_DELAY)]
+RAT_RIGHT = [data_path('enemies/rat/walkr1.png'),
+             data_path('enemies/rat/walkr2.png'),
+             data_path('enemies/rat/walkr3.png'), ]
+RAT_LEFT = [data_path('enemies/rat/walkl1.png'),
+            data_path('enemies/rat/walkl2.png'),
+            data_path('enemies/rat/walkl3.png'), ]
+RAT_STAY_RIGHT = [(data_path('enemies/rat/stayr.png'), ANIMATION_DELAY)]
+RAT_STAY_LEFT = [(data_path('enemies/rat/stayl.png'), ANIMATION_DELAY)]
+RAT_DEAD_RIGHT = [(data_path('enemies/rat/deadr.png'), ANIMATION_DELAY)]
+RAT_DEAD_LEFT = [(data_path('enemies/rat/deadl.png'), ANIMATION_DELAY)]
 
-SNAKE_RIGHT = ['data/enemies/snake/walkr1.png',
-               'data/enemies/snake/walkr2.png',
-               'data/enemies/snake/walkr3.png', ]
-SNAKE_LEFT = ['data/enemies/snake/walkl1.png',
-              'data/enemies/snake/walkl2.png',
-              'data/enemies/snake/walkl3.png', ]
-SNAKE_STAY_RIGHT = [('data/enemies/snake/stayr.png', ANIMATION_DELAY)]
-SNAKE_STAY_LEFT = [('data/enemies/snake/stayl.png', ANIMATION_DELAY)]
-SNAKE_DEAD_RIGHT = [('data/enemies/snake/deadr.png', ANIMATION_DELAY)]
-SNAKE_DEAD_LEFT = [('data/enemies/snake/deadl.png', ANIMATION_DELAY)]
+SNAKE_RIGHT = [data_path('enemies/snake/walkr1.png'),
+               data_path('enemies/snake/walkr2.png'),
+               data_path('enemies/snake/walkr3.png'), ]
+SNAKE_LEFT = [data_path('enemies/snake/walkl1.png'),
+              data_path('enemies/snake/walkl2.png'),
+              data_path('enemies/snake/walkl3.png'), ]
+SNAKE_STAY_RIGHT = [(data_path('enemies/snake/stayr.png'), ANIMATION_DELAY)]
+SNAKE_STAY_LEFT = [(data_path('enemies/snake/stayl.png'), ANIMATION_DELAY)]
+SNAKE_DEAD_RIGHT = [(data_path('enemies/snake/deadr.png'), ANIMATION_DELAY)]
+SNAKE_DEAD_LEFT = [(data_path('enemies/snake/deadl.png'), ANIMATION_DELAY)]
 
-BAT_RIGHT = ['data/enemies/bat/walkr1.png',
-             'data/enemies/bat/walkr2.png',
-             'data/enemies/bat/walkr3.png',
-             'data/enemies/bat/walkr4.png', ]
-BAT_LEFT = ['data/enemies/bat/walkl1.png',
-            'data/enemies/bat/walkl2.png',
-            'data/enemies/bat/walkl3.png',
-            'data/enemies/bat/walkl4.png', ]
-BAT_STAY_RIGHT = [('data/enemies/bat/stayr.png', ANIMATION_DELAY)]
-BAT_STAY_LEFT = [('data/enemies/bat/stayl.png', ANIMATION_DELAY)]
-BAT_DEAD_RIGHT = [('data/enemies/bat/deadr.png', ANIMATION_DELAY)]
-BAT_DEAD_LEFT = [('data/enemies/bat/deadl.png', ANIMATION_DELAY)]
+BAT_RIGHT = [data_path('enemies/bat/walkr1.png'),
+             data_path('enemies/bat/walkr2.png'),
+             data_path('enemies/bat/walkr3.png'),
+             data_path('enemies/bat/walkr4.png'), ]
+BAT_LEFT = [data_path('enemies/bat/walkl1.png'),
+            data_path('enemies/bat/walkl2.png'),
+            data_path('enemies/bat/walkl3.png'),
+            data_path('enemies/bat/walkl4.png'), ]
+BAT_STAY_RIGHT = [(data_path('enemies/bat/stayr.png'), ANIMATION_DELAY)]
+BAT_STAY_LEFT = [(data_path('enemies/bat/stayl.png'), ANIMATION_DELAY)]
+BAT_DEAD_RIGHT = [(data_path('enemies/bat/deadr.png'), ANIMATION_DELAY)]
+BAT_DEAD_LEFT = [(data_path('enemies/bat/deadl.png'), ANIMATION_DELAY)]
 
-MAGE_STAY_RIGHT = pygame.image.load('data/enemies/firemage/stayr.png')
-MAGE_STAY_LEFT = pygame.image.load('data/enemies/firemage/stayl.png')
-MAGE_DEAD_RIGHT = [('data/enemies/firemage/deadr.png', ANIMATION_DELAY)]
-MAGE_DEAD_LEFT = [('data/enemies/firemage/deadl.png', ANIMATION_DELAY)]
-MAGE_CAST_RIGHT = pygame.image.load('data/enemies/firemage/castr.png')
-MAGE_CAST_LEFT = pygame.image.load('data/enemies/firemage/castl.png')
+MAGE_STAY_RIGHT = pygame.image.load(data_path('enemies/firemage/stayr.png'))
+MAGE_STAY_LEFT = pygame.image.load(data_path('enemies/firemage/stayl.png'))
+MAGE_DEAD_RIGHT = [(data_path('enemies/firemage/deadr.png'), ANIMATION_DELAY)]
+MAGE_DEAD_LEFT = [(data_path('enemies/firemage/deadl.png'), ANIMATION_DELAY)]
+MAGE_CAST_RIGHT = pygame.image.load(data_path('enemies/firemage/castr.png'))
+MAGE_CAST_LEFT = pygame.image.load(data_path('enemies/firemage/castl.png'))
 
-WRAITH_STAY_RIGHT = pygame.image.load('data/enemies/wraith/stayr.png')
-WRAITH_STAY_LEFT = pygame.image.load('data/enemies/wraith/stayl.png')
-WRAITH_DEAD_RIGHT = [('data/enemies/wraith/deadr.png', ANIMATION_DELAY)]
-WRAITH_DEAD_LEFT = [('data/enemies/wraith/deadl.png', ANIMATION_DELAY)]
-WRAITH_CAST_RIGHT = [pygame.image.load('data/enemies/wraith/castr1.png'),
-                     pygame.image.load('data/enemies/wraith/castr2.png')]
-WRAITH_CAST_LEFT = [pygame.image.load('data/enemies/wraith/castl1.png'),
-                    pygame.image.load('data/enemies/wraith/castL2.png')]
+WRAITH_STAY_RIGHT = pygame.image.load(data_path('enemies/wraith/stayr.png'))
+WRAITH_STAY_LEFT = pygame.image.load(data_path('enemies/wraith/stayl.png'))
+WRAITH_DEAD_RIGHT = [(data_path('enemies/wraith/deadr.png'), ANIMATION_DELAY)]
+WRAITH_DEAD_LEFT = [(data_path('enemies/wraith/deadl.png'), ANIMATION_DELAY)]
+WRAITH_CAST_RIGHT = [pygame.image.load(data_path('enemies/wraith/castr1.png')),
+                     pygame.image.load(data_path('enemies/wraith/castr2.png'))]
+WRAITH_CAST_LEFT = [pygame.image.load(data_path('enemies/wraith/castl1.png')),
+                    pygame.image.load(data_path('enemies/wraith/castL2.png'))]
 
 
 class MeleeEnemy(GameSprite, MeleeEnemy):
@@ -121,22 +121,26 @@ class MeleeEnemy(GameSprite, MeleeEnemy):
         self.anim_walk_right = None
         self.anim_stay_left = None
         self.anim_stay_right = None
-        self.ms = None
+        self.ms = None  # ms - movement speed, скорость движения
         self.hp = None
         self.image = None
-        self.max_x = None
         self.anim_dead_left = None
         self.anim_dead_right = None
         self.damage = None
         self.impulse = None
+
         pygame.sprite.Sprite.__init__(self, SpriteGroups.characters_group,
                                       SpriteGroups.all_sprites)
         self.main = main
+
         self.direction = direction
+
         self.start_x = pos_x * Mapping.tile_width
         self.start_y = pos_y * Mapping.tile_height
+
         self.x_v = 0
         self.y_v = 0
+
         if self.direction == RIGHT:
             self.right = True
             self.left = False
@@ -145,14 +149,14 @@ class MeleeEnemy(GameSprite, MeleeEnemy):
             self.left = True
         self.dead = False
         self.on_ground = False
+
+        # Счётчик, показывающий через сколько кадров исчезнет труп врага
         self.dead_count = 60
 
         self.setup_properties()
 
-        self.x = Mapping.tile_width * pos_x
-        self.y = Mapping.tile_height * pos_y
-
-        self.change_direction = 300
+        self.x = self.start_x
+        self.y = self.start_y
 
     def move(self, color_key):
         self.temp_image.fill(color_key)
@@ -175,20 +179,17 @@ class MeleeEnemy(GameSprite, MeleeEnemy):
                 self.left = True
             if self.hp <= 0:
                 self.dead = True
+
             self.move(color_key)
-            if not self.on_ground:
-                self.y += GRAVITATION
+
+            self.y_v += GRAVITATION
 
             self.on_ground = False
             self.x += self.x_v
             self.collide(self.x_v, 0, )
+            self.y += self.y_v
             self.collide(0, self.y_v, )
 
-            if self.change_direction >= 0:
-                self.change_direction -= 1
-            else:
-                self.direction = -self.direction
-                self.change_direction = 300
         else:
             if self.dead_count > 0:
                 self.dead_count -= 1
@@ -215,10 +216,12 @@ class MeleeEnemy(GameSprite, MeleeEnemy):
                     self.y_v = 0
                 elif y_v < 0:
                     self.y += clip.h
-                if x_v > 0 and sprite.y >= self.y - 5:
+                if x_v > 0:
                     self.x -= clip.w
-                elif x_v < 0 and sprite.y >= self.y - 5:
+                    self.direction = -self.direction
+                elif x_v < 0:
                     self.x += clip.w
+                    self.direction = -self.direction
 
             if isinstance(sprite, Player):
                 if not sprite.stunned:
@@ -243,11 +246,18 @@ class MeleeEnemy(GameSprite, MeleeEnemy):
 
 
 class MeleeEnemyWithMaxX(MeleeEnemy):
-    def __init__(self, main, direction, pos_x, pos_y, max_x):
+    def __init__(self, main, direction, pos_x, pos_y, max_x=-1):
         super().__init__(main, direction, pos_x, pos_y)
         # максимальное расстояние, на котрое можно отойти от начального
         # положения
-        self.max_x = max_x
+        self.max_x = max_x * Mapping.tile_width
+
+    def update(self, *args):
+        if not self.dead:
+            if self.max_x > 0:
+                if abs(self.start_x - self.x) >= self.max_x:
+                    self.direction *= -1
+        super().update(*args)
 
 
 class Insect(MeleeEnemyWithMaxX):

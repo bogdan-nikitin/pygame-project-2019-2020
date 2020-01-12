@@ -252,9 +252,9 @@ class Main:
         self.is_loading = True
 
     def spawn_enemies(self, enemies):
-        for enemy, x, y in enemies:
+        for enemy, *params in enemies:
             enemy_class = ENEMY_TABLE[enemy]
-            enemy_class(self, RIGHT, x, y, 400)
+            enemy_class(self, RIGHT, *params)
 
     def end_loading(self):
         self.loading_label.hide()

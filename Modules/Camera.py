@@ -1,4 +1,5 @@
 from Modules.Sprites import *
+from Modules.Enemies import *
 
 
 class Camera:
@@ -14,6 +15,9 @@ class Camera:
         if isinstance(obj, GameSprite):
             obj.x += self.dx
             obj.y += self.dy
+            if isinstance(obj, MeleeEnemyWithMaxX):
+                obj.start_x += self.dx
+                obj.start_y += self.dy
         else:
             obj.rect.x += self.dx
             obj.rect.y += self.dy
