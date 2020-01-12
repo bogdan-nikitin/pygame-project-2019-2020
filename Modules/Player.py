@@ -63,8 +63,7 @@ class Player(GameSprite, ScalableSprite):
 
     def __init__(self, main, direction, pos_x, pos_y):
         x, y = Mapping.tile_width * pos_x, Mapping.tile_height * pos_y
-        pygame.sprite.Sprite.__init__(self, SpriteGroups.characters_group,
-                                      SpriteGroups.all_sprites)
+        super().__init__(SpriteGroups.characters_group)
         self.main = main
         self.direction = direction
 
@@ -85,7 +84,7 @@ class Player(GameSprite, ScalableSprite):
 
         self.rect: typing.Optional[pygame.rect.Rect]
 
-        if not self.images_loaded:
+        if not Player.images_loaded:
             self.load_images()
 
         self.start_x = x
@@ -316,5 +315,9 @@ class Player(GameSprite, ScalableSprite):
                 elif y_v < 0:
                     self.y += clip.h
             elif sprite.is_exit and self.up:
-                if not self.main.is_end:
-                    self.main.end_game()
+                self.main.load_next_level()
+                return
+
+    def kill(self):
+        Player.images_loaded = False
+        super().kill()

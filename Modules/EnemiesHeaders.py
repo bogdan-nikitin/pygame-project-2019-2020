@@ -3,4 +3,5 @@ class MeleeEnemy:
 
 
 class FireMage:
-    pass
+    def __init__(self, main, direction, pos_x, pos_y):
+        self.hp = None

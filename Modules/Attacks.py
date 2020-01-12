@@ -14,31 +14,10 @@ class Attack(GameSprite):
         self.speed = speed
 
 
-class HeroDefaultAttack(Attack):
-    def __init__(self, main, direction, x, y, speed):
+class HeroAttack(Attack):
+    def __init__(self, main, direction, speed):
         super().__init__(main, direction, speed)
-        if direction == RIGHT:
-            self.image = pygame.image.load('data/player/player_attack/'
-                                           'trailr.png')
-        else:
-            self.image = pygame.image.load('data/player/player_attack/'
-                                           'traill.png')
-        self.rect = self.image.get_rect()
-        self.x = x + 4 * (1 if direction == RIGHT else -1)
-        self.y = y
-        self.damage = HERO_DA_DMG
-        self.live = 7
         self.damaged = []
-
-    def update(self, *args):
-        tick = args[0] if args else 0
-        multiplier = 1 if self.direction == RIGHT else -1
-        self.x += self.speed * multiplier
-        # self.image = pygame.transform.scale(self.image, (self.xx, self.yy))
-        self.live -= 1
-        if self.live <= 0:
-            self.kill()
-        self.collide()
 
     def collide(self):
         for sprite in pygame.sprite.spritecollide(self,
@@ -51,10 +30,37 @@ class HeroDefaultAttack(Attack):
                 if sprite not in self.damaged:
                     sprite.hp -= HERO_DA_DMG
                     self.damaged.append(sprite)
+                    self.kill()
         self.damaged.clear()
 
 
-class HeroRangeAttack(Attack):
+class HeroDefaultAttack(HeroAttack):
+    def __init__(self, main, direction, x, y, speed):
+        super().__init__(main, direction, speed)
+        if direction == RIGHT:
+            self.image = pygame.image.load(data_path('player/player_attack/'
+                                           'trailr.png'))
+        else:
+            self.image = pygame.image.load(data_path('player/player_attack/'
+                                           'traill.png'))
+        self.rect = self.image.get_rect()
+        self.x = x + 4 * (1 if direction == RIGHT else -1)
+        self.y = y
+        self.damage = HERO_DA_DMG
+        self.live = 7
+
+    def update(self, *args):
+        tick = args[0] if args else 0
+        multiplier = 1 if self.direction == RIGHT else -1
+        self.x += self.speed * multiplier
+        # self.image = pygame.transform.scale(self.image, (self.xx, self.yy))
+        self.live -= 1
+        if self.live <= 0:
+            self.kill()
+        self.collide()
+
+
+class HeroRangeAttack(HeroAttack):
     def __init__(self, main, direction, x, y, speed):
         super().__init__(main, direction, speed)
         if direction == RIGHT:
@@ -65,26 +71,19 @@ class HeroRangeAttack(Attack):
                                            'daggerl.png')
         self.image = pygame.transform.scale(self.image, (24, 7))
         self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
+        self.x = x
+        self.y = y
         self.damage = HERO_RA_DMG
 
     def update(self):
         if self.direction == RIGHT:
-            self.rect.x += self.speed
+            self.x += self.speed
         else:
-            self.rect.x -= self.speed
-        if self.rect.x > WINDOW_WIDTH or self.rect.x < 0 - 24:  # 24 - длина изображения
+            self.x -= self.speed
+            # 24 - длина изображения
+        if self.x > WINDOW_WIDTH or self.x < 0 - 24:
             self.kill()
-        # self.collide()
-
-    # def collide(self):
-    #     for sprite in pygame.sprite.spritecollideany(self, all_sprites):
-    #         if isinstance(sprite, MeleeEnemy):
-    #             sprite.hp -= HERO_RA_DMG
-    #             self.kill()
-    #          elif isinstance(sprite, ):  # если является твердым
-    #              self.kill()
+        self.collide()
 
 
 class Fireball(pygame.sprite.Sprite):

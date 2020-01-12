@@ -11,7 +11,7 @@ class GameSprite(pygame.sprite.Sprite):
     значения."""
     def __init__(self, *groups):
         super().__init__(SpriteGroups.all_sprites, *groups)
-        self._rect = None
+        self._rect = pygame.rect.Rect(0, 0, 0, 0)
         self.rect = self._rect
         self._x = 0
         self._y = 0

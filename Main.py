@@ -191,10 +191,12 @@ class Main:
 
     def load_next_level(self):
 
+        SpriteGroups.empty_all()
+
         if self.cur_level_name is None:
             self.cur_level_name = self.levels['firstLevel']
         else:
-            next_level = self.levels[self.cur_level_name].get('nextLevel')
+            next_level = self.levels[self.cur_level_name].get('nextStage')
             if not (next_level and next_level in self.levels):
                 self.end_game()
                 return
