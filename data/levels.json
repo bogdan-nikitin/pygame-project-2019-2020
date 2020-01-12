@@ -6,6 +6,6 @@
     "nextStage": "2",
     "music": "music1.wav",
     "heroPos": [4, 49],
-    "enemies": [["Rat", 69, 48], ["Insect", 36, 44]]
+    "enemies": [["Insect", 4, 49], ["Insect", 36, 44]]
   }
 }

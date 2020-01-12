@@ -113,8 +113,22 @@ WRAITH_CAST_LEFT = [pygame.image.load('data/enemies/wraith/castl1.png'),
                     pygame.image.load('data/enemies/wraith/castL2.png')]
 
 
-class MeleeEnemy(pygame.sprite.Sprite, MeleeEnemy):
+class MeleeEnemy(GameSprite, MeleeEnemy):
     def __init__(self, main, direction, pos_x, pos_y):
+        super().__init__(SpriteGroups.enemies_group)
+        self.temp_image = None
+        self.anim_walk_left = None
+        self.anim_walk_right = None
+        self.anim_stay_left = None
+        self.anim_stay_right = None
+        self.ms = None
+        self.hp = None
+        self.image = None
+        self.max_x = None
+        self.anim_dead_left = None
+        self.anim_dead_right = None
+        self.damage = None
+        self.impulse = None
         pygame.sprite.Sprite.__init__(self, SpriteGroups.characters_group,
                                       SpriteGroups.all_sprites)
         self.main = main
@@ -133,10 +147,17 @@ class MeleeEnemy(pygame.sprite.Sprite, MeleeEnemy):
         self.on_ground = False
         self.dead_count = 60
 
+        self.setup_properties()
+
+        self.x = Mapping.tile_width * pos_x
+        self.y = Mapping.tile_height * pos_y
+
+        self.change_direction = 300
+
     def move(self, color_key):
         self.temp_image.fill(color_key)
         if self.left:
-            self.x_v = self.ms
+            self.x_v = -self.ms
             self.anim_walk_left.blit(self.temp_image, (0, 0))
         if self.right:
             self.x_v = self.ms
@@ -156,19 +177,18 @@ class MeleeEnemy(pygame.sprite.Sprite, MeleeEnemy):
                 self.dead = True
             self.move(color_key)
             if not self.on_ground:
-                self.y_v += GRAVITATION
+                self.y += GRAVITATION
 
             self.on_ground = False
-            self.rect.y += self.y_v
-            if self.direction == RIGHT:
-                self.rect.x += self.x_v
-            else:
-                self.rect.x -= self.x_v
+            self.x += self.x_v
             self.collide(self.x_v, 0, )
             self.collide(0, self.y_v, )
 
-            if abs(self.start_x - self.rect.x) > self.max_x:
+            if self.change_direction >= 0:
+                self.change_direction -= 1
+            else:
                 self.direction = -self.direction
+                self.change_direction = 300
         else:
             if self.dead_count > 0:
                 self.dead_count -= 1
@@ -187,24 +207,19 @@ class MeleeEnemy(pygame.sprite.Sprite, MeleeEnemy):
                                                   SpriteGroups.all_sprites,
                                                   False):
             if isinstance(sprite, Tile) and sprite.is_solid:
+                # clip = self.rect.clip(sprite.rect)
                 clip = self.rect.clip(sprite.rect)
-                if x_v > 0:
-                    # self.rect.right = sprite.rect.left
-                    # self.normalize_pos()
-                    self.rect.x += clip.w
-                if x_v < 0:
-                    # self.rect.left = sprite.rect.right
-                    # self.normalize_pos()
-                    self.rect.x -= clip.w
                 if y_v > 0:
-                    # self.rect.bottom = sprite.rect.top
-                    # self.normalize_pos()
-                    self.rect.y -= clip.h
+                    self.y -= clip.h
                     self.on_ground = True
-                if y_v < 0:
-                    # self.rect.top = sprite.rect.bottom
-                    # self.normalize_pos()
-                    self.rect.y -= clip.h
+                    self.y_v = 0
+                elif y_v < 0:
+                    self.y += clip.h
+                if x_v > 0 and sprite.y >= self.y - 5:
+                    self.x -= clip.w
+                elif x_v < 0 and sprite.y >= self.y - 5:
+                    self.x += clip.w
+
             if isinstance(sprite, Player):
                 if not sprite.stunned:
                     sprite.hp -= self.damage
@@ -212,29 +227,34 @@ class MeleeEnemy(pygame.sprite.Sprite, MeleeEnemy):
                     sprite.stun_count = 30
                     if sprite.x_v == 0:
                         if self.direction == RIGHT:
-                            sprite.x_v = INSECT_IMPULSE
+                            sprite.x_v = self.impulse
                         else:
-                            sprite.x_v = -INSECT_IMPULSE
+                            sprite.x_v = -self.impulse
                     else:
                         if sprite.x_v > 0:
                             sprite.x_v = 0
-                            sprite.x_v = -INSECT_IMPULSE
+                            sprite.x_v = -self.impulse
                         elif sprite.x_v < 0:
                             sprite.x_v = 0
-                            sprite.x_v = INSECT_IMPULSE
+                            sprite.x_v = self.impulse
+
+    def setup_properties(self):
+        pass
 
 
-class Insect(MeleeEnemy):
+class MeleeEnemyWithMaxX(MeleeEnemy):
     def __init__(self, main, direction, pos_x, pos_y, max_x):
         super().__init__(main, direction, pos_x, pos_y)
         # максимальное расстояние, на котрое можно отойти от начального
         # положения
         self.max_x = max_x
+
+
+class Insect(MeleeEnemyWithMaxX):
+    def setup_properties(self):
         self.temp_image = pygame.image.load('data/enemies/insect/stayr.png')
         self.image = pygame.image.load('data/enemies/insect/stayr.png')
         self.rect = self.image.get_rect()
-        self.rect.x = Mapping.tile_width * pos_x
-        self.rect.y = Mapping.tile_height * pos_y
         self.hp = INSECT_MAX_HP
         self.damage = INSECT_DMG
         self.impulse = INSECT_IMPULSE
@@ -268,8 +288,6 @@ class Knight(MeleeEnemy):
         self.temp_image = pygame.image.load('data/enemies/knight/stayr.png')
         self.image = pygame.image.load('data/enemies/knight/stayr.png')
         self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
         self.hp = KNIGHT_MAX_HP
         self.damage = KNIGHT_DMG
         self.impulse = KNIGHT_IMPULSE

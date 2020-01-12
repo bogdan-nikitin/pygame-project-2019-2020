@@ -6,8 +6,8 @@ from Modules.General import *
 import pygame
 import typing
 
-MOVE_SPEED = 120
-JUMP_SPEED = 45
+MOVE_SPEED = 3
+JUMP_SPEED = 4.5
 PLAYER_WIDTH = 22
 PLAYER_HEIGHT = 24
 
@@ -199,11 +199,11 @@ class Player(GameSprite, ScalableSprite):
             self.is_range_attack = False
 
     def move(self, color_key):
-        if self.left and self.on_ground:
+        if self.left:
             self.x_v = -MOVE_SPEED
             if not (self.is_default_attack or self.is_range_attack):
                 self.temp_image.fill(color_key)
-                if not self.up:
+                if self.on_ground:
                     self.anim_walk_left.blit(self.temp_image, (0, 0))
                 else:
                     if self.direction == RIGHT:
@@ -211,11 +211,11 @@ class Player(GameSprite, ScalableSprite):
                     else:
                         self.anim_jump_left.blit(self.temp_image, (0, 0))
                 self.image = self.temp_image
-        if self.right and self.on_ground:
+        if self.right:
             self.x_v = MOVE_SPEED
             if not (self.is_default_attack or self.is_range_attack):
                 self.temp_image.fill(color_key)
-                if not self.up:
+                if self.on_ground:
                     self.anim_walk_right.blit(self.temp_image, (0, 0))
                 else:
                     if self.direction == RIGHT:
@@ -223,7 +223,7 @@ class Player(GameSprite, ScalableSprite):
                     else:
                         self.anim_jump_left.blit(self.temp_image, (0, 0))
                 self.image = self.temp_image
-        if not (self.left or self.right) and self.on_ground:
+        if not (self.left or self.right):
             self.x_v = 0
             if not (self.is_default_attack or self.is_range_attack):
                 if self.on_ground:
@@ -233,9 +233,10 @@ class Player(GameSprite, ScalableSprite):
                     else:
                         self.anim_stay_left.blit(self.temp_image, (0, 0))
                     self.image = self.temp_image
-        if self.up or not self.on_ground:
+        if self.up:
             if self.on_ground:
                 self.y_v = -JUMP_SPEED
+                self.on_ground = False
             if not (self.is_default_attack or self.is_range_attack):
                 self.temp_image.fill(color_key)
                 if self.direction == RIGHT:
@@ -260,13 +261,12 @@ class Player(GameSprite, ScalableSprite):
             if self.stun_count == 0:
                 self.stunned = False
 
-        self.y_v += GRAVITATION * tick / 1000
+        self.y_v += GRAVITATION
 
-        self.on_ground = False
-        groups, key = SpriteGroups.tiles_group, lambda sprite: sprite.is_solid
-        self.collide_shift(self.x_v * tick / 1000, 0, groups, key)
-        if not self.collide_shift(0, self.y_v * tick / 1000, groups, key):
-            self.on_ground = True
+        self.x += self.x_v  # * tick / 1000
+        self.collide(self.x_v, 0)  # * tick / 1000, 0)
+        self.y += self.y_v  # * tick / 1000
+        self.collide(0, self.y_v)  # * tick / 1000)
 
     def collide(self, x_v, y_v):
         for sprite in pygame.sprite.spritecollide(self,
@@ -275,20 +275,12 @@ class Player(GameSprite, ScalableSprite):
             if sprite.is_solid:  # если является твердым
                 clip = self.rect.clip(sprite.rect)
                 if x_v > 0:
-                    # self.rect.right = sprite.rect.left
-                    # self.normalize_pos()
                     self.x -= clip.w
-                if x_v < 0:
-                    # self.rect.left = sprite.rect.right
-                    # self.normalize_pos()
+                elif x_v < 0:
                     self.x += clip.w
                 if y_v > 0:
-                    # self.rect.bottom = sprite.rect.top
-                    # self.normalize_pos()
                     self.y -= clip.h
                     self.on_ground = True
                     self.y_v = 0
-                if y_v < 0:
-                    # self.rect.top = sprite.rect.bottom
-                    # self.normalize_pos()
+                elif y_v < 0:
                     self.y += clip.h

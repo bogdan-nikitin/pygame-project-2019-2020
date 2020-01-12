@@ -34,6 +34,8 @@ ENEMY_TABLE = {'Insect': Insect,
                'Rat': Rat,
                'Bat': Bat}
 
+FPS = 30
+
 
 class Main:
     """Основной класс игры, включающий в себя игровой цикл."""
@@ -187,7 +189,7 @@ class Main:
             self.events()
             self.update(self.tick)
             self.render()
-            self.tick = self.clock.tick()
+            self.tick = self.clock.tick(FPS)
         pygame.quit()
 
     def load_levels_config(self):
@@ -261,8 +263,6 @@ class Main:
 
 
 if __name__ == '__main__':
-    Player.set_image_size_multiplier(2)
-    Mapping.Tile.set_image_size_multiplier(2)
     game = Main()
     game.game_cycle()
 
