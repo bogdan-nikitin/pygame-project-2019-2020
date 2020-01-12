@@ -16,32 +16,47 @@ MAX_STAMINA = 100
 HP_REGEN = 1
 STAMINA_REGEN = 4
 
-ANIMATION_RIGHT = ['data/player/player_walk/walkr1.png',
-                   'data/player/player_walk/walkr2.png',
-                   'data/player/player_walk/walkr3.png',
-                   'data/player/player_walk/walkr4.png', ]
-ANIMATION_LEFT = ['data/player/player_walk/walkl1.png',
-                  'data/player/player_walk/walkl2.png',
-                  'data/player/player_walk/walkl3.png',
-                  'data/player/player_walk/walkl4.png', ]
+ANIMATION_RIGHT = [data_path('player/player_walk/walkr1.png'),
+                   data_path('player/player_walk/walkr2.png'),
+                   data_path('player/player_walk/walkr3.png'),
+                   data_path('player/player_walk/walkr4.png'), ]
+ANIMATION_LEFT = [data_path('player/player_walk/walkl1.png'),
+                  data_path('player/player_walk/walkl2.png'),
+                  data_path('player/player_walk/walkl3.png'),
+                  data_path('player/player_walk/walkl4.png'), ]
 
-ANIMATION_ATTACK_DMR = [pygame.image.load('data/player/player_attack/mr1.png'),
-                        pygame.image.load('data/player/player_attack/mr2.png'),
+ANIMATION_ATTACK_DMR = [
+    pygame.image.load(data_path('player/player_attack/mr1.png')),
+    pygame.image.load(data_path('player/player_attack/mr2.png')),
                         ]
-ANIMATION_ATTACK_DML = [pygame.image.load('data/player/player_attack/ml1.png'),
-                        pygame.image.load('data/player/player_attack/ml2.png'),
+ANIMATION_ATTACK_DML = [
+    pygame.image.load(data_path('player/player_attack/ml1.png')),
+    pygame.image.load(data_path('player/player_attack/ml2.png')),
                         ]
-ANIMATION_ATTACK_DRR = [pygame.image.load('data/player/player_attack/rr1.png'),
-                        pygame.image.load('data/player/player_attack/rr2.png'),
+ANIMATION_ATTACK_DRR = [
+    pygame.image.load(data_path('player/player_attack/rr1.png')),
+    pygame.image.load(data_path('player/player_attack/rr2.png')),
                         ]
-ANIMATION_ATTACK_DRL = [pygame.image.load('data/player/player_attack/rl1.png'),
-                        pygame.image.load('data/player/player_attack/rl2.png'),
+ANIMATION_ATTACK_DRL = [
+    pygame.image.load(data_path('player/player_attack/rl1.png')),
+    pygame.image.load(data_path('player/player_attack/rl2.png')),
                         ]
 
-ANIMATION_JUMP_LEFT = [('data/player/player_jump/jumpl.png', ANIMATION_DELAY)]
-ANIMATION_JUMP_RIGHT = [('data/player/player_jump/jumpr.png', ANIMATION_DELAY)]
-ANIMATION_STAY_RIGHT = [('data/player/player_stay/stayr.png', ANIMATION_DELAY)]
-ANIMATION_STAY_LEFT = [('data/player/player_stay/stayl.png', ANIMATION_DELAY)]
+ANIMATION_JUMP_LEFT = [(data_path('player/player_jump/jumpl.png'),
+                        ANIMATION_DELAY)]
+ANIMATION_JUMP_RIGHT = [(data_path('player/player_jump/jumpr.png'),
+                         ANIMATION_DELAY)]
+ANIMATION_STAY_RIGHT = [(data_path('player/player_stay/stayr.png'),
+                         ANIMATION_DELAY)]
+ANIMATION_STAY_LEFT = [(data_path('player/player_stay/stayl.png'),
+                        ANIMATION_DELAY)]
+
+ANIMATION_DEAD_LEFT = [(data_path('player/player_dead/deadl.png'),
+                        ANIMATION_DELAY)]
+ANIMATION_DEAD_RIGHT = [(data_path('player/player_dead/deadr.png'),
+                        ANIMATION_DELAY)]
+IMAGE_PATH = data_path('player/player_stay/stayr.png')
+INITIALIZATION_PATH = data_path('initialization.png')
 
 
 class Player(GameSprite, ScalableSprite):
@@ -57,18 +72,18 @@ class Player(GameSprite, ScalableSprite):
         self.temp_image: typing.Optional[pygame.Surface] = None
 
         self.anim_stay_right: typing.Optional[pyganim.PygAnimation] = None
-
         self.anim_stay_left: typing.Optional[pyganim.PygAnimation] = None
 
         self.anim_jump_right: typing.Optional[pyganim.PygAnimation] = None
-
         self.anim_jump_left: typing.Optional[pyganim.PygAnimation] = None
 
         self.anim_walk_right: typing.Optional[pyganim.PygAnimation] = None
-
         self.anim_walk_left: typing.Optional[pyganim.PygAnimation] = None
 
-        self.rect: typing.Optional[pygame.rect.Rect, None]
+        self.anim_dead_left: typing.Optional[pyganim.PygAnimation] = None
+        self.anim_dead_right: typing.Optional[pyganim.PygAnimation] = None
+
+        self.rect: typing.Optional[pygame.rect.Rect]
 
         if not self.images_loaded:
             self.load_images()
@@ -93,13 +108,16 @@ class Player(GameSprite, ScalableSprite):
         self.hp = MAX_HP
         self.stamina = MAX_STAMINA
 
+        # Кол-во кадров до исчезновения трупа
+        self.dead_count = PLAYER_DEAD_COUNT
+
     def load_images(self):
-        self.image = pygame.image.load('data/player/player_stay/stayr.png')
+        self.image = pygame.image.load(IMAGE_PATH)
         w, h = self.image.get_size()
         self.image = pygame.transform.scale(self.image,
                                             (int(w * Player.scale_multiplier),
                                              int(h * Player.scale_multiplier)))
-        self.temp_image = pygame.image.load('data/initialization.png')
+        self.temp_image = pygame.image.load(INITIALIZATION_PATH)
         w, h = self.temp_image.get_size()
         self.temp_image = pygame.transform.scale(self.temp_image,
                                                  (int(w *
@@ -108,20 +126,21 @@ class Player(GameSprite, ScalableSprite):
                                                       Player.scale_multiplier)))
 
         self.anim_stay_right = pyganim.PygAnimation(ANIMATION_STAY_RIGHT)
-
         self.anim_stay_left = pyganim.PygAnimation(ANIMATION_STAY_LEFT)
 
         self.anim_jump_right = pyganim.PygAnimation(ANIMATION_JUMP_RIGHT)
-
         self.anim_jump_left = pyganim.PygAnimation(ANIMATION_JUMP_LEFT)
 
         self.anim_walk_right = make_animation(ANIMATION_RIGHT, ANIMATION_DELAY)
-
         self.anim_walk_left = make_animation(ANIMATION_LEFT, ANIMATION_DELAY)
+
+        self.anim_dead_left = pyganim.PygAnimation(ANIMATION_DEAD_LEFT)
+        self.anim_dead_right = pyganim.PygAnimation(ANIMATION_DEAD_RIGHT)
 
         animations = [self.anim_stay_right, self.anim_stay_left,
                       self.anim_jump_right, self.anim_jump_left,
-                      self.anim_walk_right, self.anim_walk_left]
+                      self.anim_walk_right, self.anim_walk_left,
+                      self.anim_dead_left, self.anim_dead_right]
 
         for animation in animations:
             animation.play()
@@ -147,7 +166,6 @@ class Player(GameSprite, ScalableSprite):
                     speed = 2
                 else:
                     speed = 7
-                direction = 1 if self.right else -1
                 self.hero_melee_attacks.add(
                     HeroDefaultAttack(self.main, self.direction,
                                       self.x, self.y, speed))
@@ -250,7 +268,20 @@ class Player(GameSprite, ScalableSprite):
         if self.hp <= 0:
             self.dead = True
         color_key = self.image.get_at((0, 0))
-        if not self.stunned:
+        if self.dead:
+            if self.dead_count > 0:
+                self.dead_count -= 1
+                self.temp_image.fill(color_key)
+                self.x_v = 0
+                if self.direction == RIGHT:
+                    self.anim_dead_right.blit(self.temp_image, (0, 0))
+                else:
+                    self.anim_dead_left.blit(self.temp_image, (0, 0))
+                self.image = self.temp_image
+            else:
+                self.kill()
+                self.main.end_game(YOU_DIED_MESSAGE, False)
+        elif not self.stunned:
             if self.is_default_attack:
                 self.default_attack(color_key)
             elif self.is_range_attack:
@@ -284,3 +315,6 @@ class Player(GameSprite, ScalableSprite):
                     self.y_v = 0
                 elif y_v < 0:
                     self.y += clip.h
+            elif sprite.is_exit and self.up:
+                if not self.main.is_end:
+                    self.main.end_game()

@@ -22,7 +22,7 @@ Bogdan Nikitin and
 Vasiliev Alexander 
 for the educational platform 
 Yandex Lyceum'''.split('\n')
-THE_END_FIRST_LINE_FONT_SIZE = 50
+THE_END_FIRST_LINE_FONT_SIZE = 60
 THE_END_FONT_SIZE = 20
 
 LINE_SPACING = 10
@@ -57,14 +57,6 @@ class Main:
         self.is_loading = False
 
         self.the_end_labels = []
-        for i, line in enumerate(THE_END):
-            label = Label(line)
-            if i == 0:
-                label.font_size = THE_END_FIRST_LINE_FONT_SIZE
-            else:
-                label.font_size = THE_END_FONT_SIZE
-            label.hide()
-            self.the_end_labels += [label]
         self.is_end = False
 
         self.music = None
@@ -92,16 +84,32 @@ class Main:
                     self.hero.tick()
 
             elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_UP:
-                    self.hero.up = True
-                if event.key == pygame.K_RIGHT:
-                    self.hero.right = True
-                    self.hero.direction = RIGHT
-                if event.key == pygame.K_LEFT:
-                    self.hero.left = True
-                    self.hero.direction = LEFT
+                if not self.hero.dead:
+                    if event.key == pygame.K_UP:
+                        self.hero.up = True
+                    if event.key == pygame.K_RIGHT:
+                        self.hero.right = True
+                        self.hero.direction = RIGHT
+                    if event.key == pygame.K_LEFT:
+                        self.hero.left = True
+                        self.hero.direction = LEFT
 
             elif event.type == pygame.KEYUP:
+
+                if not self.hero.stunned:
+                    if (event.key == pygame.K_z and
+                            not self.hero.is_default_attack and
+                            not self.hero.is_range_attack and
+                            self.hero.stamina >= HERO_DA_COST):
+                        self.hero.stamina -= HERO_DA_COST
+                        self.hero.is_default_attack = True
+                    elif (event.key == pygame.K_x and
+                          not self.hero.is_range_attack and
+                          not self.hero.is_default_attack and
+                          self.hero.stamina >= HERO_RA_COST):
+                        self.hero.stamina -= HERO_RA_COST
+                        self.hero.is_range_attack = True
+
                 if event.key == pygame.K_UP:
                     self.hero.up = False
                 if event.key == pygame.K_RIGHT:
@@ -139,21 +147,6 @@ class Main:
             elif event.type == EXIT_EVENT.type:
                 pygame.quit()
                 sys.exit(0)
-
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                if not self.hero.stunned:
-                    if (event.button == pygame.BUTTON_LEFT and
-                            not self.hero.is_default_attack and
-                            not self.hero.is_range_attack and
-                            self.hero.stamina >= HERO_DA_COST):
-                        self.hero.stamina -= HERO_DA_COST
-                        self.hero.is_default_attack = True
-                    elif (event.button == pygame.BUTTON_RIGHT and
-                          not self.hero.is_range_attack and
-                          not self.hero.is_default_attack and
-                          self.hero.stamina >= HERO_RA_COST):
-                        self.hero.stamina -= HERO_RA_COST
-                        self.hero.is_range_attack = True
 
             elif event.type == pygame.VIDEORESIZE:
                 if not self.full_screen:
@@ -224,7 +217,24 @@ class Main:
             self.music = pygame.mixer.Sound(data_path(level_data['music']))
             self.music.play(-1)
 
-    def end_game(self):
+    def end_game(self, message=None, clear_screen=True):
+
+        text = THE_END
+        if message:
+            text[0] = message
+
+        if clear_screen:
+            SpriteGroups.empty_all()
+
+        for i, line in enumerate(THE_END):
+            label = Label(line)
+            if i == 0:
+                label.font_size = THE_END_FIRST_LINE_FONT_SIZE
+            else:
+                label.font_size = THE_END_FONT_SIZE
+            label.hide()
+            self.the_end_labels += [label]
+
         self.tiles = None
         if self.music:
             self.music.stop()

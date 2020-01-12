@@ -5,7 +5,7 @@
     "mapFile": "level1.txt",
     "nextStage": "2",
     "music": "music1.wav",
-    "heroPos": [4, 49],
-    "enemies": [["Insect", 4, 51, 2], ["Insect", 32, 44, 2]]
+    "heroPos": [4, 51],
+    "enemies": [["Insect", 37, 44, 4]]
   }
 }

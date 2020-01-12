@@ -289,12 +289,8 @@ class Insect(MeleeEnemyWithMaxX):
         self.anim_walk_left.play()
 
 
-class Knight(MeleeEnemy):
-    def __init__(self, main, direction, x, y, max_x):
-        super().__init__(main, direction, x, y)
-        # максимальное расстояние, на котрое можно отойти от начального
-        # положения
-        self.max_x = max_x
+class Knight(MeleeEnemyWithMaxX):
+    def setup_properties(self):
         self.temp_image = pygame.image.load('data/enemies/knight/stayr.png')
         self.image = pygame.image.load('data/enemies/knight/stayr.png')
         self.rect = self.image.get_rect()
@@ -322,17 +318,11 @@ class Knight(MeleeEnemy):
         self.anim_walk_left.play()
 
 
-class Rat(MeleeEnemy):
-    def __init__(self, main, direction, pos_x, pos_y, max_x):
-        super().__init__(main, direction, pos_x, pos_y)
-        # максимальное расстояние, на котрое можно отойти от начального
-        # положения
-        self.max_x = max_x
+class Rat(MeleeEnemyWithMaxX):
+    def setup_properties(self):
         self.temp_image = pygame.image.load('data/enemies/rat/stayr.png')
         self.image = pygame.image.load('data/enemies/rat/stayr.png')
         self.rect = self.image.get_rect()
-        self.rect.x = Mapping.tile_width * pos_x
-        self.rect.y = Mapping.tile_height * pos_y
         self.hp = RAT_MAX_HP
         self.damage = RAT_DMG
         self.impulse = RAT_IMPULSE
@@ -357,15 +347,11 @@ class Rat(MeleeEnemy):
         self.anim_walk_left.play()
 
 
-class Snake(MeleeEnemy):
-    def __init__(self, main, direction, x, y, max_x):
-        super().__init__(main, direction, x, y)
-        self.max_x = max_x  # максимальное расстояние, на котрое можно отойти от начального положения
+class Snake(MeleeEnemyWithMaxX):
+    def setup_properties(self):
         self.temp_image = pygame.image.load('data/enemies/snake/stayr.png')
         self.image = pygame.image.load('data/enemies/snake/stayr.png')
         self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
         self.hp = SNAKE_MAX_HP
         self.damage = SNAKE_DMG
         self.impulse = SNAKE_IMPULSE
