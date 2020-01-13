@@ -166,7 +166,6 @@ class Player(GameSprite, AnimatedSprite):
         if self.ra_count < RA_COUNT:
             self.ra_count += 1
             if self.ra_count == RA_ATTACK_SPAWN:
-                print(1)
                 if not (self.left or self.right):
                     speed = RA_SPEED
                 else:

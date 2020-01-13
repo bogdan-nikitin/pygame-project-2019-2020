@@ -160,8 +160,7 @@ class MeleeEnemy(GameSprite, AnimatedSprite, MeleeEnemy):
 
         self.setup_properties()
 
-        if not type(self).images_loaded:
-            self.load_images(type(self))
+        self.load_images(type(self))
 
         self.x = self.start_x
         self.y = self.start_y
@@ -211,41 +210,44 @@ class MeleeEnemy(GameSprite, AnimatedSprite, MeleeEnemy):
                 self.kill()
 
     def collide(self, x_v, y_v):
-        for sprite in pygame.sprite.spritecollide(self,
-                                                  SpriteGroups.all_sprites,
-                                                  False):
-            if isinstance(sprite, Tile) and sprite.is_solid:
-                clip = self.rect.clip(sprite.rect)
-                if y_v > 0:
-                    self.y -= clip.h
-                    self.on_ground = True
-                    self.y_v = 0
-                elif y_v < 0:
-                    self.y += clip.h
-                if x_v > 0:
-                    self.x -= clip.w
-                    self.direction = -self.direction
-                elif x_v < 0:
-                    self.x += clip.w
-                    self.direction = -self.direction
+        try:
+            for sprite in pygame.sprite.spritecollide(self,
+                                                      SpriteGroups.all_sprites,
+                                                      False):
+                if isinstance(sprite, Tile) and sprite.is_solid:
+                    clip = self.rect.clip(sprite.rect)
+                    if y_v > 0:
+                        self.y -= clip.h
+                        self.on_ground = True
+                        self.y_v = 0
+                    elif y_v < 0:
+                        self.y += clip.h
+                    if x_v > 0:
+                        self.x -= clip.w
+                        self.direction = -self.direction
+                    elif x_v < 0:
+                        self.x += clip.w
+                        self.direction = -self.direction
 
-            if isinstance(sprite, Player):
-                if not sprite.stunned:
-                    sprite.hp -= self.damage
-                    sprite.stunned = True
-                    sprite.stun_count = self.stun_power
-                    if sprite.x_v == 0:
-                        if self.direction == RIGHT:
-                            sprite.x_v = self.impulse
+                if isinstance(sprite, Player):
+                    if not sprite.stunned:
+                        sprite.hp -= self.damage
+                        sprite.stunned = True
+                        sprite.stun_count = self.stun_power
+                        if sprite.x_v == 0:
+                            if self.direction == RIGHT:
+                                sprite.x_v = self.impulse
+                            else:
+                                sprite.x_v = -self.impulse
                         else:
-                            sprite.x_v = -self.impulse
-                    else:
-                        if sprite.x_v > 0:
-                            sprite.x_v = 0
-                            sprite.x_v = -self.impulse
-                        elif sprite.x_v < 0:
-                            sprite.x_v = 0
-                            sprite.x_v = self.impulse
+                            if sprite.x_v > 0:
+                                sprite.x_v = 0
+                                sprite.x_v = -self.impulse
+                            elif sprite.x_v < 0:
+                                sprite.x_v = 0
+                                sprite.x_v = self.impulse
+        except TypeError:
+            pass
 
     def setup_properties(self):
         """Устанавливает свойства врага. Наследуется и изменяется в дочерних

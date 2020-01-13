@@ -72,11 +72,11 @@ class HeroRangeAttack(HeroAttack):
     def __init__(self, main, direction, x, y, speed):
         super().__init__(main, direction, speed)
         if direction == RIGHT:
-            self.image = pygame.image.load(data_path('player/player_attack/'),
-                                           'daggerr.png')
+            self.image = pygame.image.load(data_path('player/player_attack/'
+                                                     'daggerr.png'))
         else:
-            self.image = pygame.image.load(data_path('player/player_attack/'),
-                                           'daggerl.png')
+            self.image = pygame.image.load(data_path('player/player_attack/'
+                                                     'daggerl.png'))
         self.image = pygame.transform.scale(self.image, (24, 7))
         self.rect = self.image.get_rect()
         self.x = x
