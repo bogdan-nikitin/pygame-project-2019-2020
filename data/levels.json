@@ -1,21 +1,5 @@
 {
-  "firstLevel": "5",
-  "1":
-  {
-    "mapFile": "level1.txt",
-    "nextStage": "2",
-    "music": "music1.wav",
-    "heroPos": [101, 6],
-    "enemies": [["Insect", 37, 44, 4]]
-  },
-  "2":
-  {
-    "mapFile": "level1.txt",
-    "nextStage": "3",
-    "music": "music1.wav",
-    "heroPos": [4, 51],
-    "enemies": [["Insect", 37, 44, 4]]
-  },
+  "firstLevel": "3",
   "3":
   {
     "mapFile": "level2.txt",
@@ -35,7 +19,6 @@
   "5":
   {
     "mapFile": "level4.txt",
-    "nextStage": "1",
     "music": "music1.wav",
     "heroPos": [54, 47],
     "enemies": [["Knight", 14, 47, 7], ["Knight", 35, 47, 8], ["Knight", 51, 47, 6], ["Knight", 67, 47, 5], ["Knight", 64, 31, 5], ["Knight", 25, 31, 9], ["Knight", 29, 16, 10], ["Knight", 62, 16, 9]]
