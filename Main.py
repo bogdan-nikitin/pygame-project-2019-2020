@@ -1,12 +1,13 @@
+"""Модуль самой игры."""
+
+from Modules.MenuUI import *
+from Modules.GameUI import *
+from Modules.Camera import *
 from Modules.Enemies import *
 from Modules.Player import *
 from Modules.Configuration import *
 from Modules.Mapping import *
-from Modules.MenuUI import *
 from Modules.General import *
-from Modules.GameUI import *
-from Modules.Camera import *
-from Modules.Enemies import *
 from Modules import SpriteGroups
 import pygame
 import json
@@ -27,14 +28,22 @@ THE_END_FONT_SIZE = 20
 
 LINE_SPACING = 10
 
+# Название полей в level.json. Их использование утверждено в README.me.
+FIRST_LEVEL = 'firstLevel'
+NEXT_STAGE = 'nextStage'
+MAP_FILE = 'mapFile'
+HERO_POS = 'heroPos'
+MUSIC = 'music'
+ENEMIES = 'enemies'
 
 ENEMY_TABLE = {'Insect': Insect,
                'Knight': Knight,
                'Snake': Snake,
-               'Rat': Rat,
-               'Bat': Bat}
+               'Rat': Rat}
+#              'Bat': Bat}
 
 FPS = 30
+USER_EVENT = 1000
 
 
 class Main:
@@ -159,6 +168,7 @@ class Main:
                                                           pygame.RESIZABLE)
 
     def update(self, *args):
+        """Обновляет спрайты."""
         SpriteGroups.ui_group.update(*args)
         if not self.is_paused:
             self.camera.update(self.hero)
@@ -181,8 +191,9 @@ class Main:
         pygame.display.flip()
 
     def game_cycle(self):
+        """Игровой цикл."""
         # изменение состояния персонажа(здоровье и прочее)
-        pygame.time.set_timer(pygame.USEREVENT, 1000)
+        pygame.time.set_timer(pygame.USEREVENT, USER_EVENT)
         while self.running:
             self.events()
             self.update(self.tick)
@@ -191,17 +202,19 @@ class Main:
         pygame.quit()
 
     def load_levels_config(self):
+        """Загрузка конфигурации уровней."""
         with open(data_path(LEVELS_FILE)) as file:
             self.levels = json.load(file)
 
     def load_next_level(self):
+        """Загрузка следующего (или первого) уровня."""
 
         SpriteGroups.empty_all()
 
         if self.cur_level_name is None:
-            self.cur_level_name = self.levels['firstLevel']
+            self.cur_level_name = self.levels[FIRST_LEVEL]
         else:
-            next_level = self.levels[self.cur_level_name].get('nextStage')
+            next_level = self.levels[self.cur_level_name].get(NEXT_STAGE)
             if not (next_level and next_level in self.levels):
                 self.end_game()
                 return
@@ -211,27 +224,28 @@ class Main:
             self.music.stop()
 
         level_data = self.levels[self.cur_level_name]
-        file_name = level_data['mapFile']
+        file_name = level_data[MAP_FILE]
 
         self.set_loading_screen()
 
         _, _, self.tiles = generate_level(load_level(file_name))
 
-        self.hero = Player(self, RIGHT, *level_data['heroPos'])
+        self.hero = Player(self, RIGHT, *level_data[HERO_POS])
         self.hero_group.add(self.hero)
 
         self.hp_bar = HPBar(self.hero, MAX_HP)
         self.stamina_bar = StaminaBar(self.hero, MAX_STAMINA)
 
-        self.spawn_enemies(level_data.get('enemies', []))
+        self.spawn_enemies(level_data.get(ENEMIES, []))
         self.end_loading()
 
-        if 'music' in level_data:
-            self.music = pygame.mixer.Sound(data_path(level_data['music']))
+        if MUSIC in level_data:
+            self.music = pygame.mixer.Sound(data_path(level_data[MUSIC]))
             self.music.play(-1)
 
     def end_game(self, message=None, clear_screen=True):
-
+        """Оканчивает игру, выводя на экран сообщение message или THE_END[0],
+         если message=None, и строки THE_END[1:]."""
         text = THE_END
         if message:
             text[0] = message
@@ -264,6 +278,7 @@ class Main:
         self.is_end = True
 
     def set_loading_screen(self):
+        """Устанавливает загрузочный экран."""
         clear(self.screen)
         screen_w, screen_h = self.screen.get_rect().size
         w, h = self.loading_label.w, self.loading_label.h
@@ -274,11 +289,13 @@ class Main:
         self.is_loading = True
 
     def spawn_enemies(self, enemies):
+        """Призывает врагов."""
         for enemy, *params in enemies:
             enemy_class = ENEMY_TABLE[enemy]
             enemy_class(self, RIGHT, *params)
 
     def end_loading(self):
+        """Убирает загрузочный экран."""
         self.loading_label.hide()
         clear(self.screen)
         self.is_loading = False

@@ -1,3 +1,5 @@
+"""Содержит класс игрока."""
+
 from Modules.Attacks import *
 from Modules.Configuration import *
 from Modules import SpriteGroups, Mapping
@@ -267,10 +269,10 @@ class Player(GameSprite, AnimatedSprite):
 
         self.y_v += GRAVITATION
 
-        self.x += self.x_v  # * tick / 1000
-        self.collide(self.x_v, 0)  # * tick / 1000, 0)
-        self.y += self.y_v  # * tick / 1000
-        self.collide(0, self.y_v)  # * tick / 1000)
+        self.x += self.x_v
+        self.collide(self.x_v, 0)
+        self.y += self.y_v
+        self.collide(0, self.y_v)
 
     def collide(self, x_v, y_v):
         for sprite in pygame.sprite.spritecollide(self,

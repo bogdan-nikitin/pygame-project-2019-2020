@@ -1,9 +1,11 @@
-import pygame
+"""Содержит классы групп спрайтов и функции для работы с ними."""
+
 from Modules.GameUIHeaders import *
+import pygame
 
 
 def empty_all():
-    """Удаляет все спрайты."""
+    """Удаляет все спрайты из всех групп."""
     for sprite in all_sprites:
         sprite.kill()
 
@@ -17,6 +19,8 @@ def empty_group(group):
 
 
 def draw_ui(surface, sprite):
+    """Отрисовывает элемент интерфейса sprite и все эго дочерние элементы на
+    поверхности surface."""
     if not sprite.is_active:
         return
     if isinstance(sprite, Panel):
@@ -58,6 +62,7 @@ class TilesGroup(pygame.sprite.Group):
 
 
 class UIGroup(pygame.sprite.Group):
+    """Группа элементов интерфейса."""
     def draw(self, surface):
         for spr in self.sprites():
             if spr.parent is None:
@@ -71,5 +76,5 @@ class UIGroup(pygame.sprite.Group):
 all_sprites = pygame.sprite.Group()
 tiles_group = TilesGroup()
 ui_group = UIGroup()
-characters_group = pygame.sprite.Group()
+characters_group = pygame.sprite.Group()  # Группа персонажей - игрока и врагов.
 enemies_group = pygame.sprite.Group()

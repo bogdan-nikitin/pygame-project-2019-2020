@@ -1,10 +1,10 @@
-from Modules.ColorPalette import *
-from Modules.General import *
-
-
-"""Заголовочный файл по типу таковых в C++. Необходим для распознавания класса 
-UI при отрисовке в SpriteGroups. Также содержат некоторые константы, которые 
+"""Заголовочный файл по типу таковых в C++. Необходим для распознавания класса
+UI при отрисовке в SpriteGroups. Также содержат некоторые константы, которые
 используются в модулях GameUI и SpriteGroups."""
+
+from Modules.General import *
+from Modules.ColorPalette import *
+
 # Просто имортировать модуль GameUI в SpriteGroups невозможно из-за того, что
 # в GameUI импортируется модуль SpriteGroups.
 

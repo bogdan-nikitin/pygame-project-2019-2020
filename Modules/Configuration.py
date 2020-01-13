@@ -1,5 +1,10 @@
+"""Модуль, содержащий некоторые константы и функции для модулей
+Player, Enemies, Main."""
+
 import pyganim
-"""Все конастанты в Constants"""
+
+# Все конастанты в Constants
+
 WINDOW_WIDTH = 960
 WINDOW_HEIGHT = 540
 

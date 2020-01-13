@@ -1,3 +1,5 @@
+"""Модуль для работы с уровнями."""
+
 import json
 import csv
 from Modules.Sprites import *

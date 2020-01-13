@@ -1,3 +1,5 @@
+"""Содержит общие функции, используемые в большинстве модулей."""
+
 from Modules.Constants import *
 import os
 import pygame
@@ -8,6 +10,8 @@ DATA_PATH = 'data'
 
 
 def draw_fps(screen, fps):
+    """Отрисовывает кол-во кадров в секунду fps в левом верхнем углу экрана
+    screen."""
     font = pygame.font.Font(None, 30)
     text = font.render(str(int(fps)), 1, pygame.Color('yellow'))
     text_x = 10

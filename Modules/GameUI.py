@@ -1,14 +1,16 @@
-from Modules.General import *
+"""Содержит классы игрового интерфейса."""
+
 from Modules import SpriteGroups
-import pygame
 from Modules.GameUIHeaders import *
+from Modules.General import *
 from Modules.ColorPalette import *
 from multipledispatch import dispatch  # Модуль для "перегрузки" функций
 from numbers import Number
+import pygame
 
 
 class UIElement(pygame.sprite.Sprite, UIElement):
-    """Класс элемента интерфейса."""
+    """Абастрактный класс элемента интерфейса."""
     def __init__(self, parent=None, groups=()):
         super().__init__(SpriteGroups.all_sprites, SpriteGroups.ui_group,
                          *groups)
@@ -131,6 +133,7 @@ class UIElement(pygame.sprite.Sprite, UIElement):
                 self.no_hover(*event.pos)
 
     def on_hover(self, x, y):
+        """Вызывается при входе курсора в границы элемента."""
         pass
 
     def on_mouse_up(self, x, y):
@@ -140,6 +143,7 @@ class UIElement(pygame.sprite.Sprite, UIElement):
         pass
 
     def no_hover(self, x, y):
+        """Вызывается при выходе курсора из-за границ элемента."""
         pass
 
 
@@ -443,9 +447,9 @@ class Bar(Panel):
 class HookedBar(Bar):
     """Цепляющийся бар. При инициализации и вызове update устанавливает значение
     self.hook_value(self.hook).
-    hook - значение, к которому "цепляется" бар
-    hook_value - функция, по которой бар вычисляет собственное значение
-    max_hook_value - максимально возможное значение self.hook_value(self.hook)
+    hook - значение, к которому "цепляется" бар;
+    hook_value - функция, по которой бар вычисляет собственное значение;
+    max_hook_value - максимально возможное значение self.hook_value(self.hook).
     """
     def __init__(self, hook, hook_value: lambda x: x, max_hook_value,
                  parent=None, groups=()):
@@ -469,6 +473,9 @@ class HookedBar(Bar):
 
 
 class LeftTopHookedBar(HookedBar):
+    """Класс бара, привязанного к левому верхнему углу экрана. Наследован от
+    hooked_bar. В конструкте принимает аргумент pos - позиция бара
+    (начинается с 0) и аргументы для конструктора HookedBar."""
     def __init__(self, pos, hook, hook_value: lambda x: x,
                  max_hook_value, parent=None, groups=()):
         super().__init__(hook, hook_value, max_hook_value, *groups,

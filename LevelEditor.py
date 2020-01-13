@@ -1,3 +1,5 @@
+"""Редактор уровней."""
+
 from Modules.Mapping import *
 from Modules.General import *
 from Modules import Mapping, SpriteGroups

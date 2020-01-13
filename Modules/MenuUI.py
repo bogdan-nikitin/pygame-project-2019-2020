@@ -1,5 +1,7 @@
-from Modules.General import *
+"""Содержит классы игрового меню, которое вызывается на кнопку Esc."""
+
 from Modules.GameUI import *
+from Modules.General import *
 from Modules import SpriteGroups
 import pygame
 
@@ -111,6 +113,8 @@ class Settings(Panel):
         self.back_label.clicked = self.back
 
     def back(self, x, y):
+        """Вызывается при нажатии кнопки назад, скрывает настройки и показывает
+        меню. Также приминяет выбранные настройки."""
         dictionary = {FULLSCREEN_EVENT_ATTR: self.full_screen_box.checked}
         full_screen_event = pygame.event.Event(FULLSCREEN_EVENT_TYPE,
                                                dictionary)

@@ -1,5 +1,7 @@
-from Modules.General import *
+"""Модуль, содержащий классы спрайтов, испольющихся в других модулях."""
+
 from Modules import SpriteGroups
+from Modules.General import *
 import pygame
 from collections.abc import Iterable
 import typing
@@ -65,11 +67,18 @@ class GameSprite(pygame.sprite.Sprite):
 
     def collide_shift(self, shift_x, shift_y, groups=(),
                       key=lambda sprite: True, collided=None, move=True):
+        """Сдвигает спрайт на shift_x по x и на shift_y по y, используя
+        collide_move."""
         self.collide_move(self._x + shift_x, self._y + shift_y, groups, key,
                           collided, move)
 
     def collide_move(self, x, y, groups=(), key=lambda sprite: True,
                      collided=None, move=True):
+        """Перемещает спрайт в точку x, y если move=True и если на пути нет ни
+        одного спрайта из групп groups, для которого key(*спрайт*)=True и
+        collided(self, *спрайт*)=True (если collided=None,
+         используется collide_rect). Проверяет столкновения в каждой точке пути.
+         """
         if not isinstance(groups, Iterable):
             groups = (groups,)
         x_shift, y_shift = x - self._x, y - self._y
@@ -105,16 +114,25 @@ class GameSprite(pygame.sprite.Sprite):
 
 
 class ScalableSprite(pygame.sprite.Sprite):
+    """Абастрактный класс спрайта, у которого можно менять масштаб. Для того
+    чтобы всё работало, у дочернего класса должен быть определён метод
+    load_images, в котором происходит загрузка изображений и который вызывается
+    в конструкторе класса, если *класс*.images_loaded=False."""
     scale_multiplier = 1
     images_loaded = False
 
     @classmethod
     def set_image_size_multiplier(cls, multiplier):
+        """Установливает множитель размера спрайта."""
         cls.scale_multiplier = multiplier
         cls.images_loaded = False
 
+    def load_images(self, cls):
+        cls.images_loaded = True
+
 
 class AnimatedSprite(ScalableSprite):
+    """Абстрактный класс анимированного спрайта."""
     def __init__(self, *args):
         super().__init__(*args)
 
@@ -144,6 +162,7 @@ class AnimatedSprite(ScalableSprite):
                            self.anim_dead_left, self.anim_dead_right]
 
     def setup_properties(self):
+        """Устанавливает свойства объекта."""
         pass
 
     def load_images(self, cls):
@@ -169,4 +188,4 @@ class AnimatedSprite(ScalableSprite):
 
         self.rect = self.image.get_rect()
 
-        cls.images_loaded = True
+        super().load_images(cls)

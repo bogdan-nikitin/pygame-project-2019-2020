@@ -1,5 +1,7 @@
-from Modules.Sprites import *
+"""Модуль для работы с камерой."""
+
 from Modules.Enemies import *
+from Modules.Sprites import *
 
 
 class Camera:
