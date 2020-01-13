@@ -276,5 +276,7 @@ class Main:
 
 if __name__ == '__main__':
     game = Main()
+    bar = StaminaBar(game.hero, MAX_STAMINA)
+    bar.set_geometry(0, 0, 500, 30)
     game.game_cycle()
 

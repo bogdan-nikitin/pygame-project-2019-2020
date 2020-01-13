@@ -370,3 +370,123 @@ class Checkbox(UIElement, Checkbox):
         self._rect.size = (self._box.rect.x - self._label.rect.x,
                            self._box.rect.y - self._label.rect.y)
         self._w, self._h = self._rect.size
+
+
+class Bar(Panel):
+    """Бар (по типу загрузочного бара)."""
+    def __init__(self, parent=None, groups=()):
+        super().__init__(*groups, parent=parent)
+        self.bg_color = BAR_LIGHT_COLOR
+        self.bound = 0
+        self._inner_panel = Panel(self, groups)
+        self._inner_panel.bg_color = BAR_COLOR
+        self._inner_panel.bound = 0
+        self._bar_bg = Panel(self._inner_panel, groups)
+        self._bar_bg.bound = 0
+        self._bar_bg.bg_color = BAR_BG_COLOR
+        self._bar = Panel(self._bar_bg, groups)
+        self._bar.bg_color = BAR_BG_COLOR
+        self._bar.bound = 0
+        self._bar_w = 0
+        self._value = 100
+
+    @property
+    def bar_color(self):
+        return self._bar.bg_color
+
+    @bar_color.setter
+    def bar_color(self, value):
+        self._bar.bg_color = value
+
+    def resize(self, w, h):
+        super().resize(w, h)
+        self._inner_panel.set_geometry(self.x + LIGHT_WIDTH,
+                                       self.y + LIGHT_WIDTH,
+                                       w - LIGHT_WIDTH,
+                                       h - LIGHT_WIDTH)
+        self._bar_w = w - BAR_WIDTH * 2
+        self._bar_bg.set_geometry(self.x + BAR_WIDTH - LIGHT_WIDTH,
+                                  self.y + BAR_WIDTH - LIGHT_WIDTH,
+                                  self._bar_w,
+                                  h - BAR_WIDTH * 2)
+        self._bar.resize(int(self._bar_w * self._value / 100), self._bar_bg.h)
+
+    def _update_bar(self):
+        self._bar.resize(int(self._bar_w * self._value / 100), self._bar_bg.h)
+
+    @dispatch(pygame.rect.Rect)
+    def set_geometry(self, rect):
+        self._rect = rect
+        self._update_children_pos()
+
+    @dispatch(Number, Number, Number, Number)
+    def set_geometry(self, x, y, w, h):
+        self.resize(w, h)
+        self.set_pos(x, y)
+        self._inner_panel.set_geometry(self.x + LIGHT_WIDTH,
+                                       self.y + LIGHT_WIDTH,
+                                       w - LIGHT_WIDTH,
+                                       h - LIGHT_WIDTH)
+        self._bar_w = w - BAR_WIDTH * 2
+        self._bar_bg.set_geometry(self.x + BAR_WIDTH - LIGHT_WIDTH,
+                                  self.y + BAR_WIDTH - LIGHT_WIDTH,
+                                  self._bar_w,
+                                  h - BAR_WIDTH * 2)
+        self._update_bar()
+
+    @property
+    def value(self):
+        return self._value
+
+    def _set_value(self, value):
+        self._value = value
+        if self._value < 0:
+            self._value = 0
+        self._update_bar()
+
+    @value.setter
+    def value(self, value):
+        self._set_value(value)
+
+
+class HookedBar(Bar):
+    """Цепляющийся бар. При инициализации и вызове update устанавливает значение
+    self.hook_value(self.hook).
+    hook - значение, к которому "цепляется" бар
+    hook_value - функция, по которой бар вычисляет собственное значение
+    max_hook_value - максимально возможное значение self.hook_value(self.hook)
+    """
+    def __init__(self, hook, hook_value: lambda x: x, max_hook_value,
+                 parent=None, groups=()):
+        super().__init__(*groups, parent=parent)
+        self.max_hook_value = max_hook_value
+        self.hook = hook
+        self.hook_value = hook_value
+        self.value = self.hook_value(self.hook)
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, value):
+        self._set_value(value / self.max_hook_value * 100)
+
+    def update(self, *args):
+        super().update(*args)
+        self.value = self.hook_value(self.hook)
+
+
+class HPBar(HookedBar):
+    """Полоса здоровья."""
+    def __init__(self, hero, max_hp, parent=None, groups=()):
+        super().__init__(hero, lambda h: h.hp, max_hp, *groups, parent=parent)
+        self.bar_color = HP_BAR_COLOR
+
+
+class StaminaBar(HookedBar):
+    """Полоса выносливости."""
+    def __init__(self, hero, max_stamina, parent=None, groups=()):
+        super().__init__(hero, lambda h: h.stamina, max_stamina, *groups,
+                         parent=parent)
+        self.bar_color = STAMINA_BAR_COLOR

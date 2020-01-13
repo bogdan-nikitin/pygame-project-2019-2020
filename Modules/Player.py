@@ -11,11 +11,14 @@ JUMP_SPEED = 4.5
 PLAYER_WIDTH = 22
 PLAYER_HEIGHT = 24
 
+# DA - Default attack
 DA_COUNT = 30
 DA_ANIMATION_CHANGE = 20
 DA_ATTACK_SPAWN = 18
 DA_SPEED = 2
 DA_INCREASED_SPEED = 5
+
+# RA - Range attack
 RA_COUNT = 45
 RA_ANIMATION_CHANGE = 25
 RA_ATTACK_SPAWN = 22
@@ -168,7 +171,7 @@ class Player(GameSprite, ScalableSprite):
         if self.stamina < MAX_STAMINA:
             self.stamina += STAMINA_REGEN
 
-    def default_attack(self, color_key):
+    def default_attack(self):
         if self.da_count < DA_COUNT:
             self.da_count += 1
             if self.da_count == DA_ATTACK_SPAWN:
@@ -180,14 +183,14 @@ class Player(GameSprite, ScalableSprite):
                     HeroDefaultAttack(self.main, self.direction,
                                       self.x, self.y, speed))
             if self.da_count <= DA_ANIMATION_CHANGE:
-                self.temp_image.fill(color_key)
+                self.temp_image.fill(TRANSPARENT)
                 if self.direction == RIGHT:
                     self.temp_image.blit(ANIMATION_ATTACK_DMR[0], (0, 0))
                 else:
                     self.temp_image.blit(ANIMATION_ATTACK_DML[0], (0, 0))
                 self.image = self.temp_image
             elif self.da_count > DA_ANIMATION_CHANGE:
-                self.temp_image.fill(color_key)
+                self.temp_image.fill(TRANSPARENT)
                 if self.direction == RIGHT:
                     self.temp_image.blit(ANIMATION_ATTACK_DMR[1], (0, 0))
                 else:
@@ -197,7 +200,7 @@ class Player(GameSprite, ScalableSprite):
             self.da_count = 0
             self.is_default_attack = False
 
-    def range_attack(self, color_key):
+    def range_attack(self):
         if self.ra_count < RA_COUNT:
             self.ra_count += 1
             if self.ra_count == RA_ATTACK_SPAWN:
@@ -210,14 +213,14 @@ class Player(GameSprite, ScalableSprite):
                     HeroRangeAttack(self.main, self.direction, self.x + 4,
                                     self.y + 6, speed))
             if self.ra_count <= RA_ANIMATION_CHANGE:
-                self.temp_image.fill(color_key)
+                self.temp_image.fill(TRANSPARENT)
                 if self.direction == RIGHT:
                     self.temp_image.blit(ANIMATION_ATTACK_DRR[0], (0, 0))
                 else:
                     self.temp_image.blit(ANIMATION_ATTACK_DRL[0], (0, 0))
                 self.image = self.temp_image
             elif self.ra_count > RA_ANIMATION_CHANGE:
-                self.temp_image.fill(color_key)
+                self.temp_image.fill(TRANSPARENT)
                 if self.direction == RIGHT:
                     self.temp_image.blit(ANIMATION_ATTACK_DRR[1], (0, 0))
                 else:
@@ -227,11 +230,11 @@ class Player(GameSprite, ScalableSprite):
             self.ra_count = 0
             self.is_range_attack = False
 
-    def move(self, color_key):
+    def move(self):
         if self.left:
             self.x_v = -MOVE_SPEED
             if not (self.is_default_attack or self.is_range_attack):
-                self.temp_image.fill(color_key)
+                self.temp_image.fill(TRANSPARENT)
                 if self.on_ground:
                     self.anim_walk_left.blit(self.temp_image, (0, 0))
                 else:
@@ -243,7 +246,7 @@ class Player(GameSprite, ScalableSprite):
         if self.right:
             self.x_v = MOVE_SPEED
             if not (self.is_default_attack or self.is_range_attack):
-                self.temp_image.fill(color_key)
+                self.temp_image.fill(TRANSPARENT)
                 if self.on_ground:
                     self.anim_walk_right.blit(self.temp_image, (0, 0))
                 else:
@@ -256,7 +259,7 @@ class Player(GameSprite, ScalableSprite):
             self.x_v = 0
             if not (self.is_default_attack or self.is_range_attack):
                 if self.on_ground:
-                    self.temp_image.fill(color_key)
+                    self.temp_image.fill(TRANSPARENT)
                     if self.direction == RIGHT:
                         self.anim_stay_right.blit(self.temp_image, (0, 0))
                     else:
@@ -267,7 +270,7 @@ class Player(GameSprite, ScalableSprite):
                 self.y_v = -JUMP_SPEED
                 self.on_ground = False
             if not (self.is_default_attack or self.is_range_attack):
-                self.temp_image.fill(color_key)
+                self.temp_image.fill(TRANSPARENT)
                 if self.direction == RIGHT:
                     self.anim_jump_right.blit(self.temp_image, (0, 0))
                 else:
@@ -278,11 +281,10 @@ class Player(GameSprite, ScalableSprite):
         tick = args[0] if args else 0
         if self.hp <= 0:
             self.dead = True
-        color_key = self.image.get_at((0, 0))
         if self.dead:
             if self.dead_count > 0:
                 self.dead_count -= 1
-                self.temp_image.fill(color_key)
+                self.temp_image.fill(TRANSPARENT)
                 self.x_v = 0
                 if self.direction == RIGHT:
                     self.anim_dead_right.blit(self.temp_image, (0, 0))
@@ -294,10 +296,10 @@ class Player(GameSprite, ScalableSprite):
                 self.main.end_game(YOU_DIED_MESSAGE, False)
         elif not self.stunned:
             if self.is_default_attack:
-                self.default_attack(color_key)
+                self.default_attack()
             elif self.is_range_attack:
-                self.range_attack(color_key)
-            self.move(color_key)
+                self.range_attack()
+            self.move()
         else:
             self.stun_count -= 1
             if self.stun_count == 0:

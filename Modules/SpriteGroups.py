@@ -21,8 +21,9 @@ def draw_ui(surface, sprite):
         return
     if isinstance(sprite, Panel):
         pygame.draw.rect(surface, sprite.bg_color, sprite.rect)
-        pygame.draw.rect(surface, sprite.bound_color, sprite.rect,
-                         sprite.bound)
+        if sprite.bound:
+            pygame.draw.rect(surface, sprite.bound_color, sprite.rect,
+                             sprite.bound)
         if isinstance(sprite, CheckboxPanel):
             if sprite.checked:
                 rect = sprite.rect.copy()

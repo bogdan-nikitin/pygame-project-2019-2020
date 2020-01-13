@@ -4,6 +4,7 @@ from Modules.Attacks import *
 from Modules.Configuration import *
 from Modules.EnemiesHeaders import *
 from Modules import Mapping
+from Modules.ColorPalette import *
 
 DEAD_COUNT = 60
 
@@ -46,14 +47,14 @@ WRAITH_HP = 500
 WRAITH_MP = 100
 WRAITH_MP_REG = 10
 
-INSECT_RIGHT = ['data/enemies/insect/walkr1.png',
-                'data/enemies/insect/walkr2.png',
-                'data/enemies/insect/walkr3.png',
-                'data/enemies/insect/walkr4.png', ]
-INSECT_LEFT = ['data/enemies/insect/walkl1.png',
-               'data/enemies/insect/walkl2.png',
-               'data/enemies/insect/walkl3.png',
-               'data/enemies/insect/walkl4.png', ]
+INSECT_RIGHT = [data_path('enemies/insect/walkr1.png'),
+                data_path('enemies/insect/walkr2.png'),
+                data_path('enemies/insect/walkr3.png'),
+                data_path('enemies/insect/walkr4.png'), ]
+INSECT_LEFT = [data_path('enemies/insect/walkl1.png'),
+               data_path('enemies/insect/walkl2.png'),
+               data_path('enemies/insect/walkl3.png'),
+               data_path('enemies/insect/walkl4.png'), ]
 INSECT_STAY_RIGHT = [(data_path('enemies/insect/stayr.png'), ANIMATION_DELAY)]
 INSECT_STAY_LEFT = [(data_path('enemies/insect/stayl.png'), ANIMATION_DELAY)]
 INSECT_DEAD_RIGHT = [(data_path('enemies/insect/deadr.png'), ANIMATION_DELAY)]
@@ -166,8 +167,8 @@ class MeleeEnemy(GameSprite, MeleeEnemy):
         self.x = self.start_x
         self.y = self.start_y
 
-    def move(self, color_key):
-        self.temp_image.fill(color_key)
+    def move(self):
+        self.temp_image.fill(TRANSPARENT)
         if self.left:
             self.x_v = -self.ms
             self.anim_walk_left.blit(self.temp_image, (0, 0))
@@ -177,7 +178,6 @@ class MeleeEnemy(GameSprite, MeleeEnemy):
         self.image = self.temp_image
 
     def update(self, *args):
-        color_key = self.image.get_at((0, 0))
         if not self.dead:
             if self.direction == RIGHT:
                 self.right = True
@@ -188,7 +188,7 @@ class MeleeEnemy(GameSprite, MeleeEnemy):
             if self.hp <= 0:
                 self.dead = True
 
-            self.move(color_key)
+            self.move()
 
             self.y_v += GRAVITATION
 
@@ -201,7 +201,7 @@ class MeleeEnemy(GameSprite, MeleeEnemy):
         else:
             if self.dead_count > 0:
                 self.dead_count -= 1
-                self.temp_image.fill(color_key)
+                self.temp_image.fill(TRANSPARENT)
                 self.x_v = 0
                 if self.direction == RIGHT:
                     self.anim_dead_right.blit(self.temp_image, (0, 0))
@@ -269,8 +269,10 @@ class MeleeEnemyWithMaxX(MeleeEnemy):
 
 class Insect(MeleeEnemyWithMaxX):
     def setup_properties(self):
-        self.temp_image = pygame.image.load('data/enemies/insect/stayr.png')
-        self.image = pygame.image.load('data/enemies/insect/stayr.png')
+        self.temp_image = pygame.image.load(data_path(
+            'enemies/insect/stayr.png'))
+        self.image = pygame.image.load(data_path(
+            'enemies/insect/stayr.png'))
         self.rect = self.image.get_rect()
         self.hp = INSECT_MAX_HP
         self.damage = INSECT_DMG
@@ -299,8 +301,9 @@ class Insect(MeleeEnemyWithMaxX):
 
 class Knight(MeleeEnemyWithMaxX):
     def setup_properties(self):
-        self.temp_image = pygame.image.load('data/enemies/knight/stayr.png')
-        self.image = pygame.image.load('data/enemies/knight/stayr.png')
+        self.temp_image = pygame.image.load(data_path(
+            'enemies/knight/stayr.png'))
+        self.image = pygame.image.load(data_path('enemies/knight/stayr.png'))
         self.rect = self.image.get_rect()
         self.hp = KNIGHT_MAX_HP
         self.damage = KNIGHT_DMG
@@ -329,8 +332,8 @@ class Knight(MeleeEnemyWithMaxX):
 
 class Rat(MeleeEnemyWithMaxX):
     def setup_properties(self):
-        self.temp_image = pygame.image.load('data/enemies/rat/stayr.png')
-        self.image = pygame.image.load('data/enemies/rat/stayr.png')
+        self.temp_image = pygame.image.load(data_path('enemies/rat/stayr.png'))
+        self.image = pygame.image.load(data_path('enemies/rat/stayr.png'))
         self.rect = self.image.get_rect()
         self.hp = RAT_MAX_HP
         self.damage = RAT_DMG
@@ -359,8 +362,10 @@ class Rat(MeleeEnemyWithMaxX):
 
 class Snake(MeleeEnemyWithMaxX):
     def setup_properties(self):
-        self.temp_image = pygame.image.load('data/enemies/snake/stayr.png')
-        self.image = pygame.image.load('data/enemies/snake/stayr.png')
+        self.temp_image = pygame.image.load(data_path(
+            'enemies/snake/stayr.png'))
+        self.image = pygame.image.load(data_path(
+            'enemies/snake/stayr.png'))
         self.rect = self.image.get_rect()
         self.hp = SNAKE_MAX_HP
         self.damage = SNAKE_DMG
@@ -394,8 +399,8 @@ class Bat(MeleeEnemy):
         # положения
         self.max_x = max_x
         self.max_y = max_y
-        self.temp_image = pygame.image.load('data/enemies/bat/stayr.png')
-        self.image = pygame.image.load('data/enemies/bat/stayr.png')
+        self.temp_image = pygame.image.load(data_path('enemies/bat/stayr.png'))
+        self.image = pygame.image.load(data_path('enemies/bat/stayr.png'))
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
@@ -424,7 +429,6 @@ class Bat(MeleeEnemy):
         self.anim_walk_left.play()
 
     def update(self, *args):
-        color_key = self.image.get_at((0, 0))
         if not self.dead:
             if self.direction == RIGHT:
                 self.right = True
@@ -434,7 +438,7 @@ class Bat(MeleeEnemy):
                 self.left = True
             if self.hp <= 0:
                 self.dead = True
-            self.move(color_key)
+            self.move()
 
             self.on_ground = False
             self.rect.y += self.y_v
@@ -452,7 +456,7 @@ class Bat(MeleeEnemy):
         else:
             if self.dead_count > 0:
                 self.dead_count -= 1
-                self.temp_image.fill(color_key)
+                self.temp_image.fill(TRANSPARENT)
                 self.x_v = 0
                 if self.direction == RIGHT:
                     self.anim_dead_right.blit(self.temp_image, (0, 0))
@@ -506,8 +510,10 @@ class FireMage(pygame.sprite.Sprite, FireMage):
         self.y_v = 0
         self.start_x = Mapping.tile_width * pos_x
         self.start_y = Mapping.tile_height * pos_y
-        self.temp_image = pygame.image.load('data/enemies/firemage/stayr.png')
-        self.image = pygame.image.load('data/enemies/firemage/stayr.png')
+        self.temp_image = pygame.image.load(data_path(
+            'enemies/firemage/stayr.png'))
+        self.image = pygame.image.load(data_path(
+            'enemies/firemage/stayr.png'))
         self.rect = self.image.get_rect()
         self.rect.x = self.start_x
         self.rect.y = self.start_y
@@ -526,7 +532,6 @@ class FireMage(pygame.sprite.Sprite, FireMage):
         self.anim_dead_left.play()
 
     def update(self, *args):
-        color_key = self.image.get_at((0, 0))
         if not self.dead:
             if self.mp < FIREMAGE_MP:
                 self.mp += FIREMAGE_MP_REG
@@ -542,7 +547,7 @@ class FireMage(pygame.sprite.Sprite, FireMage):
             if abs(self.main.hero.rect.x - self.rect.x) <= 600:
                 self.attack = True
 
-            self.temp_image.fill(color_key)
+            self.temp_image.fill(TRANSPARENT)
             if 0 <= self.attack_cd <= 30:
                 if self.direction == RIGHT:
                     self.temp_image.blit(MAGE_CAST_RIGHT, (0, 0))
@@ -562,7 +567,9 @@ class FireMage(pygame.sprite.Sprite, FireMage):
                     self.attack_cd = 60
                 if self.mp >= FIREBALL_COST and self.attack_cd == 0:
                     self.mp -= FIREBALL_COST
-                    fireball = Fireball(self.direction, self.rect.x + 9, self.rect.y + 9, self.main.hero.rect.x + 5,
+                    fireball = Fireball(self.direction, self.rect.x + 9,
+                                        self.rect.y + 9,
+                                        self.main.hero.rect.x + 5,
                                         self.main.hero.rect.y + 5)
                     # добавить fireball в соотвутсвующие группы спрайтов
                     self.main.proj.add(fireball)
@@ -579,7 +586,7 @@ class FireMage(pygame.sprite.Sprite, FireMage):
             self.attack = False
             if self.dead_count > 0:
                 self.dead_count -= 1
-                self.temp_image.fill(color_key)
+                self.temp_image.fill(TRANSPARENT)
                 self.x_v = 0
                 if self.direction == RIGHT:
                     self.anim_dead_right.blit(self.temp_image, (0, 0))
@@ -598,8 +605,8 @@ class Wraith(pygame.sprite.Sprite):
         self.y_v = 0
         self.start_x = x
         self.start_y = y
-        self.temp_image = pygame.image.load('data/enemies/wraith/stayr.png')
-        self.image = pygame.image.load('data/enemies/wraith/stayr.png')
+        self.temp_image = pygame.image.load(data_path('enemies/wraith/stayr.png'))
+        self.image = pygame.image.load(data_path('enemies/wraith/stayr.png'))
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
@@ -618,7 +625,6 @@ class Wraith(pygame.sprite.Sprite):
         self.anim_dead_left.play()
 
     def update(self, *args):
-        color_key = self.image.get_at((0, 0))
         if not self.dead:
             if self.mp < WRAITH_MP:
                 self.mp += WRAITH_MP_REG
@@ -634,7 +640,7 @@ class Wraith(pygame.sprite.Sprite):
             if abs(self.main.hero.rect.x - self.rect.x) <= 1000:
                 self.attack = True
 
-            self.temp_image.fill(color_key)
+            self.temp_image.fill(TRANSPARENT)
             if 0 <= self.attack_cd <= 30:
                 if 0 <= self.attack_cd <= 15:
                     if self.direction == RIGHT:
@@ -675,7 +681,7 @@ class Wraith(pygame.sprite.Sprite):
             self.attack = False
             if self.dead_count > 0:
                 self.dead_count -= 1
-                self.temp_image.fill(color_key)
+                self.temp_image.fill(TRANSPARENT)
                 self.x_v = 0
                 if self.direction == RIGHT:
                     self.anim_dead_right.blit(self.temp_image, (0, 0))
