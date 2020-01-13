@@ -2,6 +2,8 @@ from Modules.General import *
 from Modules import SpriteGroups
 import pygame
 from collections.abc import Iterable
+import typing
+import pyganim
 
 
 class GameSprite(pygame.sprite.Sprite):
@@ -112,3 +114,59 @@ class ScalableSprite(pygame.sprite.Sprite):
         cls.images_loaded = False
 
 
+class AnimatedSprite(ScalableSprite):
+    def __init__(self, *args):
+        super().__init__(*args)
+
+        self.image: typing.Optional[pygame.Surface] = None
+        self.temp_image: typing.Optional[pygame.Surface] = None
+
+        self.anim_stay_right: typing.Optional[pyganim.PygAnimation] = None
+        self.anim_stay_left: typing.Optional[pyganim.PygAnimation] = None
+
+        self.anim_jump_right: typing.Optional[pyganim.PygAnimation] = None
+        self.anim_jump_left: typing.Optional[pyganim.PygAnimation] = None
+
+        self.anim_walk_right: typing.Optional[pyganim.PygAnimation] = None
+        self.anim_walk_left: typing.Optional[pyganim.PygAnimation] = None
+
+        self.anim_dead_left: typing.Optional[pyganim.PygAnimation] = None
+        self.anim_dead_right: typing.Optional[pyganim.PygAnimation] = None
+
+        self.rect: typing.Optional[pygame.rect.Rect] = None
+
+        self.animations = None
+
+    def _update_animations(self):
+        self.animations = [self.anim_stay_right, self.anim_stay_left,
+                           self.anim_jump_right, self.anim_jump_left,
+                           self.anim_walk_right, self.anim_walk_left,
+                           self.anim_dead_left, self.anim_dead_right]
+
+    def setup_properties(self):
+        pass
+
+    def load_images(self, cls):
+        w, h = self.image.get_size()
+        self.image = pygame.transform.scale(self.image,
+                                            (int(w * cls.scale_multiplier),
+                                             int(h * cls.scale_multiplier)))
+        w, h = self.temp_image.get_size()
+        self.temp_image = pygame.transform.scale(self.temp_image,
+                                                 (int(w *
+                                                      cls.scale_multiplier),
+                                                  int(h *
+                                                      cls.scale_multiplier)))
+
+        self._update_animations()
+
+        for animation in self.animations:
+            if animation:
+                animation.play()
+                w, h = animation.getMaxSize()
+                animation.scale((int(w * cls.scale_multiplier),
+                                 int(h * cls.scale_multiplier)))
+
+        self.rect = self.image.get_rect()
+
+        cls.images_loaded = True

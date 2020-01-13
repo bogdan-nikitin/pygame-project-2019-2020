@@ -43,9 +43,14 @@ class Main:
         pygame.init()
         self.hero = None
         self.hero_group = pygame.sprite.Group()
+
         self.clock = pygame.time.Clock()
         self.screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT),
                                               pygame.RESIZABLE)
+
+        self.hp_bar = None
+        self.stamina_bar = None
+
         self.levels = None
         self.load_levels_config()
         self.tiles = None
@@ -209,9 +214,15 @@ class Main:
         file_name = level_data['mapFile']
 
         self.set_loading_screen()
+
         _, _, self.tiles = generate_level(load_level(file_name))
+
         self.hero = Player(self, RIGHT, *level_data['heroPos'])
         self.hero_group.add(self.hero)
+
+        self.hp_bar = HPBar(self.hero, MAX_HP)
+        self.stamina_bar = StaminaBar(self.hero, MAX_STAMINA)
+
         self.spawn_enemies(level_data.get('enemies', []))
         self.end_loading()
 
@@ -240,7 +251,6 @@ class Main:
         self.tiles = None
         if self.music:
             self.music.stop()
-        clear(self.screen)
         screen_w, screen_h = self.screen.get_rect().size
         total_h = sum(map(lambda l: l.h + LINE_SPACING, self.the_end_labels))
         total_h -= LINE_SPACING
@@ -276,7 +286,5 @@ class Main:
 
 if __name__ == '__main__':
     game = Main()
-    bar = StaminaBar(game.hero, MAX_STAMINA)
-    bar.set_geometry(0, 0, 500, 30)
     game.game_cycle()
 

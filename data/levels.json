@@ -14,6 +14,6 @@
     "nextStage": "3",
     "music": "no_sound.wav",
     "heroPos": [4, 51],
-    "enemies": [["Snake", 37, 44, 4]]
+    "enemies": [["Knight", 37, 44, 4]]
   }
 }

@@ -423,15 +423,6 @@ class Bar(Panel):
     def set_geometry(self, x, y, w, h):
         self.resize(w, h)
         self.set_pos(x, y)
-        self._inner_panel.set_geometry(self.x + LIGHT_WIDTH,
-                                       self.y + LIGHT_WIDTH,
-                                       w - LIGHT_WIDTH,
-                                       h - LIGHT_WIDTH)
-        self._bar_w = w - BAR_WIDTH * 2
-        self._bar_bg.set_geometry(self.x + BAR_WIDTH - LIGHT_WIDTH,
-                                  self.y + BAR_WIDTH - LIGHT_WIDTH,
-                                  self._bar_w,
-                                  h - BAR_WIDTH * 2)
         self._update_bar()
 
     @property
@@ -477,16 +468,28 @@ class HookedBar(Bar):
         self.value = self.hook_value(self.hook)
 
 
-class HPBar(HookedBar):
+class LeftTopHookedBar(HookedBar):
+    def __init__(self, pos, hook, hook_value: lambda x: x,
+                 max_hook_value, parent=None, groups=()):
+        super().__init__(hook, hook_value, max_hook_value, *groups,
+                         parent=parent)
+        x = LEFT_TOP_BAR_MARGIN_LEFT
+        y = (LEFT_TOP_BAR_MARGIN_TOP +
+             pos * (LEFT_TOP_BAR_HEIGHT + LEFT_TOP_BAR_SPACING))
+        self.set_geometry(x, y, LEFT_TOP_BAR_WIDTH, LEFT_TOP_BAR_HEIGHT)
+
+
+class HPBar(LeftTopHookedBar):
     """Полоса здоровья."""
     def __init__(self, hero, max_hp, parent=None, groups=()):
-        super().__init__(hero, lambda h: h.hp, max_hp, *groups, parent=parent)
+        super().__init__(HP_BAR_POS, hero, lambda h: h.hp, max_hp, *groups,
+                         parent=parent)
         self.bar_color = HP_BAR_COLOR
 
 
-class StaminaBar(HookedBar):
+class StaminaBar(LeftTopHookedBar):
     """Полоса выносливости."""
     def __init__(self, hero, max_stamina, parent=None, groups=()):
-        super().__init__(hero, lambda h: h.stamina, max_stamina, *groups,
-                         parent=parent)
+        super().__init__(STAMINA_BAR_POS, hero, lambda h: h.stamina,
+                         max_stamina, *groups, parent=parent)
         self.bar_color = STAMINA_BAR_COLOR

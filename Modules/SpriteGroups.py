@@ -20,7 +20,8 @@ def draw_ui(surface, sprite):
     if not sprite.is_active:
         return
     if isinstance(sprite, Panel):
-        pygame.draw.rect(surface, sprite.bg_color, sprite.rect)
+        if sprite.rect.w > 0 and sprite.rect.h > 0:
+            pygame.draw.rect(surface, sprite.bg_color, sprite.rect)
         if sprite.bound:
             pygame.draw.rect(surface, sprite.bound_color, sprite.rect,
                              sprite.bound)

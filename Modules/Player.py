@@ -4,7 +4,6 @@ from Modules import SpriteGroups, Mapping
 from Modules.Sprites import *
 from Modules.General import *
 import pygame
-import typing
 
 MOVE_SPEED = 3
 JUMP_SPEED = 4.5
@@ -73,7 +72,7 @@ IMAGE_PATH = data_path('player/player_stay/stayr.png')
 INITIALIZATION_PATH = data_path('initialization.png')
 
 
-class Player(GameSprite, ScalableSprite):
+class Player(GameSprite, AnimatedSprite):
 
     def __init__(self, main, direction, pos_x, pos_y):
         x, y = Mapping.tile_width * pos_x, Mapping.tile_height * pos_y
@@ -81,25 +80,8 @@ class Player(GameSprite, ScalableSprite):
         self.main = main
         self.direction = direction
 
-        self.image: typing.Optional[pygame.Surface] = None
-        self.temp_image: typing.Optional[pygame.Surface] = None
-
-        self.anim_stay_right: typing.Optional[pyganim.PygAnimation] = None
-        self.anim_stay_left: typing.Optional[pyganim.PygAnimation] = None
-
-        self.anim_jump_right: typing.Optional[pyganim.PygAnimation] = None
-        self.anim_jump_left: typing.Optional[pyganim.PygAnimation] = None
-
-        self.anim_walk_right: typing.Optional[pyganim.PygAnimation] = None
-        self.anim_walk_left: typing.Optional[pyganim.PygAnimation] = None
-
-        self.anim_dead_left: typing.Optional[pyganim.PygAnimation] = None
-        self.anim_dead_right: typing.Optional[pyganim.PygAnimation] = None
-
-        self.rect: typing.Optional[pygame.rect.Rect]
-
-        if not Player.images_loaded:
-            self.load_images()
+        if not type(self).images_loaded:
+            self.load_images(type(self))
 
         self.start_x = x
         self.start_y = y
@@ -124,19 +106,10 @@ class Player(GameSprite, ScalableSprite):
         # Кол-во кадров до исчезновения трупа
         self.dead_count = PLAYER_DEAD_COUNT
 
-    def load_images(self):
+    def load_images(self, cls):
         self.image = pygame.image.load(IMAGE_PATH)
-        w, h = self.image.get_size()
-        self.image = pygame.transform.scale(self.image,
-                                            (int(w * Player.scale_multiplier),
-                                             int(h * Player.scale_multiplier)))
+
         self.temp_image = pygame.image.load(INITIALIZATION_PATH)
-        w, h = self.temp_image.get_size()
-        self.temp_image = pygame.transform.scale(self.temp_image,
-                                                 (int(w *
-                                                      Player.scale_multiplier),
-                                                  int(h *
-                                                      Player.scale_multiplier)))
 
         self.anim_stay_right = pyganim.PygAnimation(ANIMATION_STAY_RIGHT)
         self.anim_stay_left = pyganim.PygAnimation(ANIMATION_STAY_LEFT)
@@ -150,20 +123,7 @@ class Player(GameSprite, ScalableSprite):
         self.anim_dead_left = pyganim.PygAnimation(ANIMATION_DEAD_LEFT)
         self.anim_dead_right = pyganim.PygAnimation(ANIMATION_DEAD_RIGHT)
 
-        animations = [self.anim_stay_right, self.anim_stay_left,
-                      self.anim_jump_right, self.anim_jump_left,
-                      self.anim_walk_right, self.anim_walk_left,
-                      self.anim_dead_left, self.anim_dead_right]
-
-        for animation in animations:
-            animation.play()
-            w, h = animation.getMaxSize()
-            animation.scale((int(w * Player.scale_multiplier),
-                             int(h * Player.scale_multiplier)))
-
-        self.rect = self.image.get_rect()
-
-        Player.images_loaded = True
+        super().load_images(cls)
 
     def tick(self):
         if self.hp < MAX_HP:
@@ -278,7 +238,7 @@ class Player(GameSprite, ScalableSprite):
                 self.image = self.temp_image
 
     def update(self, *args):
-        tick = args[0] if args else 0
+        # tick = args[0] if args else 0
         if self.hp <= 0:
             self.dead = True
         if self.dead:

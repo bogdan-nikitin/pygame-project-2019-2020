@@ -121,19 +121,21 @@ WRAITH_CAST_LEFT = [pygame.image.load(data_path('enemies/wraith/castl1.png')),
                     pygame.image.load(data_path('enemies/wraith/castL2.png'))]
 
 
-class MeleeEnemy(GameSprite, MeleeEnemy):
+class MeleeEnemy(GameSprite, AnimatedSprite, MeleeEnemy):
     def __init__(self, main, direction, pos_x, pos_y):
         super().__init__(SpriteGroups.enemies_group)
+
+        self.image = None
         self.temp_image = None
         self.anim_walk_left = None
         self.anim_walk_right = None
         self.anim_stay_left = None
         self.anim_stay_right = None
-        self.ms = None  # ms - movement speed, скорость движения
-        self.hp = None
-        self.image = None
         self.anim_dead_left = None
         self.anim_dead_right = None
+
+        self.ms = None  # ms - movement speed, скорость движения
+        self.hp = None
         self.damage = None
         self.impulse = None
         self.stun_power = None
@@ -163,6 +165,9 @@ class MeleeEnemy(GameSprite, MeleeEnemy):
         self.dead_count = DEAD_COUNT
 
         self.setup_properties()
+
+        if not type(self).images_loaded:
+            self.load_images(type(self))
 
         self.x = self.start_x
         self.y = self.start_y
@@ -268,128 +273,109 @@ class MeleeEnemyWithMaxX(MeleeEnemy):
 
 
 class Insect(MeleeEnemyWithMaxX):
+
     def setup_properties(self):
-        self.temp_image = pygame.image.load(data_path(
-            'enemies/insect/stayr.png'))
-        self.image = pygame.image.load(data_path(
-            'enemies/insect/stayr.png'))
-        self.rect = self.image.get_rect()
         self.hp = INSECT_MAX_HP
         self.damage = INSECT_DMG
         self.impulse = INSECT_IMPULSE
         self.ms = INSECT_MS
         self.stun_power = INSECT_STUN_POWER
 
-        self.anim_stay_right = pyganim.PygAnimation(INSECT_STAY_RIGHT)
-        self.anim_stay_right.play()
+    def load_images(self, cls):
+        self.temp_image = pygame.image.load(data_path(
+            'enemies/insect/stayr.png'))
+        self.image = pygame.image.load(data_path(
+            'enemies/insect/stayr.png'))
+        self.rect = self.image.get_rect()
 
+        self.anim_stay_right = pyganim.PygAnimation(INSECT_STAY_RIGHT)
         self.anim_stay_left = pyganim.PygAnimation(INSECT_STAY_LEFT)
-        self.anim_stay_left.play()
 
         self.anim_dead_right = pyganim.PygAnimation(INSECT_DEAD_RIGHT)
-        self.anim_dead_right.play()
-
         self.anim_dead_left = pyganim.PygAnimation(INSECT_DEAD_LEFT)
-        self.anim_dead_left.play()
 
         self.anim_walk_right = make_animation(INSECT_RIGHT, ANIMATION_DELAY)
-        self.anim_walk_right.play()
-
         self.anim_walk_left = make_animation(INSECT_LEFT, ANIMATION_DELAY)
-        self.anim_walk_left.play()
+
+        super().load_images(cls)
 
 
 class Knight(MeleeEnemyWithMaxX):
     def setup_properties(self):
-        self.temp_image = pygame.image.load(data_path(
-            'enemies/knight/stayr.png'))
-        self.image = pygame.image.load(data_path('enemies/knight/stayr.png'))
-        self.rect = self.image.get_rect()
         self.hp = KNIGHT_MAX_HP
         self.damage = KNIGHT_DMG
         self.impulse = KNIGHT_IMPULSE
         self.ms = KNIGHT_MS
         self.stun_power = KNIGHT_STUN_POWER
 
-        self.anim_stay_right = pyganim.PygAnimation(KNIGHT_STAY_RIGHT)
-        self.anim_stay_right.play()
+    def load_images(self, cls):
+        self.temp_image = pygame.image.load(data_path(
+            'enemies/knight/stayr.png'))
+        self.image = pygame.image.load(data_path('enemies/knight/stayr.png'))
+        self.rect = self.image.get_rect()
 
+        self.anim_stay_right = pyganim.PygAnimation(KNIGHT_STAY_RIGHT)
         self.anim_stay_left = pyganim.PygAnimation(KNIGHT_STAY_LEFT)
-        self.anim_stay_left.play()
 
         self.anim_dead_right = pyganim.PygAnimation(KNIGHT_DEAD_RIGHT)
-        self.anim_dead_right.play()
-
         self.anim_dead_left = pyganim.PygAnimation(KNIGHT_DEAD_LEFT)
-        self.anim_dead_left.play()
 
         self.anim_walk_right = make_animation(KNIGHT_RIGHT, ANIMATION_DELAY)
-        self.anim_walk_right.play()
-
         self.anim_walk_left = make_animation(KNIGHT_LEFT, ANIMATION_DELAY)
-        self.anim_walk_left.play()
+
+        super().load_images(cls)
 
 
 class Rat(MeleeEnemyWithMaxX):
     def setup_properties(self):
-        self.temp_image = pygame.image.load(data_path('enemies/rat/stayr.png'))
-        self.image = pygame.image.load(data_path('enemies/rat/stayr.png'))
-        self.rect = self.image.get_rect()
         self.hp = RAT_MAX_HP
         self.damage = RAT_DMG
         self.impulse = RAT_IMPULSE
         self.ms = RAT_MS
         self.stun_power = RAT_STUN_POWER
 
-        self.anim_stay_right = pyganim.PygAnimation(RAT_STAY_RIGHT)
-        self.anim_stay_right.play()
+    def load_images(self, cls):
+        self.temp_image = pygame.image.load(data_path('enemies/rat/stayr.png'))
+        self.image = pygame.image.load(data_path('enemies/rat/stayr.png'))
+        self.rect = self.image.get_rect()
 
+        self.anim_stay_right = pyganim.PygAnimation(RAT_STAY_RIGHT)
         self.anim_stay_left = pyganim.PygAnimation(RAT_STAY_LEFT)
-        self.anim_stay_left.play()
 
         self.anim_dead_right = pyganim.PygAnimation(RAT_DEAD_RIGHT)
-        self.anim_dead_right.play()
-
         self.anim_dead_left = pyganim.PygAnimation(RAT_DEAD_LEFT)
-        self.anim_dead_left.play()
 
         self.anim_walk_right = make_animation(RAT_RIGHT, ANIMATION_DELAY)
-        self.anim_walk_right.play()
-
         self.anim_walk_left = make_animation(RAT_LEFT, ANIMATION_DELAY)
-        self.anim_walk_left.play()
+
+        super().load_images(cls)
 
 
 class Snake(MeleeEnemyWithMaxX):
     def setup_properties(self):
-        self.temp_image = pygame.image.load(data_path(
-            'enemies/snake/stayr.png'))
-        self.image = pygame.image.load(data_path(
-            'enemies/snake/stayr.png'))
-        self.rect = self.image.get_rect()
         self.hp = SNAKE_MAX_HP
         self.damage = SNAKE_DMG
         self.impulse = SNAKE_IMPULSE
         self.ms = SNAKE_MS
         self.stun_power = SNAKE_STUN_POWER
 
-        self.anim_stay_right = pyganim.PygAnimation(SNAKE_STAY_RIGHT)
-        self.anim_stay_right.play()
+    def load_images(self, cls):
+        self.temp_image = pygame.image.load(data_path(
+            'enemies/snake/stayr.png'))
+        self.image = pygame.image.load(data_path(
+            'enemies/snake/stayr.png'))
+        self.rect = self.image.get_rect()
 
+        self.anim_stay_right = pyganim.PygAnimation(SNAKE_STAY_RIGHT)
         self.anim_stay_left = pyganim.PygAnimation(SNAKE_STAY_LEFT)
-        self.anim_stay_left.play()
 
         self.anim_dead_right = pyganim.PygAnimation(SNAKE_DEAD_RIGHT)
-        self.anim_dead_right.play()
-
         self.anim_dead_left = pyganim.PygAnimation(SNAKE_DEAD_LEFT)
-        self.anim_dead_left.play()
 
         self.anim_walk_right = make_animation(SNAKE_RIGHT, ANIMATION_DELAY)
-        self.anim_walk_right.play()
-
         self.anim_walk_left = make_animation(SNAKE_LEFT, ANIMATION_DELAY)
-        self.anim_walk_left.play()
+
+        super().load_images(cls)
 
 
 class Bat(MeleeEnemy):
