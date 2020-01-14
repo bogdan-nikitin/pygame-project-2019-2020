@@ -13,14 +13,14 @@ PLAYER_WIDTH = 22
 PLAYER_HEIGHT = 24
 
 # DA - Default attack
-DA_COUNT = 30
+DA_COUNT = 20
 DA_ANIMATION_CHANGE = 20
 DA_ATTACK_SPAWN = 18
 DA_SPEED = 2
 DA_INCREASED_SPEED = 5
 
 # RA - Range attack
-RA_COUNT = 45
+RA_COUNT = 25
 RA_ANIMATION_CHANGE = 25
 RA_ATTACK_SPAWN = 22
 RA_SPEED = 7
@@ -29,7 +29,7 @@ RA_INCREASED_SPEED = 10
 MAX_HP = 100
 MAX_STAMINA = 100
 HP_REGEN = 1
-STAMINA_REGEN = 4
+STAMINA_REGEN = 8
 
 ANIMATION_RIGHT = [data_path('player/player_walk/walkr1.png'),
                    data_path('player/player_walk/walkr2.png'),
