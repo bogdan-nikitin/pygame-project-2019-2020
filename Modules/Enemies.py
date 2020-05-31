@@ -7,6 +7,7 @@ from Modules.EnemiesHeaders import *
 from Modules import Mapping
 from Modules.ColorPalette import *
 import pygame
+import abc
 
 DEAD_COUNT = 60
 
@@ -123,7 +124,7 @@ WRAITH_CAST_LEFT = [pygame.image.load(data_path('enemies/wraith/castl1.png')),
                     pygame.image.load(data_path('enemies/wraith/castL2.png'))]
 
 
-class MeleeEnemy(GameSprite, AnimatedSprite, MeleeEnemy):
+class MeleeEnemy(GameSprite, AnimatedSprite, MeleeEnemy, abc.ABC):
     """Абстрактный класс противника ближней дистанции."""
     def __init__(self, main, direction, pos_x, pos_y):
         super().__init__(SpriteGroups.enemies_group)
@@ -249,13 +250,14 @@ class MeleeEnemy(GameSprite, AnimatedSprite, MeleeEnemy):
         except TypeError:
             pass
 
+    @abc.abstractmethod
     def setup_properties(self):
         """Устанавливает свойства врага. Наследуется и изменяется в дочерних
         классах."""
         pass
 
 
-class MeleeEnemyWithMaxX(MeleeEnemy):
+class MeleeEnemyWithMaxX(MeleeEnemy, abc.ABC):
     def __init__(self, main, direction, pos_x, pos_y, max_x=-1):
         super().__init__(main, direction, pos_x, pos_y)
         # максимальное расстояние, на котрое можно отойти от начального

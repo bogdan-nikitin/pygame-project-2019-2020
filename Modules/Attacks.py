@@ -89,7 +89,7 @@ class HeroRangeAttack(HeroAttack):
         else:
             self.x -= self.speed
             # 24 - длина изображения
-        if self.x > WINDOW_WIDTH or self.x < 0 - 24:
+        if self.x > self.main.screen.get_width() or self.x < 0 - 24:
             self.kill()
         self.collide()
 

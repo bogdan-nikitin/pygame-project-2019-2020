@@ -198,6 +198,7 @@ class Main:
             self.events()
             self.update(self.tick)
             self.render()
+            print(self.clock.get_fps())
             self.tick = self.clock.tick(FPS)
         pygame.quit()
 
@@ -299,9 +300,3 @@ class Main:
         self.loading_label.hide()
         clear(self.screen)
         self.is_loading = False
-
-
-if __name__ == '__main__':
-    game = Main()
-    game.game_cycle()
-

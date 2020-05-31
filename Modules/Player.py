@@ -132,6 +132,8 @@ class Player(GameSprite, AnimatedSprite):
             self.hp += HP_REGEN
         if self.stamina < MAX_STAMINA:
             self.stamina += STAMINA_REGEN
+        if self.stamina > MAX_STAMINA:
+            self.stamina = MAX_STAMINA
 
     def default_attack(self):
         if self.da_count < DA_COUNT:

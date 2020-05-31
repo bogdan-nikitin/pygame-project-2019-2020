@@ -1,7 +1,7 @@
 """Модуль, содержащий классы спрайтов, испольющихся в других модулях."""
 
 from Modules import SpriteGroups
-from Modules.General import *
+import abc
 import pygame
 from collections.abc import Iterable
 import typing
@@ -113,7 +113,7 @@ class GameSprite(pygame.sprite.Sprite):
         return True
 
 
-class ScalableSprite(pygame.sprite.Sprite):
+class ScalableSprite(pygame.sprite.Sprite, abc.ABC):
     """Абастрактный класс спрайта, у которого можно менять масштаб. Для того
     чтобы всё работало, у дочернего класса должен быть определён метод
     load_images, в котором происходит загрузка изображений и который вызывается
@@ -131,7 +131,7 @@ class ScalableSprite(pygame.sprite.Sprite):
         cls.images_loaded = True
 
 
-class AnimatedSprite(ScalableSprite):
+class AnimatedSprite(ScalableSprite, abc.ABC):
     """Абстрактный класс анимированного спрайта."""
     def __init__(self, *args):
         super().__init__(*args)
