@@ -1,11 +1,10 @@
 """Содержит класс игрока."""
 
+from Modules import Mapping
 from Modules.Attacks import *
 from Modules.Configuration import *
-from Modules import SpriteGroups, Mapping
-from Modules.Sprites import *
 from Modules.General import *
-import pygame
+from Modules.Sprites import *
 
 MOVE_SPEED = 3
 JUMP_SPEED = 4.5
@@ -43,19 +42,19 @@ ANIMATION_LEFT = [data_path('player/player_walk/walkl1.png'),
 ANIMATION_ATTACK_DMR = [
     pygame.image.load(data_path('player/player_attack/mr1.png')),
     pygame.image.load(data_path('player/player_attack/mr2.png')),
-                        ]
+]
 ANIMATION_ATTACK_DML = [
     pygame.image.load(data_path('player/player_attack/ml1.png')),
     pygame.image.load(data_path('player/player_attack/ml2.png')),
-                        ]
+]
 ANIMATION_ATTACK_DRR = [
     pygame.image.load(data_path('player/player_attack/rr1.png')),
     pygame.image.load(data_path('player/player_attack/rr2.png')),
-                        ]
+]
 ANIMATION_ATTACK_DRL = [
     pygame.image.load(data_path('player/player_attack/rl1.png')),
     pygame.image.load(data_path('player/player_attack/rl2.png')),
-                        ]
+]
 
 ANIMATION_JUMP_LEFT = [(data_path('player/player_jump/jumpl.png'),
                         ANIMATION_DELAY)]
@@ -69,7 +68,7 @@ ANIMATION_STAY_LEFT = [(data_path('player/player_stay/stayl.png'),
 ANIMATION_DEAD_LEFT = [(data_path('player/player_dead/deadl.png'),
                         ANIMATION_DELAY)]
 ANIMATION_DEAD_RIGHT = [(data_path('player/player_dead/deadr.png'),
-                        ANIMATION_DELAY)]
+                         ANIMATION_DELAY)]
 IMAGE_PATH = data_path('player/player_stay/stayr.png')
 INITIALIZATION_PATH = data_path('initialization.png')
 
@@ -83,7 +82,7 @@ class Player(GameSprite, AnimatedSprite):
         self.direction = direction
 
         if not type(self).images_loaded:
-            self.load_images(type(self))
+            self.load_images()
 
         self.start_x = x
         self.start_y = y
@@ -108,7 +107,7 @@ class Player(GameSprite, AnimatedSprite):
         # Кол-во кадров до исчезновения трупа
         self.dead_count = PLAYER_DEAD_COUNT
 
-    def load_images(self, cls):
+    def load_images(self):
         self.image = pygame.image.load(IMAGE_PATH)
 
         self.temp_image = pygame.image.load(INITIALIZATION_PATH)
@@ -125,13 +124,15 @@ class Player(GameSprite, AnimatedSprite):
         self.anim_dead_left = pyganim.PygAnimation(ANIMATION_DEAD_LEFT)
         self.anim_dead_right = pyganim.PygAnimation(ANIMATION_DEAD_RIGHT)
 
-        super().load_images(cls)
+        super().load_images()
 
     def tick(self):
         if self.hp < MAX_HP:
             self.hp += HP_REGEN
         if self.stamina < MAX_STAMINA:
             self.stamina += STAMINA_REGEN
+        if self.stamina > MAX_STAMINA:
+            self.stamina = MAX_STAMINA
 
     def default_attack(self):
         if self.da_count < DA_COUNT:

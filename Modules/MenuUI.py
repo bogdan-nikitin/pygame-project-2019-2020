@@ -1,10 +1,6 @@
 """Содержит классы игрового меню, которое вызывается на кнопку Esc."""
 
 from Modules.GameUI import *
-from Modules.General import *
-from Modules import SpriteGroups
-import pygame
-
 
 MENU_W = 300
 MENU_H = 200
@@ -19,6 +15,7 @@ FULLSCREEN_EVENT_ATTR = 'fullscreen'
 
 class Menu(Panel):
     """Класс игрвого меню."""
+
     def __init__(self, main, groups=()):
         super().__init__()
         w, h = main.screen.get_rect().size
@@ -87,6 +84,7 @@ class Menu(Panel):
 
 class Settings(Panel):
     """Класс настроек."""
+
     def __init__(self, menu, groups=()):
         super().__init__()
         w, h = menu.main.screen.get_rect().size

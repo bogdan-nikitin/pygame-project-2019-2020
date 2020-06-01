@@ -1,12 +1,10 @@
 """Модуль для работы с уровнями."""
 
-import json
 import csv
-from Modules.Sprites import *
-from Modules import SpriteGroups
-from Modules.General import *
-import pygame
+import json
 
+from Modules.General import *
+from Modules.Sprites import *
 
 TILE_CONFIG_FILE = 'tile_config.json'
 tile_width = tile_height = 16
@@ -124,21 +122,21 @@ class Tile(GameSprite, ScalableSprite):
         if self.is_trap:
             self.mask = pygame.mask.from_surface(self.image)
 
-    @staticmethod
-    def load_images():
+    @classmethod
+    def load_images(cls):
         """Загружает текстуры для плиток, увеличивая их в
         Tile.scale_multiplier раз."""
 
-        Tile.tile_images = load_image('tiles.png', (0, 0, 0))
+        cls.tile_images = load_image('tiles.png', (0, 0, 0))
 
-        w, h = Tile.tile_images.get_size()
-        multiplier = Tile.scale_multiplier
-        tile_images = pygame.transform.scale(Tile.tile_images,
+        w, h = cls.tile_images.get_size()
+        multiplier = cls.scale_multiplier
+        tile_images = pygame.transform.scale(cls.tile_images,
                                              (int(w * multiplier),
                                               int(h * multiplier)))
 
-        Tile.sheet = cut_sheet(tile_images, *Tile.sheet_size)
-        Tile.images_loaded = True
+        cls.sheet = cut_sheet(tile_images, *cls.sheet_size)
+        super().load_images()
 
     @classmethod
     def set_image_size_multiplier(cls, multiplier):

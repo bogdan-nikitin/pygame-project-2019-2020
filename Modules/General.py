@@ -1,10 +1,11 @@
 """Содержит общие функции, используемые в большинстве модулей."""
 
-from Modules.Constants import *
 import os
-import pygame
 import re
 
+import pygame
+
+from Modules.Constants import *
 
 DATA_PATH = 'data'
 

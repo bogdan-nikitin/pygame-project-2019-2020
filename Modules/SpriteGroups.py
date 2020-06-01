@@ -1,7 +1,6 @@
 """Содержит классы групп спрайтов и функции для работы с ними."""
 
 from Modules.GameUIHeaders import *
-import pygame
 
 
 def empty_all():
@@ -63,6 +62,7 @@ class TilesGroup(pygame.sprite.Group):
 
 class UIGroup(pygame.sprite.Group):
     """Группа элементов интерфейса."""
+
     def draw(self, surface):
         for spr in self.sprites():
             if spr.parent is None:
@@ -72,7 +72,7 @@ class UIGroup(pygame.sprite.Group):
         for sprite in self:
             sprite.event(event)
 
-            
+
 all_sprites = pygame.sprite.Group()
 tiles_group = TilesGroup()
 ui_group = UIGroup()
