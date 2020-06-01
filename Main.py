@@ -1,18 +1,14 @@
 """Модуль самой игры."""
 
-from Modules.MenuUI import *
-from Modules.GameUI import *
+import sys
+import pygame
+
 from Modules.Camera import *
 from Modules.Enemies import *
+from Modules.MenuUI import *
 from Modules.Player import *
-from Modules.Configuration import *
-from Modules.Mapping import *
-from Modules.General import *
-from Modules import SpriteGroups
-import pygame
-import json
-import sys
 
+GAME_TITLE = 'PyDungeon'
 
 LEVELS_FILE = 'levels.json'
 LOADING = 'Loading'
@@ -39,8 +35,8 @@ ENEMIES = 'enemies'
 ENEMY_TABLE = {'Insect': Insect,
                'Knight': Knight,
                'Snake': Snake,
+               # 'Bat': Bat,
                'Rat': Rat}
-#              'Bat': Bat}
 
 FPS = 30
 USER_EVENT = 1000
@@ -48,8 +44,10 @@ USER_EVENT = 1000
 
 class Main:
     """Основной класс игры, включающий в себя игровой цикл."""
+
     def __init__(self):
         pygame.init()
+        pygame.display.set_caption(GAME_TITLE)
         self.hero = None
         self.hero_group = pygame.sprite.Group()
 
@@ -131,16 +129,19 @@ class Main:
                 if event.key == pygame.K_LEFT:
                     self.hero.left = False
                 if event.key == pygame.K_ESCAPE:
-                    self.is_paused = not self.is_paused
-                    if self.is_paused:
-                        self.menu.show()
-                        if self.music:
-                            pygame.mixer.pause()
+                    if self.is_end:
+                        self.running = False
                     else:
-                        self.menu.hide()
-                        self.menu.settings_panel.hide()
-                        if self.music:
-                            pygame.mixer.unpause()
+                        self.is_paused = not self.is_paused
+                        if self.is_paused:
+                            self.menu.show()
+                            if self.music:
+                                pygame.mixer.pause()
+                        else:
+                            self.menu.hide()
+                            self.menu.settings_panel.hide()
+                            if self.music:
+                                pygame.mixer.unpause()
 
             elif event.type == FULLSCREEN_EVENT_TYPE:
                 full_screen = event.fullscreen
@@ -198,7 +199,7 @@ class Main:
             self.events()
             self.update(self.tick)
             self.render()
-            print(self.clock.get_fps())
+            # print(self.clock.get_fps())
             self.tick = self.clock.tick(FPS)
         pygame.quit()
 

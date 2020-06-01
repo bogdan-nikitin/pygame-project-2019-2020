@@ -1,16 +1,16 @@
 """Содержит классы игрового интерфейса."""
 
+from numbers import Number
+
+from multipledispatch import dispatch  # Модуль для "перегрузки" функций
+
 from Modules import SpriteGroups
 from Modules.GameUIHeaders import *
-from Modules.General import *
-from Modules.ColorPalette import *
-from multipledispatch import dispatch  # Модуль для "перегрузки" функций
-from numbers import Number
-import pygame
 
 
 class UIElement(pygame.sprite.Sprite, UIElement):
     """Абастрактный класс элемента интерфейса."""
+
     def __init__(self, parent=None, groups=()):
         super().__init__(SpriteGroups.all_sprites, SpriteGroups.ui_group,
                          *groups)
@@ -150,6 +150,7 @@ class UIElement(pygame.sprite.Sprite, UIElement):
 class Group(UIElement):
     """Класс группы UI элементов, принимает размер родителя, графически не
     отображается"""
+
     def __init__(self, parent=None, groups=()):
         super().__init__(parent, groups)
         self._update_pos()
@@ -164,6 +165,7 @@ class Group(UIElement):
 
 class Panel(UIElement, Panel):
     """Класс панели, графически отображается как прямоугольник с рамкой."""
+
     def __init__(self, parent=None, groups=()):
         super().__init__(*groups, parent=parent)
         self.bg_color = PANEL_BG_COLOR
@@ -185,6 +187,7 @@ class Panel(UIElement, Panel):
 
 class Label(UIElement, Label):
     """Класс текста."""
+
     def __init__(self, text='', parent=None, groups=()):
         super().__init__(*groups, parent=parent)
         self._font_filename = FONT_FILENAME
@@ -266,6 +269,7 @@ class Label(UIElement, Label):
 class LabelButton(Label, LabelButton):
     """Класс текста-кнопки. При наведении курсора подсвечивается, при нажатии
     вызывает функцию clicked."""
+
     def __init__(self, text='', parent=None, groups=()):
         super().__init__(text, parent, groups)
         self.inactive_color = self.color
@@ -284,6 +288,7 @@ class LabelButton(Label, LabelButton):
 
 class Button(Panel, Button):
     """Класс кнопки. При нажатии вызывает функцию clicked и меняет цвет."""
+
     def __init__(self, text='', parent=None, groups=()):
         super().__init__(parent, groups)
         self.bg_color = BUTTON_INACTIVE_COLOR
@@ -332,6 +337,7 @@ class Button(Panel, Button):
 class _CheckboxPanel(Panel, CheckboxPanel):
     """Класс окошка флажка, при нажатии изменяет атрибут родителя checked на
     противоположный."""
+
     def __init__(self, x, y, size, parent: Checkbox, groups=()):
         super().__init__(parent, groups)
         self.bg_color = CHECKBOX_BG_COLOR
@@ -348,6 +354,7 @@ class _CheckboxPanel(Panel, CheckboxPanel):
 
 class Checkbox(UIElement, Checkbox):
     """Класс флажка с текстом."""
+
     def __init__(self, text='', parent=None, groups=()):
         super().__init__(parent, groups)
         self._text = ''
@@ -378,6 +385,7 @@ class Checkbox(UIElement, Checkbox):
 
 class Bar(Panel):
     """Бар (по типу загрузочного бара)."""
+
     def __init__(self, parent=None, groups=()):
         super().__init__(*groups, parent=parent)
         self.bg_color = BAR_LIGHT_COLOR
@@ -451,6 +459,7 @@ class HookedBar(Bar):
     hook_value - функция, по которой бар вычисляет собственное значение;
     max_hook_value - максимально возможное значение self.hook_value(self.hook).
     """
+
     def __init__(self, hook, hook_value: lambda x: x, max_hook_value,
                  parent=None, groups=()):
         super().__init__(*groups, parent=parent)
@@ -476,6 +485,7 @@ class LeftTopHookedBar(HookedBar):
     """Класс бара, привязанного к левому верхнему углу экрана. Наследован от
     hooked_bar. В конструкте принимает аргумент pos - позиция бара
     (начинается с 0) и аргументы для конструктора HookedBar."""
+
     def __init__(self, pos, hook, hook_value: lambda x: x,
                  max_hook_value, parent=None, groups=()):
         super().__init__(hook, hook_value, max_hook_value, *groups,
@@ -488,6 +498,7 @@ class LeftTopHookedBar(HookedBar):
 
 class HPBar(LeftTopHookedBar):
     """Полоса здоровья."""
+
     def __init__(self, hero, max_hp, parent=None, groups=()):
         super().__init__(HP_BAR_POS, hero, lambda h: h.hp, max_hp, *groups,
                          parent=parent)
@@ -496,6 +507,7 @@ class HPBar(LeftTopHookedBar):
 
 class StaminaBar(LeftTopHookedBar):
     """Полоса выносливости."""
+
     def __init__(self, hero, max_stamina, parent=None, groups=()):
         super().__init__(STAMINA_BAR_POS, hero, lambda h: h.stamina,
                          max_stamina, *groups, parent=parent)

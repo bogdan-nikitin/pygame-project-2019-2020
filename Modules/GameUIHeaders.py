@@ -3,7 +3,6 @@ UI при отрисовке в SpriteGroups. Также содержат нек
 используются в модулях GameUI и SpriteGroups."""
 
 from Modules.General import *
-from Modules.ColorPalette import *
 
 # Просто имортировать модуль GameUI в SpriteGroups невозможно из-за того, что
 # в GameUI импортируется модуль SpriteGroups.
@@ -75,12 +74,14 @@ class Label(UIElement):
 class LabelButton(Label):
     def __init__(self, text='', parent=None, groups=()):
         super().__init__()
+
     pass
 
 
 class Button(Panel):
     def __init__(self, text='', parent=None, groups=()):
         super().__init__()
+
     pass
 
 

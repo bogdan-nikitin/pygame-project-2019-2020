@@ -1,10 +1,8 @@
 """Модуль для создания снарядов, по типу клинков, огненных шаров и т.п."""
 
-from Modules.Mapping import *
-from Modules.EnemiesHeaders import *
 from Modules.Configuration import *
-from Modules.General import *
-from Modules import SpriteGroups
+from Modules.EnemiesHeaders import *
+from Modules.Mapping import *
 
 FIREBALL_SPEED = 5
 TRAIL_DURATION = 7
@@ -12,6 +10,7 @@ TRAIL_DURATION = 7
 
 class Attack(GameSprite):
     """Абастрактный класс атаки."""
+
     def __init__(self, main, direction, speed):
         pygame.sprite.Sprite.__init__(self, SpriteGroups.all_sprites)
         self.main = main
@@ -21,6 +20,7 @@ class Attack(GameSprite):
 
 class HeroAttack(Attack):
     """Класс атаки героя."""
+
     def __init__(self, main, direction, speed):
         super().__init__(main, direction, speed)
         self.damaged = []
@@ -43,14 +43,15 @@ class HeroAttack(Attack):
 
 class HeroDefaultAttack(HeroAttack):
     """Ближняя атака игрока."""
+
     def __init__(self, main, direction, x, y, speed):
         super().__init__(main, direction, speed)
         if direction == RIGHT:
             self.image = pygame.image.load(data_path('player/player_attack/'
-                                           'trailr.png'))
+                                                     'trailr.png'))
         else:
             self.image = pygame.image.load(data_path('player/player_attack/'
-                                           'traill.png'))
+                                                     'traill.png'))
         self.rect = self.image.get_rect()
         self.x = x + 4 * (1 if direction == RIGHT else -1)
         self.y = y
@@ -69,6 +70,7 @@ class HeroDefaultAttack(HeroAttack):
 
 class HeroRangeAttack(HeroAttack):
     """Дальняя атака игрока."""
+
     def __init__(self, main, direction, x, y, speed):
         super().__init__(main, direction, speed)
         if direction == RIGHT:
@@ -92,7 +94,6 @@ class HeroRangeAttack(HeroAttack):
         if self.x > self.main.screen.get_width() or self.x < 0 - 24:
             self.kill()
         self.collide()
-
 
 # Классы ниже не доделаны, в проекте не используются
 

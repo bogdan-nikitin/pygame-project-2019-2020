@@ -1,11 +1,13 @@
 """Модуль, содержащий классы спрайтов, испольющихся в других модулях."""
 
-from Modules import SpriteGroups
 import abc
-import pygame
-from collections.abc import Iterable
 import typing
+from collections.abc import Iterable
+
+import pygame
 import pyganim
+
+from Modules import SpriteGroups
 
 
 class GameSprite(pygame.sprite.Sprite):
@@ -13,6 +15,7 @@ class GameSprite(pygame.sprite.Sprite):
     координаты также меняется значение topleft у свойства rect. При изменении
     свойства rect меняются координаты x и y. Координаты сохраняют дробные
     значения."""
+
     def __init__(self, *groups):
         super().__init__(SpriteGroups.all_sprites, *groups)
         self._rect = pygame.rect.Rect(0, 0, 0, 0)
@@ -74,7 +77,7 @@ class GameSprite(pygame.sprite.Sprite):
 
     def collide_move(self, x, y, groups=(), key=lambda sprite: True,
                      collided=None, move=True):
-        """Перемещает спрайт в точку x, y если move=True и если на пути нет ни
+        """Перемещает спрайт в точку x, y, если move=True и если на пути нет ни
         одного спрайта из групп groups, для которого key(*спрайт*)=True и
         collided(self, *спрайт*)=True (если collided=None,
          используется collide_rect). Проверяет столкновения в каждой точке пути.
@@ -127,12 +130,14 @@ class ScalableSprite(pygame.sprite.Sprite, abc.ABC):
         cls.scale_multiplier = multiplier
         cls.images_loaded = False
 
-    def load_images(self, cls):
+    @classmethod
+    def load_images(cls):
         cls.images_loaded = True
 
 
 class AnimatedSprite(ScalableSprite, abc.ABC):
     """Абстрактный класс анимированного спрайта."""
+
     def __init__(self, *args):
         super().__init__(*args)
 
@@ -165,17 +170,17 @@ class AnimatedSprite(ScalableSprite, abc.ABC):
         """Устанавливает свойства объекта."""
         pass
 
-    def load_images(self, cls):
+    def load_images(self):
         w, h = self.image.get_size()
         self.image = pygame.transform.scale(self.image,
-                                            (int(w * cls.scale_multiplier),
-                                             int(h * cls.scale_multiplier)))
+                                            (int(w * self.scale_multiplier),
+                                             int(h * self.scale_multiplier)))
         w, h = self.temp_image.get_size()
         self.temp_image = pygame.transform.scale(self.temp_image,
                                                  (int(w *
-                                                      cls.scale_multiplier),
+                                                      self.scale_multiplier),
                                                   int(h *
-                                                      cls.scale_multiplier)))
+                                                      self.scale_multiplier)))
 
         self._update_animations()
 
@@ -183,9 +188,9 @@ class AnimatedSprite(ScalableSprite, abc.ABC):
             if animation:
                 animation.play()
                 w, h = animation.getMaxSize()
-                animation.scale((int(w * cls.scale_multiplier),
-                                 int(h * cls.scale_multiplier)))
+                animation.scale((int(w * self.scale_multiplier),
+                                 int(h * self.scale_multiplier)))
 
         self.rect = self.image.get_rect()
 
-        super().load_images(cls)
+        super().load_images()

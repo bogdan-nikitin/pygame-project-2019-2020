@@ -1,13 +1,6 @@
 """Содержит классы врагов."""
 
 from Modules.Player import *
-from Modules.Attacks import *
-from Modules.Configuration import *
-from Modules.EnemiesHeaders import *
-from Modules import Mapping
-from Modules.ColorPalette import *
-import pygame
-import abc
 
 DEAD_COUNT = 60
 
@@ -126,6 +119,7 @@ WRAITH_CAST_LEFT = [pygame.image.load(data_path('enemies/wraith/castl1.png')),
 
 class MeleeEnemy(GameSprite, AnimatedSprite, MeleeEnemy, abc.ABC):
     """Абстрактный класс противника ближней дистанции."""
+
     def __init__(self, main, direction, pos_x, pos_y):
         super().__init__(SpriteGroups.enemies_group)
 
@@ -161,7 +155,7 @@ class MeleeEnemy(GameSprite, AnimatedSprite, MeleeEnemy, abc.ABC):
 
         self.setup_properties()
 
-        self.load_images(type(self))
+        self.load_images()
 
         self.x = self.start_x
         self.y = self.start_y
@@ -177,27 +171,7 @@ class MeleeEnemy(GameSprite, AnimatedSprite, MeleeEnemy, abc.ABC):
         self.image = self.temp_image
 
     def update(self, *args):
-        if not self.dead:
-            if self.direction == RIGHT:
-                self.right = True
-                self.left = False
-            else:
-                self.right = False
-                self.left = True
-            if self.hp <= 0:
-                self.dead = True
-
-            self.move()
-
-            self.y_v += GRAVITATION
-
-            self.on_ground = False
-            self.x += self.x_v
-            self.collide(self.x_v, 0, )
-            self.y += self.y_v
-            self.collide(0, self.y_v, )
-
-        else:
+        if self.dead:
             if self.dead_count > 0:
                 self.dead_count -= 1
                 self.temp_image.fill(TRANSPARENT)
@@ -209,46 +183,73 @@ class MeleeEnemy(GameSprite, AnimatedSprite, MeleeEnemy, abc.ABC):
                 self.image = self.temp_image
             else:
                 self.kill()
+        else:
+            if self.direction == RIGHT:
+                self.right = True
+                self.left = False
+            else:
+                self.right = False
+                self.left = True
+
+            if self.hp <= 0:
+                self.dead = True
+
+            self.move()
+
+            self.y_v += GRAVITATION
+
+            self.on_ground = False
+            self.x += self.x_v
+            # TODO Необходимо заменить два вызова метода collide одним, т.к.
+            #  работает этот метод медленно (из-за чего даже при небольшом
+            #  кол-ве врагов ФПС сильно падает)
+            self.collide(self.x_v, 0, )
+            self.y += self.y_v
+            self.collide(0, self.y_v, )
+            # self.collide(self.x_v, self.y_v)
 
     def collide(self, x_v, y_v):
-        try:
-            for sprite in pygame.sprite.spritecollide(self,
-                                                      SpriteGroups.all_sprites,
-                                                      False):
-                if isinstance(sprite, Tile) and sprite.is_solid:
-                    clip = self.rect.clip(sprite.rect)
-                    if y_v > 0:
-                        self.y -= clip.h
-                        self.on_ground = True
-                        self.y_v = 0
-                    elif y_v < 0:
-                        self.y += clip.h
-                    if x_v > 0:
-                        self.x -= clip.w
-                        self.direction = -self.direction
-                    elif x_v < 0:
-                        self.x += clip.w
-                        self.direction = -self.direction
+        # TODO Оптимизировать этот метод, т.к. работает он довольно медленно
+        for sprite in pygame.sprite.spritecollide(self,
+                                                  SpriteGroups.all_sprites,
+                                                  False):
+            if isinstance(sprite, Tile) and sprite.is_solid:
+                clip = self.rect.clip(sprite.rect)
+                if y_v > 0:
+                    self.y -= clip.h
+                    self.on_ground = True
+                    self.y_v = 0
+                    continue
+                elif y_v < 0:
+                    self.y += clip.h
+                    continue
+                # clip = self.rect.clip(sprite.rect)
+                if x_v > 0:
+                    self.x -= clip.w
+                    self.direction = -self.direction
+                    continue
+                elif x_v < 0:
+                    self.x += clip.w
+                    self.direction = -self.direction
+                    continue
 
-                if isinstance(sprite, Player):
-                    if not sprite.stunned:
-                        sprite.hp -= self.damage
-                        sprite.stunned = True
-                        sprite.stun_count = self.stun_power
-                        if sprite.x_v == 0:
-                            if self.direction == RIGHT:
-                                sprite.x_v = self.impulse
-                            else:
-                                sprite.x_v = -self.impulse
+            elif isinstance(sprite, Player):
+                if not sprite.stunned:
+                    sprite.hp -= self.damage
+                    sprite.stunned = True
+                    sprite.stun_count = self.stun_power
+                    if sprite.x_v == 0:
+                        if self.direction == RIGHT:
+                            sprite.x_v = self.impulse
                         else:
-                            if sprite.x_v > 0:
-                                sprite.x_v = 0
-                                sprite.x_v = -self.impulse
-                            elif sprite.x_v < 0:
-                                sprite.x_v = 0
-                                sprite.x_v = self.impulse
-        except TypeError:
-            pass
+                            sprite.x_v = -self.impulse
+                    else:
+                        if sprite.x_v > 0:
+                            sprite.x_v = 0
+                            sprite.x_v = -self.impulse
+                        elif sprite.x_v < 0:
+                            sprite.x_v = 0
+                            sprite.x_v = self.impulse
 
     @abc.abstractmethod
     def setup_properties(self):
@@ -281,7 +282,7 @@ class Insect(MeleeEnemyWithMaxX):
         self.ms = INSECT_MS
         self.stun_power = INSECT_STUN_POWER
 
-    def load_images(self, cls):
+    def load_images(self):
         self.temp_image = pygame.image.load(data_path(
             'enemies/insect/stayr.png'))
         self.image = pygame.image.load(data_path(
@@ -297,7 +298,7 @@ class Insect(MeleeEnemyWithMaxX):
         self.anim_walk_right = make_animation(INSECT_RIGHT, ANIMATION_DELAY)
         self.anim_walk_left = make_animation(INSECT_LEFT, ANIMATION_DELAY)
 
-        super().load_images(cls)
+        super().load_images()
 
 
 class Knight(MeleeEnemyWithMaxX):
@@ -308,7 +309,7 @@ class Knight(MeleeEnemyWithMaxX):
         self.ms = KNIGHT_MS
         self.stun_power = KNIGHT_STUN_POWER
 
-    def load_images(self, cls):
+    def load_images(self):
         self.temp_image = pygame.image.load(data_path(
             'enemies/knight/stayr.png'))
         self.image = pygame.image.load(data_path('enemies/knight/stayr.png'))
@@ -323,7 +324,7 @@ class Knight(MeleeEnemyWithMaxX):
         self.anim_walk_right = make_animation(KNIGHT_RIGHT, ANIMATION_DELAY)
         self.anim_walk_left = make_animation(KNIGHT_LEFT, ANIMATION_DELAY)
 
-        super().load_images(cls)
+        super().load_images()
 
 
 class Rat(MeleeEnemyWithMaxX):
@@ -334,7 +335,7 @@ class Rat(MeleeEnemyWithMaxX):
         self.ms = RAT_MS
         self.stun_power = RAT_STUN_POWER
 
-    def load_images(self, cls):
+    def load_images(self):
         self.temp_image = pygame.image.load(data_path('enemies/rat/stayr.png'))
         self.image = pygame.image.load(data_path('enemies/rat/stayr.png'))
         self.rect = self.image.get_rect()
@@ -348,7 +349,7 @@ class Rat(MeleeEnemyWithMaxX):
         self.anim_walk_right = make_animation(RAT_RIGHT, ANIMATION_DELAY)
         self.anim_walk_left = make_animation(RAT_LEFT, ANIMATION_DELAY)
 
-        super().load_images(cls)
+        super().load_images()
 
 
 class Snake(MeleeEnemyWithMaxX):
@@ -359,7 +360,7 @@ class Snake(MeleeEnemyWithMaxX):
         self.ms = SNAKE_MS
         self.stun_power = SNAKE_STUN_POWER
 
-    def load_images(self, cls):
+    def load_images(self):
         self.temp_image = pygame.image.load(data_path(
             'enemies/snake/stayr.png'))
         self.image = pygame.image.load(data_path(
@@ -375,7 +376,7 @@ class Snake(MeleeEnemyWithMaxX):
         self.anim_walk_right = make_animation(SNAKE_RIGHT, ANIMATION_DELAY)
         self.anim_walk_left = make_animation(SNAKE_LEFT, ANIMATION_DELAY)
 
-        super().load_images(cls)
+        super().load_images()
 
 # Классы ниже находятся в разработке, в проекте не используются.
 

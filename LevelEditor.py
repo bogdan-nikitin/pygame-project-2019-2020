@@ -1,12 +1,13 @@
 """Редактор уровней."""
 
-from Modules.Mapping import *
-from Modules.General import *
-from Modules import Mapping, SpriteGroups
-import os
 import csv
+import os
+
 import pygame
 
+from Modules import Mapping, SpriteGroups
+from Modules.General import *
+from Modules.Mapping import *
 
 HELP = '''
 В консоли:
