@@ -73,9 +73,10 @@ class Main:
 
         self.music = None
 
+        self.camera = Camera(self.screen)
+
         self.load_next_level()
         self.tick = 0
-        self.camera = Camera(self.screen)
         self.menu = Menu(self)
         self.menu.hide()
         self.is_paused = False
@@ -212,6 +213,8 @@ class Main:
         """Загрузка следующего (или первого) уровня."""
 
         SpriteGroups.empty_all()
+        Tile.clear_map()
+        self.camera.reset()
 
         if self.cur_level_name is None:
             self.cur_level_name = self.levels[FIRST_LEVEL]

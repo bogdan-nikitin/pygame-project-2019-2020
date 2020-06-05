@@ -86,3 +86,22 @@ def split_without_quotes(string, splitter=r'\s', quotes=r'[^\\][\'"]'):
     if last_index <= len(string):
         strings += [string[last_index:]]
     return strings
+
+
+def around(mapping, y, x, w, h):
+    elements = []
+    mapping_h = len(mapping)
+    for i in range(y - h, y + h + 1):
+        if i < 0:
+            continue
+        elif i >= mapping_h:
+            break
+        mapping_w = len(mapping[i])
+        row = mapping[i]
+        for j in range(x - w, x + w + 1):
+            if j < 0:
+                continue
+            elif j >= mapping_w:
+                break
+            elements += [row[j]]
+    return elements

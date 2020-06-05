@@ -70,6 +70,7 @@ class Tile(GameSprite, ScalableSprite):
     tile_images = None
     sheet = None
     sheet_size = 20, 16
+    tiles_map = []
 
     def __init__(self, tile_type, pos_x, pos_y, z_index=0, lever_id=None,
                  is_exit=False, is_active=True):
@@ -78,6 +79,13 @@ class Tile(GameSprite, ScalableSprite):
             self.load_images()
 
         super().__init__(SpriteGroups.tiles_group)
+        y_dif = pos_y - len(self.tiles_map) + 1
+        if y_dif > 0:
+            self.tiles_map += [[]] * y_dif
+        x_dif = pos_x - len(self.tiles_map[pos_y]) + 1
+        if x_dif > 0:
+            self.tiles_map[pos_y] += [[] for _ in range(x_dif)]
+        self.tiles_map[pos_y][pos_x] += [self]
         self.z_index = z_index
         self.image = Tile.sheet[tile_type - 1]
         self.rect = self.image.get_rect().move(tile_width * pos_x,
@@ -174,3 +182,12 @@ class Tile(GameSprite, ScalableSprite):
             for sprite in SpriteGroups.tiles_group:
                 if sprite.lever_id == self.lever_id and not sprite.is_lever:
                     sprite.is_active = not sprite.is_active
+
+    @classmethod
+    def clear_map(cls):
+        cls.tiles_map = []
+
+    @classmethod
+    def at(cls, y, x):
+        """Получить тайл по его y и x"""
+        return cls.tiles_map[y // tile_height][x // tile_width]

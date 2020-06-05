@@ -12,6 +12,8 @@ class Camera:
         self.screen = screen
         self.dx = 0
         self.dy = 0
+        self.total_dx = 0
+        self.total_dy = 0
 
     # сдвинуть объект obj на смещение камеры
     def apply(self, obj):
@@ -30,3 +32,9 @@ class Camera:
         width, height = self.screen.get_rect().size
         self.dx = -(target.rect.x + target.rect.w // 2 - width // 2)
         self.dy = -(target.rect.y + target.rect.h // 2 - height // 2)
+        self.total_dx += self.dx
+        self.total_dy += self.dy
+
+    def reset(self):
+        self.total_dx = 0
+        self.total_dy = 0
