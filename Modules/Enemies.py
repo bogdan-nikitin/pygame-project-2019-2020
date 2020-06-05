@@ -1,5 +1,9 @@
 """Содержит классы врагов."""
 
+import math
+
+from Modules import Mapping
+from Modules.General import around
 from Modules.Player import *
 
 DEAD_COUNT = 60
@@ -200,19 +204,27 @@ class MeleeEnemy(GameSprite, AnimatedSprite, MeleeEnemy, abc.ABC):
 
             self.on_ground = False
             self.x += self.x_v
-            # TODO Необходимо заменить два вызова метода collide одним, т.к.
-            #  работает этот метод медленно (из-за чего даже при небольшом
-            #  кол-ве врагов ФПС сильно падает)
+            # TODO Желательно заменить два вызова self.collide одним (для
+            #  повышения производительности)
             self.collide(self.x_v, 0, )
             self.y += self.y_v
             self.collide(0, self.y_v, )
             # self.collide(self.x_v, self.y_v)
 
     def collide(self, x_v, y_v):
-        # TODO Оптимизировать этот метод, т.к. работает он довольно медленно
-        for sprite in pygame.sprite.spritecollide(self,
-                                                  SpriteGroups.all_sprites,
-                                                  False):
+        pos_x = math.floor((self.x - self.main.camera.total_dx) /
+                           Mapping.tile_width)
+        pos_y = math.floor((self.y - self.main.camera.total_dy) /
+                           Mapping.tile_height)
+        group = pygame.sprite.Group()
+        tiles_around = around(
+            Tile.tiles_map, pos_y, pos_x,
+            math.ceil(self.rect.width / Mapping.tile_width / 2),
+            math.ceil(self.rect.height / Mapping.tile_height / 2)
+        )
+        for tiles in tiles_around:
+            group.add(*tiles)
+        for sprite in pygame.sprite.spritecollide(self, group, False):
             if isinstance(sprite, Tile) and sprite.is_solid:
                 clip = self.rect.clip(sprite.rect)
                 if y_v > 0:
@@ -232,8 +244,9 @@ class MeleeEnemy(GameSprite, AnimatedSprite, MeleeEnemy, abc.ABC):
                     self.x += clip.w
                     self.direction = -self.direction
                     continue
-
-            elif isinstance(sprite, Player):
+        for sprite in pygame.sprite.spritecollide(
+                self, SpriteGroups.characters_group, False):
+            if isinstance(sprite, Player):
                 if not sprite.stunned:
                     sprite.hp -= self.damage
                     sprite.stunned = True
