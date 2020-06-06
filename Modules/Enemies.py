@@ -118,7 +118,7 @@ WRAITH_DEAD_LEFT = [(data_path('enemies/wraith/deadl.png'), ANIMATION_DELAY)]
 WRAITH_CAST_RIGHT = [pygame.image.load(data_path('enemies/wraith/castr1.png')),
                      pygame.image.load(data_path('enemies/wraith/castr2.png'))]
 WRAITH_CAST_LEFT = [pygame.image.load(data_path('enemies/wraith/castl1.png')),
-                    pygame.image.load(data_path('enemies/wraith/castL2.png'))]
+                    pygame.image.load(data_path('enemies/wraith/castl2.png'))]
 
 
 class MeleeEnemy(GameSprite, AnimatedSprite, MeleeEnemy, abc.ABC):
