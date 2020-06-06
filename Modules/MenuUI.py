@@ -10,7 +10,7 @@ MENU_LABEL_MARGIN_BOTTOM = 10
 RESUME_EVENT = pygame.event.Event(pygame.USEREVENT + 1, {})
 EXIT_EVENT = pygame.event.Event(pygame.USEREVENT + 2, {})
 FULL_SCREEN_EVENT_TYPE = pygame.USEREVENT + 3
-FULL_SCREEN_EVENT_ATTR = 'full_screen'
+FULL_SCREEN_EVENT_ATTR = 'fullscreen'
 
 # Ключи для словаря settings_data в классе Menu
 FULL_SCREEN_PARAM = 'full_screen'
