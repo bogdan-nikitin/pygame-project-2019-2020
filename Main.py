@@ -1,7 +1,6 @@
 """Модуль самой игры."""
 
 import sys
-import pygame
 
 from Modules.Camera import *
 from Modules.Enemies import *
@@ -41,6 +40,15 @@ ENEMY_TABLE = {'Insect': Insect,
 FPS = 30
 USER_EVENT = 1000
 
+# Кнопки управления. Их использование утверждено в README.me.
+DEFAULT_ATTACK_KEY = pygame.K_z
+RANGE_ATTACK_KEY = pygame.K_x
+MOVE_LEFT_KEY = pygame.K_LEFT
+MOVE_RIGHT_KEY = pygame.K_RIGHT
+JUMP_KEY = pygame.K_UP
+MOVE_DOWN_KEY = pygame.K_DOWN
+OPEN_MENU_KEY = pygame.K_ESCAPE
+
 
 class Main:
     """Основной класс игры, включающий в себя игровой цикл."""
@@ -68,22 +76,27 @@ class Main:
         self.loading_label.hide()
         self.is_loading = False
 
+        self.menu: typing.Optional[Menu] = None
+        self.settings_data = {}
+
         self.the_end_labels = []
         self.is_end = False
 
         self.music = None
-
-        self.camera = Camera(self.screen)
-
-        self.load_next_level()
         self.tick = 0
-        self.menu = Menu(self)
-        self.menu.hide()
         self.is_paused = False
         self.full_screen = False
         self.size = (WINDOW_WIDTH, WINDOW_HEIGHT)
 
+        self.camera = Camera(self.screen)
+
+        self.load_next_level()
+
         self.running = True
+
+    def create_menu(self):
+        self.menu = Menu(self, settings_data=self.settings_data)
+        self.menu.hide()
 
     def events(self):
         """Обработка событий."""
@@ -98,38 +111,38 @@ class Main:
 
             elif event.type == pygame.KEYDOWN:
                 if not self.hero.dead:
-                    if event.key == pygame.K_UP:
+                    if event.key == JUMP_KEY:
                         self.hero.up = True
-                    if event.key == pygame.K_RIGHT:
+                    if event.key == MOVE_RIGHT_KEY:
                         self.hero.right = True
                         self.hero.direction = RIGHT
-                    if event.key == pygame.K_LEFT:
+                    if event.key == MOVE_LEFT_KEY:
                         self.hero.left = True
                         self.hero.direction = LEFT
 
             elif event.type == pygame.KEYUP:
 
                 if not self.hero.stunned:
-                    if (event.key == pygame.K_z and
+                    if (event.key == DEFAULT_ATTACK_KEY and
                             not self.hero.is_default_attack and
                             not self.hero.is_range_attack and
                             self.hero.stamina >= HERO_DA_COST):
                         self.hero.stamina -= HERO_DA_COST
                         self.hero.is_default_attack = True
-                    elif (event.key == pygame.K_x and
+                    elif (event.key == RANGE_ATTACK_KEY and
                           not self.hero.is_range_attack and
                           not self.hero.is_default_attack and
                           self.hero.stamina >= HERO_RA_COST):
                         self.hero.stamina -= HERO_RA_COST
                         self.hero.is_range_attack = True
 
-                if event.key == pygame.K_UP:
+                if event.key == JUMP_KEY:
                     self.hero.up = False
-                if event.key == pygame.K_RIGHT:
+                if event.key == MOVE_RIGHT_KEY:
                     self.hero.right = False
-                if event.key == pygame.K_LEFT:
+                if event.key == MOVE_LEFT_KEY:
                     self.hero.left = False
-                if event.key == pygame.K_ESCAPE:
+                if event.key == OPEN_MENU_KEY:
                     if self.is_end:
                         self.running = False
                     else:
@@ -144,7 +157,7 @@ class Main:
                             if self.music:
                                 pygame.mixer.unpause()
 
-            elif event.type == FULLSCREEN_EVENT_TYPE:
+            elif event.type == FULL_SCREEN_EVENT_TYPE:
                 full_screen = event.fullscreen
                 self.full_screen = full_screen
                 self.size = self.screen.get_rect().size
@@ -212,9 +225,15 @@ class Main:
     def load_next_level(self):
         """Загрузка следующего (или первого) уровня."""
 
+        self.settings_data = self.menu.settings_data if self.menu else {}
+
+        # Очищаем всё, что осталось от предыдущего уровня
+
         SpriteGroups.empty_all()
         Tile.clear_map()
         self.camera.reset()
+
+        # Загружаем уровень
 
         if self.cur_level_name is None:
             self.cur_level_name = self.levels[FIRST_LEVEL]
@@ -231,9 +250,13 @@ class Main:
         level_data = self.levels[self.cur_level_name]
         file_name = level_data[MAP_FILE]
 
+        self.spawn_enemies(level_data.get(ENEMIES, []))
+
         self.set_loading_screen()
 
         _, _, self.tiles = generate_level(load_level(file_name))
+
+        # Инициализируем всё остальное
 
         self.hero = Player(self, RIGHT, *level_data[HERO_POS])
         self.hero_group.add(self.hero)
@@ -241,12 +264,13 @@ class Main:
         self.hp_bar = HPBar(self.hero, MAX_HP)
         self.stamina_bar = StaminaBar(self.hero, MAX_STAMINA)
 
-        self.spawn_enemies(level_data.get(ENEMIES, []))
         self.end_loading()
 
         if MUSIC in level_data:
             self.music = pygame.mixer.Sound(data_path(level_data[MUSIC]))
             self.music.play(-1)
+
+        self.create_menu()
 
     def end_game(self, message=None, clear_screen=True):
         """Оканчивает игру, выводя на экран сообщение message или THE_END[0],
