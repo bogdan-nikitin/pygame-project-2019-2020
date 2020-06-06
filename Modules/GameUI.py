@@ -350,6 +350,7 @@ class _CheckboxPanel(Panel, CheckboxPanel):
 
     def on_mouse_down(self, x, y):
         self.parent.checked = not self.checked
+        self.parent.check_state_changed(self.checked)
 
 
 class Checkbox(UIElement, Checkbox):
@@ -381,6 +382,13 @@ class Checkbox(UIElement, Checkbox):
         self._rect.size = (self._box.rect.x - self._label.rect.x,
                            self._box.rect.y - self._label.rect.y)
         self._w, self._h = self._rect.size
+
+    def set_checked(self, checked: bool):
+        self.checked = checked
+        self.check_state_changed(checked)
+
+    def check_state_changed(self, state):
+        pass
 
 
 class Bar(Panel):
